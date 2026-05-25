@@ -1,0 +1,592 @@
+{% extends 'base/public_base.html' %}
+
+{% block title %}Welcome to SRCEM{% endblock %}
+
+{% block content %}
+    <!-- Full-Screen Hero Slider (ITM Style) -->
+    <section class="relative h-[70vh] md:h-[85vh] w-full overflow-hidden bg-black">
+        <div id="heroSlider" class="w-full h-full relative">
+            {% for slide in hero_slides %}
+            <div class="hero-slide absolute inset-0 w-full h-full transition-opacity duration-1000 {% if forloop.first %}opacity-100 z-10 pointer-events-auto{% else %}opacity-0 z-0 pointer-events-none{% endif %}">
+                {% if slide.get_image_url %}
+                <img src="{{ slide.get_image_url }}" alt="" class="w-full h-full object-cover opacity-80">
+                {% endif %}
+                <div class="absolute inset-0 bg-gradient-to-r from-primaryDark/90 via-primary/60 to-transparent flex items-center">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+                        <div class="max-w-3xl transform transition-transform duration-1000 translate-y-0">
+                            {% if slide.subtitle %}
+                            <span class="bg-yellow-500 text-gray-900 font-bold px-4 py-1.5 rounded-sm text-sm mb-5 inline-block tracking-widest uppercase">{{ slide.subtitle }}</span>
+                            {% endif %}
+                            <h1 class="text-4xl md:text-6xl lg:text-7xl font-extrabold text-white mb-6 leading-tight drop-shadow-lg">
+                                {{ slide.title|safe }}
+                            </h1>
+                            <div class="flex gap-4">
+                                <a href="{{ slide.button_url|default:'#' }}" class="bg-secondary hover:bg-secondaryLight text-white px-8 py-3.5 rounded-sm text-lg font-bold transition flex items-center gap-2 shadow-lg">
+                                    {{ slide.button_text|default:"Learn More" }} <i class="fa-solid fa-arrow-right"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <!-- Slide 1 Fallback -->
+            <div class="hero-slide absolute inset-0 w-full h-full transition-opacity duration-1000 opacity-100 z-10 pointer-events-auto">
+                <img src="https://images.unsplash.com/photo-1541339907198-e08756dedf3f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80" alt="" class="w-full h-full object-cover opacity-80">
+                <div class="absolute inset-0 bg-gradient-to-r from-primaryDark/90 via-primary/60 to-transparent flex items-center">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+                        <div class="max-w-3xl transform transition-transform duration-1000 translate-y-0">
+                            <span class="bg-yellow-500 text-gray-900 font-bold px-4 py-1.5 rounded-sm text-sm mb-5 inline-block tracking-widest uppercase">Admissions Open 2026-27</span>
+                            <h1 class="text-4xl md:text-6xl lg:text-7xl font-extrabold text-white mb-6 leading-tight drop-shadow-lg">
+                                Empowering Minds, <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-yellow-200">Shaping Futures.</span>
+                            </h1>
+                            <p class="text-lg md:text-xl text-gray-200 mb-8 font-light max-w-2xl drop-shadow-md">Join Central India's premier institution for Engineering & Management. 25+ years of legacy in academic excellence and research.</p>
+                            <div class="flex gap-4">
+                                <a href="{% url 'apply_now' %}" class="bg-secondary hover:bg-secondaryLight text-white px-8 py-3.5 rounded-sm text-lg font-bold transition flex items-center gap-2 shadow-lg">Apply Now <i class="fa-solid fa-arrow-right"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Slider Controls -->
+        <div class="absolute bottom-10 left-1/2 -translate-x-1/2 flex gap-3 z-20">
+            {% if hero_slides %}
+                {% for slide in hero_slides %}
+                <button class="w-12 h-1.5 rounded-full bg-white {% if forloop.first %}opacity-100{% else %}opacity-40{% endif %} hover:opacity-100 transition slide-dot"></button>
+                {% endfor %}
+            {% else %}
+                <button class="w-12 h-1.5 rounded-full bg-white opacity-100 transition slide-dot"></button>
+            {% endif %}
+        </div>
+    </section>
+
+    <!-- Quick Action Overlap Cards -->
+    <section class="relative z-30 -mt-16 md:-mt-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-0 shadow-2xl rounded-lg overflow-hidden">
+            <a href="{% url 'apply_now' %}" class="bg-white dark:bg-gray-800 p-8 border-b-4 border-secondary hover:bg-gray-50 dark:hover:bg-gray-700 transition text-center group border-r border-gray-100 dark:border-gray-700">
+                <div class="w-14 h-14 mx-auto bg-red-50 dark:bg-red-900/20 text-secondary rounded-full flex items-center justify-center text-2xl mb-4 group-hover:-translate-y-2 transition-transform duration-300">
+                    <i class="fa-solid fa-laptop-code"></i>
+                </div>
+                <h3 class="font-extrabold text-gray-900 dark:text-white uppercase tracking-wide">Admissions</h3>
+            </a>
+            <a href="{% url 'placements' %}" class="bg-white dark:bg-gray-800 p-8 border-b-4 border-primary hover:bg-gray-50 dark:hover:bg-gray-700 transition text-center group border-r border-gray-100 dark:border-gray-700">
+                <div class="w-14 h-14 mx-auto bg-blue-50 dark:bg-blue-900/20 text-primary dark:text-blue-400 rounded-full flex items-center justify-center text-2xl mb-4 group-hover:-translate-y-2 transition-transform duration-300">
+                    <i class="fa-solid fa-briefcase"></i>
+                </div>
+                <h3 class="font-extrabold text-gray-900 dark:text-white uppercase tracking-wide">Placements</h3>
+            </a>
+            <a href="{% url 'student_erp' %}" class="bg-white dark:bg-gray-800 p-8 border-b-4 border-yellow-500 hover:bg-gray-50 dark:hover:bg-gray-700 transition text-center group border-r border-gray-100 dark:border-gray-700">
+                <div class="w-14 h-14 mx-auto bg-yellow-50 dark:bg-yellow-900/20 text-yellow-600 rounded-full flex items-center justify-center text-2xl mb-4 group-hover:-translate-y-2 transition-transform duration-300">
+                    <i class="fa-solid fa-user-graduate"></i>
+                </div>
+                <h3 class="font-extrabold text-gray-900 dark:text-white uppercase tracking-wide">Student ERP</h3>
+            </a>
+            <a href="{% url 'digital_library' %}" class="bg-white dark:bg-gray-800 p-8 border-b-4 border-emerald-500 hover:bg-gray-50 dark:hover:bg-gray-700 transition text-center group">
+                <div class="w-14 h-14 mx-auto bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 rounded-full flex items-center justify-center text-2xl mb-4 group-hover:-translate-y-2 transition-transform duration-300">
+                    <i class="fa-solid fa-book-open-reader"></i>
+                </div>
+                <h3 class="font-extrabold text-gray-900 dark:text-white uppercase tracking-wide">Library</h3>
+            </a>
+        </div>
+    </section>
+
+    <!-- Notice Board Section (MITS Style Structure) -->
+    <section id="notices" class="py-20 bg-gray-50 dark:bg-gray-900 scroll-mt-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                
+                <!-- Column 1: Announcements -->
+                <div class="bg-white dark:bg-gray-800 rounded shadow border-t-4 border-primary overflow-hidden">
+                    <div class="bg-gray-100 dark:bg-gray-700 p-4 border-b border-gray-200 dark:border-gray-600">
+                        <h3 class="font-bold text-lg text-primary dark:text-blue-400 uppercase tracking-wide"><i class="fa-solid fa-bullhorn mr-2"></i> Announcements</h3>
+                    </div>
+                    <div class="p-4 h-[350px] overflow-y-auto notice-scroll">
+                        <ul class="space-y-4">
+                            {% for notice in announcements %}
+                            <li class="border-b border-dashed border-gray-200 dark:border-gray-600 pb-3 last:border-0 group">
+                                <a href="{% if notice.link_url %}{{ notice.link_url }}{% else %}#{% endif %}" {% if notice.link_url %}target="_blank"{% endif %} class="text-sm font-semibold text-gray-800 dark:text-gray-200 group-hover:text-secondary transition block leading-relaxed">
+                                    {% if forloop.first %}
+                                    <span class="bg-red-100 text-red-600 text-[10px] font-bold px-2 py-0.5 rounded mr-1">NEW</span>
+                                    {% endif %}
+                                    {{ notice.title }}
+                                </a>
+                                <p class="text-xs text-gray-500 mt-2"><i class="fa-regular fa-calendar text-primary"></i> {{ notice.created_at|date:"d F Y" }}</p>
+                            </li>
+                            {% empty %}
+                            <li class="text-sm text-gray-500 italic">No recent announcements.</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Column 2: Circulars & Orders -->
+                <div class="bg-white dark:bg-gray-800 rounded shadow border-t-4 border-secondary overflow-hidden">
+                    <div class="bg-gray-100 dark:bg-gray-700 p-4 border-b border-gray-200 dark:border-gray-600">
+                        <h3 class="font-bold text-lg text-secondary uppercase tracking-wide"><i class="fa-solid fa-file-lines mr-2"></i> Circulars</h3>
+                    </div>
+                    <div class="p-4 h-[350px] overflow-y-auto notice-scroll">
+                        <ul class="space-y-4">
+                            {% for circular in circulars %}
+                            <li class="flex gap-3 group">
+                                <div class="bg-gray-100 dark:bg-gray-700 text-center rounded border border-gray-200 dark:border-gray-600 px-2 py-1 min-w-[55px] flex flex-col justify-center h-[55px] group-hover:bg-secondary group-hover:text-white transition">
+                                    <span class="font-bold text-xl leading-none">{{ circular.created_at|date:"d" }}</span>
+                                    <span class="text-[10px] font-bold uppercase">{{ circular.created_at|date:"M" }}</span>
+                                </div>
+                                <a href="{% if circular.link_url %}{{ circular.link_url }}{% else %}#{% endif %}" {% if circular.link_url %}target="_blank"{% endif %} class="text-sm font-semibold text-gray-800 dark:text-gray-200 hover:text-primary transition line-clamp-3 leading-snug">
+                                    {{ circular.title }}
+                                </a>
+                            </li>
+                            {% empty %}
+                            <li class="text-sm text-gray-500 italic">No recent circulars.</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Column 3: Events & Seminars -->
+                <div class="bg-white dark:bg-gray-800 rounded shadow border-t-4 border-emerald-600 overflow-hidden">
+                    <div class="bg-gray-100 dark:bg-gray-700 p-4 border-b border-gray-200 dark:border-gray-600">
+                        <h3 class="font-bold text-lg text-emerald-600 dark:text-emerald-400 uppercase tracking-wide"><i class="fa-solid fa-calendar-days mr-2"></i> Upcoming Events</h3>
+                    </div>
+                    <div class="p-4 h-[350px] overflow-y-auto notice-scroll">
+                        <div class="space-y-5">
+                            {% for event in events %}
+                            <div class="flex flex-col gap-2 border-b border-gray-100 dark:border-gray-700 pb-4 last:border-0">
+                                <div class="relative h-32 rounded overflow-hidden">
+                                    {% if event.get_image_url %}
+                                    <img src="{{ event.get_image_url }}" alt="" class="w-full h-full object-cover">
+                                    {% endif %}
+                                    <div class="absolute bottom-0 left-0 bg-emerald-600 text-white text-xs font-bold px-2 py-1">{{ event.event_date|date:"d M 'y" }}</div>
+                                </div>
+                                <h4 class="font-bold text-sm text-gray-900 dark:text-white hover:text-emerald-600 transition">
+                                    <a href="{% if event.link_url %}{{ event.link_url }}{% else %}#{% endif %}" {% if event.link_url %}target="_blank"{% endif %}>{{ event.title }}</a>
+                                </h4>
+                                <p class="text-xs text-gray-500"><i class="fa-solid fa-location-dot"></i> {{ event.venue }}</p>
+                            </div>
+                            {% empty %}
+                            <p class="text-sm text-gray-500 italic">No upcoming events scheduled.</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- About University (Image-Heavy Layout) -->
+    <section id="about" class="py-20 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 scroll-mt-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                
+                <!-- Left: Text & Stats -->
+                <div>
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="h-1 w-16 bg-secondary"></div>
+                        <span class="text-primary dark:text-blue-400 font-bold tracking-widest uppercase text-sm">
+                            {{ about_config.subtitle|default:"Discover SRCEM" }}
+                        </span>
+                    </div>
+                    <h2 class="text-3xl md:text-5xl font-extrabold text-gray-900 dark:text-white mb-6 leading-tight">
+                        {% if about_config.title %}
+                            {{ about_config.title|safe }}
+                        {% else %}
+                            Tradition of <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-blue-500">Excellence</span>
+                        {% endif %}
+                    </h2>
+                    
+                    <div class="text-gray-600 dark:text-gray-400 mb-6 text-lg leading-relaxed text-justify">
+                        {% if about_config.description_1 %}
+                            {{ about_config.description_1|linebreaksbr }}
+                        {% else %}
+                            Established in 1995, Shri Ram College of Engineering & Management is widely recognized as a premier educational institution. Humara uddeshya sirf academic knowledge dena nahi, balki students ko industry-ready professionals banana hai.
+                        {% endif %}
+                    </div>
+                    
+                    {% if about_config.description_2 %}
+                    <div class="text-gray-600 dark:text-gray-400 mb-8 leading-relaxed text-justify">
+                        {{ about_config.description_2|linebreaksbr }}
+                    </div>
+                    {% elif not about_config %}
+                    <p class="text-gray-600 dark:text-gray-400 mb-8 leading-relaxed text-justify">
+                        With over 25+ years of rich legacy, state-of-the-art infrastructure, and a highly qualified faculty panel, SRCEM consistently ranks among the top engineering colleges in Central India.
+                    </p>
+                    {% endif %}
+                    
+                    <!-- Stats Grid -->
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-6 text-center border-y border-gray-200 dark:border-gray-800 py-6 mb-8">
+                        {% for stat in stats %}
+                        <div>
+                            <div class="text-3xl font-extrabold text-primary dark:text-blue-400 mb-1">{{ stat.value }}</div>
+                            <div class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">{{ stat.label }}</div>
+                        </div>
+                        {% empty %}
+                        <div>
+                            <div class="text-3xl font-extrabold text-primary dark:text-blue-400 mb-1">25+</div>
+                            <div class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Years Legacy</div>
+                        </div>
+                        <div>
+                            <div class="text-3xl font-extrabold text-primary dark:text-blue-400 mb-1">50+</div>
+                            <div class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Programs</div>
+                        </div>
+                        <div>
+                            <div class="text-3xl font-extrabold text-primary dark:text-blue-400 mb-1">20k+</div>
+                            <div class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Alumni</div>
+                        </div>
+                        <div>
+                            <div class="text-3xl font-extrabold text-primary dark:text-blue-400 mb-1">100%</div>
+                            <div class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Assistance</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <a href="{{ about_config.button_url|default:'#' }}" class="text-primary dark:text-blue-400 font-bold flex items-center gap-2 hover:gap-3 transition-all uppercase tracking-wide text-sm">{{ about_config.button_text|default:"Read More About Us" }} <i class="fa-solid fa-arrow-right"></i></a>
+                </div>
+
+                <!-- Right: Overlapping Images & Director Badge -->
+                <div class="relative pt-10 pr-10">
+                    <!-- Main Large Image -->
+                    <img src="{% if about_config.get_main_image_url %}{{ about_config.get_main_image_url }}{% else %}https://images.unsplash.com/photo-1562774053-701939374585?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80{% endif %}" alt="" class="rounded-lg shadow-2xl w-full h-[500px] object-cover">
+                    
+                    <!-- Overlapping Small Image -->
+                    <img src="{% if about_config.get_overlap_image_url %}{{ about_config.get_overlap_image_url }}{% else %}https://images.unsplash.com/photo-1523240795612-9a054b0db644?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80{% endif %}" alt="" class="absolute -bottom-10 -left-10 rounded-lg shadow-2xl w-64 h-64 object-cover border-8 border-white dark:border-gray-900 hidden md:block">
+                    
+                    <!-- Director Floating Card (ITM/MITS feature) -->
+                    <div class="absolute -top-6 -right-6 bg-white dark:bg-gray-800 p-5 rounded-lg shadow-2xl border-l-4 border-secondary max-w-xs animate-bounce" style="animation-duration: 4s;">
+                        <div class="flex items-center gap-4 mb-3">
+                            <img src="{% if about_config.get_director_photo_url %}{{ about_config.get_director_photo_url }}{% else %}https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80{% endif %}" alt="" class="w-14 h-14 rounded-full object-cover">
+                            <div>
+                                <h4 class="font-bold text-gray-900 dark:text-white leading-tight">{{ about_config.director_name|default:"Dr. R. K. Sharma" }}</h4>
+                                <span class="text-xs text-primary font-bold uppercase">{{ about_config.director_designation|default:"Director, SRCEM" }}</span>
+                            </div>
+                        </div>
+                        <p class="text-xs text-gray-600 dark:text-gray-400 italic">"{{ about_config.director_message|default:'Humara focus holistic development par hai taaki students globally competitive ban sakein.' }}"</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Academics/Programs (Highly Visual Cards) -->
+    <section id="programs" class="py-20 bg-gray-50 dark:bg-gray-800/50 scroll-mt-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <span class="text-secondary font-bold tracking-widest uppercase text-sm mb-2 block">Academics</span>
+                <h2 class="text-3xl md:text-5xl font-extrabold text-gray-900 dark:text-white">Discover Our Programs</h2>
+                <div class="h-1 w-20 bg-primary mx-auto mt-6"></div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {% for program in programs %}
+                <div class="group relative bg-white dark:bg-gray-900 rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition duration-500">
+                    <div class="h-60 overflow-hidden relative">
+                        {% if program.get_image_url %}
+                        <img src="{{ program.get_image_url }}" alt="" class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
+                        {% endif %}
+                        <div class="absolute inset-0 img-overlay"></div>
+                        <i class="{{ program.icon_class|default:'fa-solid fa-microchip' }} absolute top-4 right-4 text-3xl text-white/50"></i>
+                    </div>
+                    <div class="absolute bottom-0 w-full p-6 transform translate-y-4 group-hover:translate-y-0 transition duration-300">
+                        <h3 class="text-2xl font-bold text-white mb-2">{{ program.title }}</h3>
+                        <p class="text-gray-300 text-sm mb-4 opacity-0 group-hover:opacity-100 transition duration-300">{{ program.description }}</p>
+                        <a href="{{ program.link_url|default:'#' }}" class="inline-block bg-primary text-white text-xs font-bold px-4 py-2 rounded uppercase tracking-wider hover:bg-blue-700">Explore</a>
+                    </div>
+                </div>
+                {% empty %}
+                <!-- Fallback Program 1 -->
+                <div class="group relative bg-white dark:bg-gray-900 rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition duration-500">
+                    <div class="h-60 overflow-hidden relative">
+                        <img src="https://images.unsplash.com/photo-1581092160562-40aa08e78837?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="[Image of Engineering Student]" class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
+                        <div class="absolute inset-0 img-overlay"></div>
+                        <i class="fa-solid fa-microchip absolute top-4 right-4 text-3xl text-white/50"></i>
+                    </div>
+                    <div class="absolute bottom-0 w-full p-6 transform translate-y-4 group-hover:translate-y-0 transition duration-300">
+                        <h3 class="text-2xl font-bold text-white mb-2">Engineering (B.Tech/M.Tech)</h3>
+                        <p class="text-gray-300 text-sm mb-4 opacity-0 group-hover:opacity-100 transition duration-300">CS, IT, Mechanical, Civil, Electronics with advanced curriculum.</p>
+                        <a href="#" class="inline-block bg-primary text-white text-xs font-bold px-4 py-2 rounded uppercase tracking-wider hover:bg-blue-700">Explore</a>
+                    </div>
+                </div>
+                <!-- Fallback Program 2 -->
+                <div class="group relative bg-white dark:bg-gray-900 rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition duration-500">
+                    <div class="h-60 overflow-hidden relative">
+                        <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="" class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
+                        <div class="absolute inset-0 img-overlay"></div>
+                        <i class="fa-solid fa-chart-pie absolute top-4 right-4 text-3xl text-white/50"></i>
+                    </div>
+                    <div class="absolute bottom-0 w-full p-6 transform translate-y-4 group-hover:translate-y-0 transition duration-300">
+                        <h3 class="text-2xl font-bold text-white mb-2">Management (MBA/BBA)</h3>
+                        <p class="text-gray-300 text-sm mb-4 opacity-0 group-hover:opacity-100 transition duration-300">Marketing, Finance, HR & Business Analytics programs.</p>
+                        <a href="#" class="inline-block bg-primary text-white text-xs font-bold px-4 py-2 rounded uppercase tracking-wider hover:bg-blue-700">Explore</a>
+                    </div>
+                </div>
+                <!-- Fallback Program 3 -->
+                <div class="group relative bg-white dark:bg-gray-900 rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition duration-500">
+                    <div class="h-60 overflow-hidden relative">
+                        <img src="https://images.unsplash.com/photo-1532094349884-543bc11b234d?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="[Image of Pharmacy/Medical]" class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
+                        <div class="absolute inset-0 img-overlay"></div>
+                        <i class="fa-solid fa-flask absolute top-4 right-4 text-3xl text-white/50"></i>
+                    </div>
+                    <div class="absolute bottom-0 w-full p-6 transform translate-y-4 group-hover:translate-y-0 transition duration-300">
+                        <h3 class="text-2xl font-bold text-white mb-2">Pharmacy (B.Pharm/D.Pharm)</h3>
+                        <p class="text-gray-300 text-sm mb-4 opacity-0 group-hover:opacity-100 transition duration-300">PCI approved courses with high-tech laboratories.</p>
+                        <a href="#" class="inline-block bg-primary text-white text-xs font-bold px-4 py-2 rounded uppercase tracking-wider hover:bg-blue-700">Explore</a>
+                    </div>
+                </div>
+                <!-- Fallback Program 4 -->
+                <div class="group relative bg-white dark:bg-gray-900 rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition duration-500">
+                    <div class="h-60 overflow-hidden relative">
+                        <img src="https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="[Image of Science Microscope]" class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
+                        <div class="absolute inset-0 img-overlay"></div>
+                        <i class="fa-solid fa-atom absolute top-4 right-4 text-3xl text-white/50"></i>
+                    </div>
+                    <div class="absolute bottom-0 w-full p-6 transform translate-y-4 group-hover:translate-y-0 transition duration-300">
+                        <h3 class="text-2xl font-bold text-white mb-2">Applied Sciences (B.Sc)</h3>
+                        <p class="text-gray-300 text-sm mb-4 opacity-0 group-hover:opacity-100 transition duration-300">Research-oriented undergraduate programs.</p>
+                        <a href="#" class="inline-block bg-primary text-white text-xs font-bold px-4 py-2 rounded uppercase tracking-wider hover:bg-blue-700">Explore</a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <!-- Placements Section (Parallax Background Style - ITM inspired) -->
+    <section id="placements" class="relative py-24 bg-parallax scroll-mt-20" style="background-image: url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');">
+        <!-- Dark Overlay -->
+        <div class="absolute inset-0 bg-primaryDark/90 mix-blend-multiply"></div>
+        
+        <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <span class="text-yellow-400 font-bold tracking-widest uppercase text-sm mb-2 block">Career Opportunities</span>
+                <h2 class="text-3xl md:text-5xl font-extrabold text-white mb-4">Our Top Recruiters</h2>
+                <p class="text-gray-300 text-lg max-w-2xl mx-auto">SRCEM has an impeccable track record of achieving excellent placements every year in top MNCs.</p>
+            </div>
+
+            <!-- Recruiter Logos Grid -->
+            <div class="bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 p-10">
+                <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-x-8 gap-y-12 items-center justify-items-center">
+                    {% for recruiter in recruiters %}
+                    <div class="text-3xl font-bold text-white flex items-center gap-2 hover:text-yellow-400 transition">
+                        {% if recruiter.get_logo_url %}
+                            <img src="{{ recruiter.get_logo_url }}" alt="{{ recruiter.name }}" class="h-10 object-contain">
+                        {% elif recruiter.icon_class %}
+                            <i class="{{ recruiter.icon_class }}"></i> {{ recruiter.name }}
+                        {% else %}
+                            {{ recruiter.name }}
+                        {% endif %}
+                    </div>
+                    {% empty %}
+                    <!-- Fallback Recruiters -->
+                    <div class="text-3xl font-bold text-white flex items-center gap-2 hover:text-yellow-400 transition"><i class="fa-brands fa-aws"></i> Amazon</div>
+                    <div class="text-3xl font-extrabold text-white flex items-center gap-2 hover:text-yellow-400 transition">TCS</div>
+                    <div class="text-3xl font-bold text-white flex items-center gap-2 hover:text-yellow-400 transition"><i class="fa-brands fa-microsoft"></i> Microsoft</div>
+                    <div class="text-3xl font-bold text-white flex items-center gap-2 hover:text-yellow-400 transition font-serif">Infosys</div>
+                    <div class="text-3xl font-bold text-white flex items-center gap-2 hover:text-yellow-400 transition"><i class="fa-brands fa-google"></i> Google</div>
+                    <div class="text-3xl font-bold text-white flex items-center gap-2 hover:text-yellow-400 transition font-sans">Wipro</div>
+                    <div class="text-3xl font-bold text-white flex items-center gap-2 hover:text-yellow-400 transition"><i class="fa-brands fa-ibm"></i> IBM</div>
+                    <div class="text-2xl font-bold text-white flex items-center gap-2 hover:text-yellow-400 transition font-serif">Cognizant</div>
+                    <div class="text-3xl font-bold text-white flex items-center gap-2 hover:text-yellow-400 transition"><i class="fa-brands fa-salesforce"></i> Salesforce</div>
+                    <div class="text-2xl font-bold text-white flex items-center gap-2 hover:text-yellow-400 transition font-sans">Capgemini</div>
+                    <div class="text-3xl font-bold text-white flex items-center gap-2 hover:text-yellow-400 transition"><i class="fa-brands fa-meta"></i> Meta</div>
+                    <div class="text-2xl font-bold text-white flex items-center gap-2 hover:text-yellow-400 transition font-sans">HCL Tech</div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <div class="mt-12 text-center">
+                <a href="{% url 'placements' %}" class="bg-yellow-500 hover:bg-yellow-400 text-gray-900 px-8 py-4 rounded-sm font-bold text-lg transition inline-block shadow-lg">View Full Placement Report 2025</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Visual Campus Gallery -->
+    <section id="campus" class="py-20 bg-white dark:bg-gray-900 scroll-mt-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <span class="text-primary dark:text-blue-400 font-bold tracking-widest uppercase text-sm mb-2 block">Infrastructure</span>
+                <h2 class="text-3xl md:text-5xl font-extrabold text-gray-900 dark:text-white uppercase tracking-wide">Life at SRCEM</h2>
+                <div class="h-1 w-16 bg-secondary mx-auto mt-6 mb-4"></div>
+            </div>
+            
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {% for item in gallery %}
+                <div class="{% if forloop.first %}md:col-span-2 md:row-span-2 h-64 md:h-full{% else %}h-48 md:h-auto{% endif %} relative overflow-hidden rounded-lg group">
+                    {% if item.get_image_url %}
+                    <img src="{{ item.get_image_url }}" alt="{{ item.title|default:'' }}" class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
+                    {% endif %}
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition duration-300 flex items-end p-4">
+                        <span class="font-bold text-white">{{ item.title|default:"" }}</span>
+                    </div>
+                </div>
+                {% empty %}
+                <!-- Fallback Gallery -->
+                <div class="md:col-span-2 md:row-span-2 relative overflow-hidden rounded-lg group h-64 md:h-full">
+                    <img src="https://images.unsplash.com/photo-1541339907198-e08756dedf3f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="" class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition duration-300 flex items-end p-6">
+                        <span class="font-bold text-xl text-white">Lush Green Campus</span>
+                    </div>
+                </div>
+                <div class="relative overflow-hidden rounded-lg group h-48 md:h-auto">
+                    <img src="https://images.unsplash.com/photo-1577412647305-991150c7d163?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="[Image of Central Library]" class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition duration-300 flex items-end p-4">
+                        <span class="font-bold text-white">Central Library</span>
+                    </div>
+                </div>
+                <div class="relative overflow-hidden rounded-lg group h-48 md:h-auto">
+                    <img src="https://images.unsplash.com/photo-1531545514256-b1400bc00f31?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NTR8fGNvbGxlZ2V8ZW58MHx8MHx8fDA%3D" alt="" class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition duration-300 flex items-end p-4">
+                        <span class="font-bold text-white">Tech Fest Events</span>
+                    </div>
+                </div>
+                <div class="relative overflow-hidden rounded-lg group h-48 md:h-auto">
+                    <img src="https://images.unsplash.com/photo-1565598621680-94ac0c22b148?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTc2fHxjb2xsZWdlfGVufDB8fDB8fHww" alt="[Image of Sports Ground]" class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition duration-300 flex items-end p-4">
+                        <span class="font-bold text-white">Sports Arena</span>
+                    </div>
+                </div>
+                <div class="relative overflow-hidden rounded-lg group h-48 md:h-auto">
+                    <img src="https://images.unsplash.com/photo-1581092160562-40aa08e78837?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="" class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition duration-300 flex items-end p-4">
+                        <span class="font-bold text-white">Advanced Labs</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+{% endblock %}
+
+{% block extra_js %}
+    <script>
+        // Hero Auto Slider Logic
+        const slides = document.querySelectorAll('.hero-slide');
+        const dots = document.querySelectorAll('.slide-dot');
+        let currentSlide = 0;
+        
+        function showSlide(index) {
+            slides.forEach(s => { 
+                s.classList.remove('opacity-100', 'z-10', 'pointer-events-auto'); 
+                s.classList.add('opacity-0', 'z-0', 'pointer-events-none'); 
+            });
+            dots.forEach(d => { d.classList.remove('opacity-100'); d.classList.add('opacity-40'); });
+            
+            slides[index].classList.remove('opacity-0', 'z-0', 'pointer-events-none');
+            slides[index].classList.add('opacity-100', 'z-10', 'pointer-events-auto');
+            if(dots.length > index) {
+                dots[index].classList.remove('opacity-40');
+                dots[index].classList.add('opacity-100');
+            }
+        }
+
+        if(slides.length > 0) {
+            setInterval(() => {
+                currentSlide = (currentSlide + 1) % slides.length;
+                showSlide(currentSlide);
+            }, 5000);
+
+            dots.forEach((dot, index) => {
+                dot.addEventListener('click', () => {
+                    currentSlide = index;
+                    showSlide(currentSlide);
+                });
+            });
+        }
+    </script>
+
+    <!-- Important Alerts Modal -->
+    {% if popup_notice %}
+    <div id="noticeModal" class="fixed inset-0 z-[100] flex items-center justify-center hidden px-4">
+        <!-- Backdrop -->
+        <div class="fixed inset-0 bg-primaryDark/80 backdrop-blur-sm transition-opacity" id="noticeModalBackdrop"></div>
+        
+        <!-- Modal Content -->
+        <div class="relative bg-white dark:bg-darkCard w-full max-w-2xl rounded-xl shadow-2xl overflow-hidden transform scale-95 opacity-0 transition-all duration-300 border-t-4 border-secondary" id="noticeModalContent">
+            
+            <!-- Header -->
+            <div class="flex justify-between items-center bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-5">
+                <h4 class="text-xl font-black text-gray-900 dark:text-white uppercase tracking-wide flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-secondary">
+                        <i class="fa-solid fa-bell fa-shake text-lg"></i>
+                    </div>
+                    Important Alerts
+                </h4>
+                <button id="closeNoticeModal" class="text-gray-400 hover:text-secondary dark:hover:text-red-400 transition-colors text-2xl leading-none w-8 h-8 flex items-center justify-center rounded hover:bg-gray-200 dark:hover:bg-gray-700">&times;</button>
+            </div>
+            
+            <!-- Body -->
+            <div class="p-6 bg-white dark:bg-darkCard">
+                <div class="space-y-3 max-h-[50vh] overflow-y-auto pr-2 custom-scrollbar">
+                    {% for notice in popup_notices %}
+                    <div class="group relative overflow-hidden bg-gray-50 dark:bg-gray-800/50 hover:bg-blue-50 dark:hover:bg-gray-700/50 border border-gray-100 dark:border-gray-700 rounded-lg p-4 transition-all duration-300">
+                        <div class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-primary to-secondary opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        
+                        <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                            <div class="flex-1">
+                                <h5 class="text-sm font-bold text-gray-900 dark:text-gray-100 leading-snug group-hover:text-primary dark:group-hover:text-blue-400 transition-colors">
+                                    {{ notice.title }}
+                                </h5>
+                                {% if notice.content %}
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-2 line-clamp-2 leading-relaxed">{{ notice.content }}</p>
+                                {% endif %}
+                                <div class="flex items-center gap-3 mt-3">
+                                    <span class="text-[10px] text-gray-400 font-medium uppercase tracking-wider"><i class="fa-regular fa-calendar mr-1"></i> {{ notice.created_at|date:"M d, Y" }}</span>
+                                    {% if forloop.first or notice.is_popup %}
+                                    <span class="bg-red-100 dark:bg-red-900/30 text-secondary text-[9px] font-black px-2 py-0.5 rounded uppercase tracking-widest animate-pulse border border-red-200 dark:border-red-800">New</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            {% if notice.link_url %}
+                            <div class="shrink-0 sm:mt-0 mt-2">
+                                <a href="{{ notice.link_url }}" target="_blank" class="inline-flex items-center justify-center gap-2 bg-white dark:bg-gray-800 text-primary dark:text-blue-400 border border-gray-200 dark:border-gray-600 hover:border-primary dark:hover:border-blue-400 hover:bg-primary hover:text-white px-4 py-2 rounded text-xs font-bold transition-all shadow-sm group-hover:shadow w-full sm:w-auto">
+                                    View <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                                </a>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- Footer -->
+            <div class="bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 p-4 text-center">
+                <a href="#" onclick="document.getElementById('closeNoticeModal').click();" class="text-xs font-bold text-primary dark:text-blue-400 uppercase tracking-widest hover:underline">Continue to Website</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const modal = document.getElementById('noticeModal');
+            const backdrop = document.getElementById('noticeModalBackdrop');
+            const content = document.getElementById('noticeModalContent');
+            const closeBtn = document.getElementById('closeNoticeModal');
+
+            // Show modal on load
+            setTimeout(() => {
+                modal.classList.remove('hidden');
+                // Trigger reflow
+                void modal.offsetWidth;
+                content.classList.remove('scale-95', 'opacity-0');
+                content.classList.add('scale-100', 'opacity-100');
+            }, 500);
+
+            function closeModal() {
+                content.classList.remove('scale-100', 'opacity-100');
+                content.classList.add('scale-95', 'opacity-0');
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                }, 300);
+            }
+
+            closeBtn.addEventListener('click', closeModal);
+            backdrop.addEventListener('click', closeModal);
+        });
+    </script>
+    {% endif %}
+{% endblock %}

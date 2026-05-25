@@ -1,0 +1,22 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Dashboard - SRCEM Portal{% endblock %}
+
+{% block navbar %}
+    {% include 'base/header_dashboard.html' %}
+{% endblock %}
+
+{% block content %}
+    <!-- Scrollable Content -->
+    <div class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 bg-gray-50 dark:bg-darkBg">
+        <div class="max-w-7xl mx-auto space-y-6">
+            {% block dashboard_content %}{% endblock %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+    <script>
+        // Any dashboard-specific scripts can go here
+    </script>
+{% endblock %}

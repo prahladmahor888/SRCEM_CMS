@@ -1,0 +1,264 @@
+{% extends 'base/dashboard_base.html' %}
+{% load static %}
+
+{% block title %}Mark Attendance - SRCEM{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Hide default radio buttons */
+    input[type="radio"].attendance-radio {
+        display: none !important;
+    }
+    /* Styling for custom radio labels */
+    .status-btn {
+        transition: all 0.2s ease;
+    }
+    /* Present Selected */
+    input[value="P"]:checked + .status-btn {
+        background-color: #dcfce7;
+        color: #15803d;
+        border-color: #16a34a;
+        font-weight: 700;
+    }
+    .dark input[value="P"]:checked + .status-btn {
+        background-color: rgba(22, 163, 74, 0.2);
+        color: #4ade80;
+        border-color: #16a34a;
+    }
+    /* Absent Selected */
+    input[value="A"]:checked + .status-btn {
+        background-color: #fee2e2;
+        color: #b91c1c;
+        border-color: #dc2626;
+        font-weight: 700;
+    }
+    .dark input[value="A"]:checked + .status-btn {
+        background-color: rgba(220, 38, 38, 0.2);
+        color: #f87171;
+        border-color: #dc2626;
+    }
+    /* Leave Selected */
+    input[value="L"]:checked + .status-btn {
+        background-color: #f3e8ff;
+        color: #7e22ce;
+        border-color: #9333ea;
+        font-weight: 700;
+    }
+    .dark input[value="L"]:checked + .status-btn {
+        background-color: rgba(147, 51, 234, 0.2);
+        color: #c084fc;
+        border-color: #9333ea;
+    }
+</style>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="space-y-6 pb-20">
+
+    <!-- Page Intro & Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+            <div class="flex items-center gap-2 mb-1">
+                <a href="{% url 'dashboard' %}" class="text-xs font-bold text-gray-500 hover:text-primary transition-colors"><i class="fa-solid fa-arrow-left mr-1"></i> Dashboard</a>
+                <span class="text-gray-400 text-xs">/</span>
+                <span class="text-xs font-bold text-primary dark:text-blue-400">Mark Attendance</span>
+            </div>
+            <h2 class="text-2xl font-extrabold text-gray-900 dark:text-white flex items-center gap-2">
+                <i class="fa-solid fa-clipboard-user text-primary dark:text-blue-400"></i> Daily Attendance
+            </h2>
+        </div>
+        <div class="flex gap-2">
+            <button class="bg-white dark:bg-darkSidebar text-gray-700 dark:text-gray-300 font-bold text-sm px-4 py-2 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center gap-2">
+                <i class="fa-solid fa-clock-rotate-left"></i> History Records
+            </button>
+        </div>
+    </div>
+
+    <!-- Section 1: Filters -->
+    <div class="bg-white dark:bg-darkSidebar rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800 p-5">
+        <form method="GET" action="." class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+            
+            <!-- Date Picker -->
+            <div>
+                <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Select Date</label>
+                <input type="date" name="date" value="{{ date }}" max="{{ today_date }}" onchange="updateAttendanceFilters('date')" class="w-full px-3 py-2.5 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-2xl text-sm font-semibold text-gray-900 dark:text-white focus:outline-none focus:border-primary transition-colors cursor-pointer">
+            </div>
+
+            <!-- Class / Batch Selector -->
+            <div>
+                <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Class / Batch</label>
+                <select name="class_batch" onchange="updateAttendanceFilters('class')" class="w-full px-3 py-2.5 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-2xl text-sm font-semibold text-gray-900 dark:text-white focus:outline-none focus:border-primary transition-colors cursor-pointer">
+                    <option value="">-- Select Class --</option>
+                    {% for cls in class_list %}
+                    <option value="{{ cls.id }}" {% if class_id == cls.id %}selected{% endif %}>
+                        {{ cls.label }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Subject Selector -->
+            <div>
+                <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Subject</label>
+                <select name="subject" id="subjectSelect" onchange="updateAttendanceFilters('subject')" class="w-full px-3 py-2.5 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-2xl text-sm font-semibold text-gray-900 dark:text-white focus:outline-none focus:border-primary transition-colors cursor-pointer">
+                    <option value="">{% if not class_id %}First select class...{% else %}-- Select Subject --{% endif %}</option>
+                    {% for sub in subjects %}
+                    <option value="{{ sub.id }}" {% if subject_id == sub.id|stringformat:"i" %}selected{% endif %}>
+                        {{ sub.subject_name }} ({{ sub.subject_code }})
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Auto-Fetch indicator (Hidden but logical) -->
+            <div class="hidden md:block text-right">
+                <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest"><i class="fa-solid fa-sync fa-spin mr-1"></i> Selection Auto-Saves</span>
+            </div>
+        </form>
+    </div>
+
+    <div id="attendanceContainer" class="relative">
+        {% include 'faculty/partials/attendance_sheet.html' %}
+        
+        <!-- Loading Overlay -->
+        <div id="loadingOverlay" class="hidden absolute inset-0 bg-white/50 dark:bg-gray-900/50 backdrop-blur-[2px] z-50 flex items-center justify-center rounded-2xl">
+            <div class="flex flex-col items-center gap-3">
+                <div class="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+                <span class="text-xs font-black text-primary uppercase tracking-widest">Loading Records...</span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // --- AJAX Filter Logic ---
+    async function updateAttendanceFilters(type) {
+        const form = document.querySelector('form');
+        const classBatch = document.querySelector('select[name="class_batch"]').value;
+        const subject = document.querySelector('select[name="subject"]').value;
+        const date = document.querySelector('input[name="date"]').value;
+        
+        if (type === 'class' && !classBatch) return;
+
+        // Show loading state
+        const overlay = document.getElementById('loadingOverlay');
+        if (overlay) overlay.classList.remove('hidden');
+
+        try {
+            const url = new URL(window.location.href);
+            url.searchParams.set('class_batch', classBatch);
+            url.searchParams.set('subject', subject);
+            url.searchParams.set('date', date);
+
+            const response = await fetch(url, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+
+            if (!response.ok) throw new Error('Network response was not ok');
+            
+            const data = await response.json();
+
+            // 1. Update Subject Dropdown if class changed
+            if (type === 'class') {
+                const subjectSelect = document.getElementById('subjectSelect');
+                if (subjectSelect) {
+                    subjectSelect.innerHTML = `<option value="">${classBatch ? '-- Select Subject --' : 'First select class...'}</option>`;
+                    data.subjects.forEach(sub => {
+                        const opt = document.createElement('option');
+                        opt.value = sub.id;
+                        opt.textContent = `${sub.name} (${sub.code})`;
+                        subjectSelect.appendChild(opt);
+                    });
+                }
+            }
+
+            // 2. Update Attendance Sheet Partial
+            const container = document.getElementById('attendanceContainer');
+            if (container) {
+                container.innerHTML = data.html;
+                // re-insert the loading overlay which was just overwritten
+                const newOverlay = document.createElement('div');
+                newOverlay.id = 'loadingOverlay';
+                newOverlay.className = 'hidden absolute inset-0 bg-white/50 dark:bg-gray-900/50 backdrop-blur-[2px] z-50 flex items-center justify-center rounded-2xl';
+                newOverlay.innerHTML = `<div class="flex flex-col items-center gap-3">
+                    <div class="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+                    <span class="text-xs font-black text-primary uppercase tracking-widest">Loading Records...</span>
+                </div>`;
+                container.appendChild(newOverlay);
+            }
+
+            // 3. Re-initialize logic for the new DOM elements
+            initAttendanceLogic();
+
+        } catch (error) {
+            console.error('Fetch error:', error);
+            // Optional: Show error message to user
+        } finally {
+            if (overlay) overlay.classList.add('hidden');
+        }
+    }
+
+    // --- Core Attendance Logic (Re-initializable) ---
+    function initAttendanceLogic() {
+        // --- Attendance Counter Logic ---
+        const presentCountEl = document.getElementById('presentCount');
+        const absentCountEl = document.getElementById('absentCount');
+        const radios = document.querySelectorAll('.attendance-radio');
+        const markAllPresentBtn = document.getElementById('markAllPresentBtn');
+
+        function updateCounts() {
+            let present = 0;
+            let absent = 0;
+            document.querySelectorAll('.attendance-radio:checked').forEach(radio => {
+                if (radio.value === 'P') present++;
+                if (radio.value === 'A') absent++;
+            });
+            
+            if(presentCountEl) presentCountEl.textContent = present;
+            if(absentCountEl) absentCountEl.textContent = absent;
+        }
+
+        radios.forEach(radio => {
+            radio.addEventListener('change', updateCounts);
+        });
+
+        if(markAllPresentBtn) {
+            markAllPresentBtn.addEventListener('click', () => {
+                document.querySelectorAll('.attendance-radio[value="P"]').forEach(radio => {
+                    radio.checked = true;
+                });
+                updateCounts();
+            });
+        }
+
+        // --- Search Student ---
+        const studentSearch = document.getElementById('studentSearch');
+        const tableRows = document.querySelectorAll('#attendanceTableBody .student-row');
+
+        if(studentSearch) {
+            studentSearch.addEventListener('input', function(e) {
+                const searchTerm = e.target.value.toLowerCase();
+                tableRows.forEach(row => {
+                    const name = row.dataset.name.toLowerCase();
+                    const roll = row.dataset.roll.toLowerCase();
+                    if(name.includes(searchTerm) || roll.includes(searchTerm)) {
+                        row.classList.remove('hidden');
+                    } else {
+                        row.classList.add('hidden');
+                    }
+                });
+            });
+        }
+
+        // Initial count for newly loaded data
+        updateCounts();
+    }
+
+    // Initial load
+    document.addEventListener('DOMContentLoaded', initAttendanceLogic);
+</script>
+{% endblock %}

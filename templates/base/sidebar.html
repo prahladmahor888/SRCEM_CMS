@@ -1,0 +1,436 @@
+{% load static %}
+<aside id="sidebar" class="fixed inset-y-0 left-0 w-64 bg-white dark:bg-darkSidebar border-r border-gray-200 dark:border-gray-800 transition-transform duration-300 transform -translate-x-full md:translate-x-0 z-50 flex flex-col">
+    
+    <!-- Sidebar Header -->
+    <div class="h-16 flex items-center px-6 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-darkSidebar flex-shrink-0">
+        <div class="flex items-center gap-0">
+            <img src="https://srgoc.org/wp-content/uploads/2024/12/cropped-Group-Logo-1.png" alt="" class="h-6 dark:bg-white dark:p-0.5 dark:rounded-sm mr-3">
+            <span class="font-black text-base tracking-tighter text-gray-900 dark:text-white uppercase leading-none">SRCEM<br><span class="text-secondary text-[8px] tracking-widest">ERP SYSTEM</span></span>
+        </div>
+    </div>
+
+    <!-- Sidebar Scrollable Container -->
+    <div class="flex-1 overflow-y-auto no-scrollbar py-6 px-4 space-y-1">
+        <div class="sidebar-section-title">Main Menu</div>
+        
+        <a href="{% url 'dashboard' %}" class="{% if request.resolver_match.url_name == 'dashboard' or request.resolver_match.url_name == 'admin_dashboard' %}nav-link-active{% else %}nav-link{% endif %}">
+            <i class="fa-solid fa-border-all w-5 text-center"></i> <span>Dashboard</span>
+        </a>
+        
+        <a href="{% url 'profile' %}" class="{% if request.resolver_match.url_name == 'profile' %}nav-link-active{% else %}nav-link{% endif %}">
+            <i class="fa-solid fa-user-circle w-5 text-center"></i> <span>My Profile</span>
+        </a>
+
+        <!-- ROLE-BASED SECTIONS -->
+
+        <!-- Student Section -->
+        {% if request.user.role == 'STUDENT' %}
+            <!-- Academic Life -->
+            <div class="sidebar-section-title">Academic Life</div>
+            <a href="{% url 'student_attendance' %}" class="{% if request.resolver_match.url_name == 'student_attendance' %}nav-link-active{% else %}nav-link{% endif %}">
+                <i class="fa-solid fa-calendar-check w-5 text-center"></i> <span>Attendance Log</span>
+            </a>
+            <a href="{% url 'student_timetable' %}" class="{% if request.resolver_match.url_name == 'student_timetable' %}nav-link-active{% else %}nav-link{% endif %}">
+                <i class="fa-solid fa-clock w-5 text-center"></i> <span>Class Timetable</span>
+            </a>
+            <a href="{% url 'student_marks' %}" class="{% if request.resolver_match.url_name == 'student_marks' %}nav-link-active{% else %}nav-link{% endif %}">
+                <i class="fa-solid fa-file-pen w-5 text-center"></i> <span>Mid term Marks</span>
+            </a>
+
+            <!-- Learning Management -->
+            <div class="sidebar-section-title">Learning Hub</div>
+            <a href="{% url 'student_assignment_hub' %}" class="{% if request.resolver_match.url_name == 'student_assignment_hub' %}nav-link-active{% else %}nav-link{% endif %}">
+                <i class="fa-solid fa-file-arrow-up w-5 text-center"></i> <span>Assignment Hub</span>
+            </a>
+            <a href="{% url 'student_study_materials' %}" class="{% if request.resolver_match.url_name == 'student_study_materials' %}nav-link-active{% else %}nav-link{% endif %}">
+                <i class="fa-solid fa-book w-5 text-center"></i> <span>Study Material</span>
+            </a>
+            <a href="{% url 'student_project_console' %}" class="{% if request.resolver_match.url_name == 'student_project_console' %}nav-link-active{% else %}nav-link{% endif %}">
+                <i class="fa-solid fa-bars-progress w-5 text-center"></i> <span>Project Manager</span>
+            </a>
+
+
+            <!-- Admin & Finance -->
+            <div class="sidebar-section-title">Admin & Finance</div>
+            <a href="{% url 'student_fees' %}" class="{% if request.resolver_match.url_name == 'student_fees' %}nav-link-active{% else %}nav-link{% endif %}">
+                <i class="fa-solid fa-receipt w-5 text-center"></i> <span>Fee Registry</span>
+            </a>
+            <a href="{% url 'student_my_leaves' %}" class="{% if request.resolver_match.url_name == 'student_my_leaves' %}nav-link-active{% else %}nav-link{% endif %}">
+                <i class="fa-solid fa-envelope-open-text w-5 text-center"></i> <span>My Leaves</span>
+            </a>
+
+        {% endif %}
+
+        <!-- Faculty/Teacher Section -->
+        {% if request.user.role == 'FACULTY' or request.user.role == 'TEACHER' %}
+            <!-- Academic Workload -->
+            <div class="sidebar-section-title">Academic Delivery</div>
+            <a href="{% url 'my_timetable' %}" class="{% if request.resolver_match.url_name == 'my_timetable' %}nav-link-active{% else %}nav-link{% endif %}">
+                <i class="fa-solid fa-calendar-week w-5 text-center"></i> <span>My Schedule</span>
+            </a>
+            <a href="{% url 'my_syllabus_progress' %}" class="{% if request.resolver_match.url_name == 'my_syllabus_progress' %}nav-link-active{% else %}nav-link{% endif %}">
+                <i class="fa-solid fa-bars-progress w-5 text-center"></i> <span>Syllabus Tracker</span>
+            </a>
+
+            <!-- Classroom Management -->
+            <div class="sidebar-section-title">Classroom Hub</div>
+            <a href="{% url 'mark_attendance' %}" class="{% if request.resolver_match.url_name == 'mark_attendance' %}nav-link-active{% else %}nav-link{% endif %}">
+                <i class="fa-solid fa-clipboard-user w-5 text-center"></i> <span>Daily Attendance</span>
+            </a>
+            <a href="{% url 'leave_approval_list' %}" class="{% if request.resolver_match.url_name == 'leave_approval_list' %}nav-link-active{% else %}nav-link{% endif %}">
+                <i class="fa-solid fa-check-to-slot w-5 text-center"></i> <span>Leave Approvals</span>
+            </a>
+            <a href="{% url 'enter_marks' %}" class="{% if request.resolver_match.url_name == 'enter_marks' %}nav-link-active{% else %}nav-link{% endif %}">
+                <i class="fa-solid fa-file-pen w-5 text-center"></i> <span>Mid term Marks</span>
+            </a>
+            <a href="{% url 'generic_model_list' model_name='studymaterial' %}" class="{% if request.resolver_match.url_name == 'generic_model_list' and request.resolver_match.kwargs.model_name == 'studymaterial' %}nav-link-active{% else %}nav-link{% endif %}">
+                <i class="fa-solid fa-folder-open w-5 text-center"></i> <span>Study Material</span>
+            </a>
+
+            <!-- Professional Portfolio -->
+            <div class="sidebar-section-title">Professional Hub</div>
+            <a href="{% url 'my_publications' %}" class="{% if request.resolver_match.url_name == 'my_publications' %}nav-link-active{% else %}nav-link{% endif %}">
+                <i class="fa-solid fa-microscope w-5 text-center"></i> <span>Research Portfolio</span>
+            </a>
+            <a href="{% url 'my_documents' %}" class="{% if request.resolver_match.url_name == 'my_documents' %}nav-link-active{% else %}nav-link{% endif %}">
+                <i class="fa-solid fa-box-archive w-5 text-center"></i> <span>Digital Cabinet</span>
+            </a>
+            <a href="{% url 'faculty_my_leaves' %}" class="{% if request.resolver_match.url_name == 'faculty_my_leaves' %}nav-link-active{% else %}nav-link{% endif %}">
+                <i class="fa-solid fa-envelope-open-text w-5 text-center"></i> <span>My Leaves</span>
+            </a>
+        {% endif %}
+
+        <!-- HOD Management Hub -->
+        {% if request.user.role == 'HOD' %}
+            <!-- Academic Control -->
+            <div class="sidebar-section-title">Academic Control Hub</div>
+            <a href="{% url 'syllabus_progress_list' %}" class="{% if request.resolver_match.url_name == 'syllabus_progress_list' %}nav-link-active{% else %}nav-link{% endif %}">
+                <i class="fa-solid fa-bars-progress w-5 text-center"></i> <span>Syllabus Audit</span>
+            </a>
+            <a href="{% url 'subject_allotment_list' %}" class="{% if request.resolver_match.url_name == 'subject_allotment_list' %}nav-link-active{% else %}nav-link{% endif %}">
+                <i class="fa-solid fa-puzzle-piece w-5 text-center"></i> <span>Faculty Load Manager</span>
+            </a>
+            <a href="{% url 'subject_list' %}" class="{% if request.resolver_match.url_name == 'subject_list' %}nav-link-active{% else %}nav-link{% endif %}">
+                <i class="fa-solid fa-book-open w-5 text-center"></i> <span>Manage Subjects</span>
+            </a>
+            <a href="{% url 'dept_timetable' %}" class="{% if request.resolver_match.url_name == 'dept_timetable' %}nav-link-active{% else %}nav-link{% endif %}">
+                <i class="fa-solid fa-calendar-days w-5 text-center"></i> <span>Dept. Schedule</span>
+            </a>
+            <a href="{% url 'mark_attendance' %}" class="{% if request.resolver_match.url_name == 'mark_attendance' %}nav-link-active{% else %}nav-link{% endif %}">
+                <i class="fa-solid fa-clipboard-user w-5 text-center"></i> <span>Mark Attendance</span>
+            </a>
+            <a href="{% url 'generic_model_list' model_name='studymaterial' %}" class="{% if request.resolver_match.url_name == 'generic_model_list' and request.resolver_match.kwargs.model_name == 'studymaterial' %}nav-link-active{% else %}nav-link{% endif %}">
+                <i class="fa-solid fa-folder-open w-5 text-center"></i> <span>Study Material</span>
+            </a>
+
+            <!-- Departmental Rosters -->
+            <div class="sidebar-section-title">Department Roster</div>
+            <a href="{% url 'faculty_list' %}" class="{% if request.resolver_match.url_name == 'faculty_list' %}nav-link-active{% else %}nav-link{% endif %}">
+                <i class="fa-solid fa-users-viewfinder w-5 text-center"></i> <span>Faculty Pool</span>
+            </a>
+            <a href="{% url 'student_list' %}" class="{% if request.resolver_match.url_name == 'student_list' %}nav-link-active{% else %}nav-link{% endif %}">
+                <i class="fa-solid fa-user-group w-5 text-center"></i> <span>Student Registry</span>
+            </a>
+            <a href="{% url 'admission_requests_list' %}" class="{% if request.resolver_match.url_name == 'admission_requests_list' %}nav-link-active{% else %}nav-link{% endif %}">
+                <i class="fa-solid fa-file-contract w-5 text-center"></i> <span>Online Applications</span>
+            </a>
+        {% endif %}
+
+        <!-- Institutional Hierarchy (Admin/Sub-Admin Only) -->
+        {% if request.user.role == 'ADMIN' or request.user.role == 'SUB_ADMIN' %}
+            <div class="sidebar-section-title">Institutional Hub</div>
+            <a href="{% url 'college_list' %}" class="{% if request.resolver_match.url_name == 'college_list' %}nav-link-active{% else %}nav-link{% endif %}">
+                <i class="fa-solid fa-building-columns w-5 text-center"></i> <span>Colleges</span>
+            </a>
+            <a href="{% url 'department_list' %}" class="{% if request.resolver_match.url_name == 'department_list' %}nav-link-active{% else %}nav-link{% endif %}">
+                <i class="fa-solid fa-sitemap w-5 text-center"></i> <span>Departments</span>
+            </a>
+            <a href="{% url 'program_list' %}" class="{% if request.resolver_match.url_name == 'program_list' %}nav-link-active{% else %}nav-link{% endif %}">
+                <i class="fa-solid fa-graduation-cap w-5 text-center"></i> <span>Programs</span>
+            </a>
+            <a href="{% url 'branch_list' %}" class="{% if request.resolver_match.url_name == 'branch_list' %}nav-link-active{% else %}nav-link{% endif %}">
+                <i class="fa-solid fa-code-branch w-5 text-center"></i> <span>Branches</span>
+            </a>
+            <a href="{% url 'subject_list' %}" class="{% if request.resolver_match.url_name == 'subject_list' %}nav-link-active{% else %}nav-link{% endif %}">
+                <i class="fa-solid fa-book-open w-5 text-center"></i> <span>Manage Subjects</span>
+            </a>
+            <a href="{% url 'bulk_import' %}" class="{% if request.resolver_match.url_name == 'bulk_import' %}nav-link-active{% else %}nav-link{% endif %}">
+                <i class="fa-solid fa-cloud-arrow-up w-5 text-center"></i> <span>Bulk Data Porter</span>
+            </a>
+            <a href="{% url 'mark_attendance' %}" class="{% if request.resolver_match.url_name == 'mark_attendance' %}nav-link-active{% else %}nav-link{% endif %}">
+                <i class="fa-solid fa-clipboard-user w-5 text-center"></i> <span>Daily Attendance</span>
+            </a>
+        {% endif %}
+
+        <!-- Website CMS (Admin/Sub-Admin Only) -->
+        {% if request.user.role == 'ADMIN' or request.user.role == 'SUB_ADMIN' %}
+            <div class="sidebar-section-title">Website Management</div>
+            <details class="group/cms w-full" {% if 'cms/' in request.path or 'admin/' in request.path %}open{% endif %}>
+                <summary class="flex items-center justify-between gap-3 py-2.5 px-3 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl cursor-pointer font-bold text-sm select-none list-none [&::-webkit-details-marker]:hidden group">
+                    <div class="flex items-center gap-3">
+                        <i class="fa-solid fa-earth-americas w-5 text-center text-gray-400 group-hover:text-primary dark:group-hover:text-primary transition-colors"></i>
+                        <span>Website Content</span>
+                    </div>
+                    <i class="fa-solid fa-chevron-down text-xs transition-transform duration-200 group-open/cms:rotate-180"></i>
+                </summary>
+                <div class="pl-4 mt-1 space-y-1 border-l border-gray-200 dark:border-gray-800 ml-5">
+                    <a href="{% url 'cms_heroslide_list' %}" class="flex items-center gap-2.5 py-1.5 px-3 text-xs text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/40 hover:text-primary dark:hover:text-primary rounded-lg transition-colors font-medium">
+                        <i class="fa-solid fa-images w-4 text-center"></i> <span>Hero Slides</span>
+                    </a>
+                    <a href="{% url 'cms_publicnotice_list' %}" class="flex items-center gap-2.5 py-1.5 px-3 text-xs text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/40 hover:text-primary dark:hover:text-primary rounded-lg transition-colors font-medium">
+                        <i class="fa-solid fa-bullhorn w-4 text-center"></i> <span>Notices</span>
+                    </a>
+                    <a href="{% url 'cms_collegeevent_list' %}" class="flex items-center gap-2.5 py-1.5 px-3 text-xs text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/40 hover:text-primary dark:hover:text-primary rounded-lg transition-colors font-medium">
+                        <i class="fa-solid fa-calendar-day w-4 text-center"></i> <span>College Events</span>
+                    </a>
+                    <a href="{% url 'cms_homeprogram_list' %}" class="flex items-center gap-2.5 py-1.5 px-3 text-xs text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/40 hover:text-primary dark:hover:text-primary rounded-lg transition-colors font-medium">
+                        <i class="fa-solid fa-graduation-cap w-4 text-center"></i> <span>Home Programs</span>
+                    </a>
+                    <a href="{% url 'cms_galleryitem_list' %}" class="flex items-center gap-2.5 py-1.5 px-3 text-xs text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/40 hover:text-primary dark:hover:text-primary rounded-lg transition-colors font-medium">
+                        <i class="fa-solid fa-photo-film w-4 text-center"></i> <span>Campus Gallery</span>
+                    </a>
+                    <a href="{% url 'cms_recruiter_list' %}" class="flex items-center gap-2.5 py-1.5 px-3 text-xs text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/40 hover:text-primary dark:hover:text-primary rounded-lg transition-colors font-medium">
+                        <i class="fa-solid fa-handshake w-4 text-center"></i> <span>Recruiters</span>
+                    </a>
+                    <a href="{% url 'cms_collegestat_list' %}" class="flex items-center gap-2.5 py-1.5 px-3 text-xs text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/40 hover:text-primary dark:hover:text-primary rounded-lg transition-colors font-medium">
+                        <i class="fa-solid fa-chart-simple w-4 text-center"></i> <span>College Stats</span>
+                    </a>
+                    <a href="{% url 'cms_aboutsectionconfig_list' %}" class="flex items-center gap-2.5 py-1.5 px-3 text-xs text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/40 hover:text-primary dark:hover:text-primary rounded-lg transition-colors font-medium">
+                        <i class="fa-solid fa-circle-info w-4 text-center"></i> <span>About Config</span>
+                    </a>
+                    <a href="{% url 'cms_placementconfig_list' %}" class="flex items-center gap-2.5 py-1.5 px-3 text-xs text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/40 hover:text-primary dark:hover:text-primary rounded-lg transition-colors font-medium">
+                        <i class="fa-solid fa-gears w-4 text-center"></i> <span>Placement Config</span>
+                    </a>
+                    <a href="{% url 'cms_placementachiever_list' %}" class="flex items-center gap-2.5 py-1.5 px-3 text-xs text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/40 hover:text-primary dark:hover:text-primary rounded-lg transition-colors font-medium">
+                        <i class="fa-solid fa-trophy w-4 text-center"></i> <span>Placement Achievers</span>
+                    </a>
+                    <a href="{% url 'cms_placementtrainingfeature_list' %}" class="flex items-center gap-2.5 py-1.5 px-3 text-xs text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/40 hover:text-primary dark:hover:text-primary rounded-lg transition-colors font-medium">
+                        <i class="fa-solid fa-seedling w-4 text-center"></i> <span>Training Features</span>
+                    </a>
+                    <a href="{% url 'cms_placementprocessstep_list' %}" class="flex items-center gap-2.5 py-1.5 px-3 text-xs text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/40 hover:text-primary dark:hover:text-primary rounded-lg transition-colors font-medium">
+                        <i class="fa-solid fa-list-check w-4 text-center"></i> <span>Placement Steps</span>
+                    </a>
+                </div>
+            </details>
+        {% endif %}
+
+        <!-- Accountant Management Hub -->
+        {% if request.user.role == 'ACCOUNTANT' %}
+            <div class="sidebar-section-title">Fee Management</div>
+            <a href="{% url 'collect_fee' %}" class="{% if request.resolver_match.url_name == 'collect_fee' %}nav-link-active{% else %}nav-link{% endif %}">
+                <i class="fa-solid fa-cash-register w-5 text-center"></i> <span>Collect Fees</span>
+            </a>
+            <a href="#" class="nav-link opacity-60">
+                <i class="fa-solid fa-clock-rotate-left w-5 text-center"></i> <span>Pending Dues</span>
+            </a>
+            <a href="{% url 'accountant_ledger' %}" class="{% if request.resolver_match.url_name == 'accountant_ledger' %}nav-link-active{% else %}nav-link{% endif %}">
+                <i class="fa-solid fa-address-book w-5 text-center"></i> <span>Student Ledgers</span>
+            </a>
+
+            <div class="sidebar-section-title">Expenditure Hub</div>
+            <a href="#" class="nav-link opacity-60">
+                <i class="fa-solid fa-wallet w-5 text-center"></i> <span>Expenses</span>
+            </a>
+            <a href="#" class="nav-link opacity-60">
+                <i class="fa-solid fa-money-check-dollar w-5 text-center"></i> <span>Staff Payroll</span>
+            </a>
+        {% endif %}
+
+        <!-- Admission Management Hub -->
+        {% if request.user.role == 'ADMISSION' %}
+            <div class="sidebar-section-title">Lead Management</div>
+            <a href="#" class="nav-link opacity-60">
+                <i class="fa-solid fa-headset w-5 text-center"></i> <span>New Enquiries</span>
+            </a>
+            <a href="#" class="nav-link opacity-60">
+                <i class="fa-solid fa-users-viewfinder w-5 text-center"></i> <span>Follow-up List</span>
+            </a>
+            <a href="{% url 'bulk_outreach' %}" class="{% if request.resolver_match.url_name == 'bulk_outreach' %}nav-link-active{% else %}nav-link{% endif %}">
+                <i class="fa-solid fa-envelopes-bulk w-5 text-center"></i> <span>Bulk Outreach</span>
+            </a>
+
+            <div class="sidebar-section-title">Admissions Hub</div>
+            <a href="{% url 'admission_requests_list' %}" class="{% if request.resolver_match.url_name == 'admission_requests_list' %}nav-link-active{% else %}nav-link{% endif %}">
+                <i class="fa-solid fa-file-contract w-5 text-center"></i> <span>Online Applications</span>
+            </a>
+            <a href="{% url 'student_list' %}" class="{% if request.resolver_match.url_name == 'student_list' %}nav-link-active{% else %}nav-link{% endif %}">
+                <i class="fa-solid fa-file-signature w-5 text-center"></i> <span>Applications</span>
+            </a>
+            <a href="{% url 'student_admission_wizard' %}" class="{% if request.resolver_match.url_name == 'student_admission_wizard' %}nav-link-active{% else %}nav-link{% endif %} group">
+                <i class="fa-solid fa-user-plus w-5 text-center group-hover:text-primary transition-colors"></i> <span>Admission Wizard</span>
+            </a>
+            <a href="#" class="nav-link opacity-60">
+                <i class="fa-solid fa-shield-check w-5 text-center"></i> <span>Doc Verification</span>
+            </a>
+            <a href="#" class="nav-link opacity-60">
+                <i class="fa-solid fa-list-ol w-5 text-center"></i> <span>Merit Lists</span>
+            </a>
+
+            <div class="sidebar-section-title">Configuration</div>
+            <a href="#" class="nav-link opacity-60">
+                <i class="fa-solid fa-layer-group w-5 text-center"></i> <span>Intake Settings</span>
+            </a>
+            <a href="#" class="nav-link opacity-60">
+                <i class="fa-solid fa-file-invoice-dollar w-5 text-center"></i> <span>Fee Structure</span>
+            </a>
+        {% endif %}
+
+        <!-- Security & RBAC (Admin Only) -->
+        {% if request.user.role == 'ADMIN' %}
+            <div class="sidebar-section-title">Control Centre</div>
+            <a href="{% url 'user_list' %}" class="{% if request.resolver_match.url_name == 'user_list' %}nav-link-active{% else %}nav-link{% endif %}">
+                <i class="fa-solid fa-user-gear w-5 text-center"></i> <span>User Registry</span>
+            </a>
+            <a href="{% url 'role_list' %}" class="{% if request.resolver_match.url_name == 'role_list' %}nav-link-active{% else %}nav-link{% endif %}">
+                <i class="fa-solid fa-shield-halved w-5 text-center"></i> <span>Role Matrix</span>
+            </a>
+            <a href="{% url 'staff_list' %}" class="{% if request.resolver_match.url_name == 'staff_list' %}nav-link-active{% else %}nav-link{% endif %}">
+                <i class="fa-solid fa-users-gear w-5 text-center"></i> <span>Staff Registry</span>
+            </a>
+            <a href="{% url 'id_counter_list' %}" class="{% if request.resolver_match.url_name == 'id_counter_list' %}nav-link-active{% else %}nav-link{% endif %}">
+                <i class="fa-solid fa-barcode w-5 text-center"></i> <span>ID Config</span>
+            </a>
+        {% endif %}
+
+        <!-- Operations -->
+        {% if request.user.role in 'ADMIN SUB_ADMIN PLACEMENT STAFF' %}
+            <div class="sidebar-section-title">Operations</div>
+            <a href="{% url 'admission_requests_list' %}" class="{% if request.resolver_match.url_name == 'admission_requests_list' %}nav-link-active{% else %}nav-link{% endif %}">
+                <i class="fa-solid fa-file-contract w-5 text-center"></i> <span>Online Applications</span>
+            </a>
+            <a href="{% url 'student_list' %}" class="{% if request.resolver_match.url_name == 'student_list' %}nav-link-active{% else %}nav-link{% endif %}">
+                <i class="fa-solid fa-address-book w-5 text-center"></i> <span>Admissions</span>
+            </a>
+            <a href="{% url 'faculty_list' %}" class="{% if request.resolver_match.url_name == 'faculty_list' %}nav-link-active{% else %}nav-link{% endif %}">
+                <i class="fa-solid fa-chalkboard-user w-5 text-center"></i> <span>Faculty Pool</span>
+            </a>
+        {% endif %}
+
+        <!-- System Console / Departmental / Teacher Registries -->
+        {% if request.user.role == 'ADMIN' or request.user.role == 'HOD' or request.user.role == 'TEACHER' or request.user.role == 'FACULTY' or request.user.is_superuser %}
+            <div class="sidebar-section-title">
+                {% if request.user.role == 'HOD' %}Departmental Registries{% elif request.user.role == 'TEACHER' or request.user.role == 'FACULTY' %}Teacher Registries{% else %}System Console{% endif %}
+            </div>
+            
+            {% if request.user.role == 'ADMIN' or request.user.is_superuser %}
+            <a href="{% url 'admin:index' %}" target="_blank" class="nav-link">
+                <i class="fa-solid fa-screwdriver-wrench w-5 text-center text-gray-400 hover:text-primary transition-colors"></i> <span>Django Admin Panel</span>
+            </a>
+            {% endif %}
+
+            <!-- 1. Academic Registries -->
+            <details class="group/acad w-full" {% if '/examschedule/' in request.path or '/subjectschedule/' in request.path or '/assignment/' in request.path or '/assignmentsubmission/' in request.path or '/enter-marks/' in request.path %}open{% endif %}>
+                <summary class="flex items-center justify-between gap-3 py-2.5 px-3 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl cursor-pointer font-bold text-sm select-none list-none [&::-webkit-details-marker]:hidden group">
+                    <div class="flex items-center gap-3">
+                        <i class="fa-solid fa-graduation-cap w-5 text-center text-gray-400 group-hover:text-primary dark:group-hover:text-primary transition-colors"></i>
+                        <span>Academic Registries</span>
+                    </div>
+                    <i class="fa-solid fa-chevron-down text-xs transition-transform duration-200 group-open/acad:rotate-180"></i>
+                </summary>
+                <div class="pl-4 mt-1 space-y-1 border-l border-gray-200 dark:border-gray-800 ml-5">
+                    <a href="{% url 'generic_model_list' model_name='examschedule' %}" class="flex items-center gap-2.5 py-1.5 px-3 text-xs text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/40 hover:text-primary dark:hover:text-primary rounded-lg transition-colors font-medium">
+                        <i class="fa-solid fa-file-invoice w-4 text-center"></i> <span>Exam Schedules</span>
+                    </a>
+                    <a href="{% url 'generic_model_list' model_name='subjectschedule' %}" class="flex items-center gap-2.5 py-1.5 px-3 text-xs text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/40 hover:text-primary dark:hover:text-primary rounded-lg transition-colors font-medium">
+                        <i class="fa-solid fa-calendar-alt w-4 text-center"></i> <span>Subject Schedules</span>
+                    </a>
+                    <a href="{% url 'generic_model_list' model_name='assignment' %}" class="flex items-center gap-2.5 py-1.5 px-3 text-xs text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/40 hover:text-primary dark:hover:text-primary rounded-lg transition-colors font-medium">
+                        <i class="fa-solid fa-file-pen w-4 text-center"></i> <span>Assignments</span>
+                    </a>
+                    <a href="{% url 'generic_model_list' model_name='assignmentsubmission' %}" class="flex items-center gap-2.5 py-1.5 px-3 text-xs text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/40 hover:text-primary dark:hover:text-primary rounded-lg transition-colors font-medium">
+                        <i class="fa-solid fa-upload w-4 text-center"></i> <span>Assignment Submissions</span>
+                    </a>
+                    <a href="{% url 'enter_marks' %}" class="flex items-center gap-2.5 py-1.5 px-3 text-xs text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/40 hover:text-primary dark:hover:text-primary rounded-lg transition-colors font-medium">
+                        <i class="fa-solid fa-file-pen w-4 text-center"></i> <span>Internal Assessment</span>
+                    </a>
+                </div>
+            </details>
+
+            <!-- 2. Project Registries -->
+            <details class="group/proj w-full" {% if '/project/' in request.path or '/projectmember/' in request.path or '/projectweeklylog/' in request.path or '/projectdeliverable/' in request.path %}open{% endif %}>
+                <summary class="flex items-center justify-between gap-3 py-2.5 px-3 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl cursor-pointer font-bold text-sm select-none list-none [&::-webkit-details-marker]:hidden group">
+                    <div class="flex items-center gap-3">
+                        <i class="fa-solid fa-diagram-project w-5 text-center text-gray-400 group-hover:text-primary dark:group-hover:text-primary transition-colors"></i>
+                        <span>Project Registries</span>
+                    </div>
+                    <i class="fa-solid fa-chevron-down text-xs transition-transform duration-200 group-open/proj:rotate-180"></i>
+                </summary>
+                <div class="pl-4 mt-1 space-y-1 border-l border-gray-200 dark:border-gray-800 ml-5">
+                    <a href="{% url 'generic_model_list' model_name='project' %}" class="flex items-center gap-2.5 py-1.5 px-3 text-xs text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/40 hover:text-primary dark:hover:text-primary rounded-lg transition-colors font-medium">
+                        <i class="fa-solid fa-diagram-project w-4 text-center"></i> <span>Projects</span>
+                    </a>
+                    <a href="{% url 'generic_model_list' model_name='projectmember' %}" class="flex items-center gap-2.5 py-1.5 px-3 text-xs text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/40 hover:text-primary dark:hover:text-primary rounded-lg transition-colors font-medium">
+                        <i class="fa-solid fa-users w-4 text-center"></i> <span>Project Members</span>
+                    </a>
+                    <a href="{% url 'generic_model_list' model_name='projectweeklylog' %}" class="flex items-center gap-2.5 py-1.5 px-3 text-xs text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/40 hover:text-primary dark:hover:text-primary rounded-lg transition-colors font-medium">
+                        <i class="fa-solid fa-list-check w-4 text-center"></i> <span>Project Weekly Logs</span>
+                    </a>
+                    <a href="{% url 'generic_model_list' model_name='projectdeliverable' %}" class="flex items-center gap-2.5 py-1.5 px-3 text-xs text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/40 hover:text-primary dark:hover:text-primary rounded-lg transition-colors font-medium">
+                        <i class="fa-solid fa-box-open w-4 text-center"></i> <span>Project Deliverables</span>
+                    </a>
+                </div>
+            </details>
+
+            <!-- 3. Leave & Attendance -->
+            <details class="group/lv w-full" {% if '/studentleave/' in request.path or '/facultyleave/' in request.path or '/facultyleavebalance/' in request.path or '/studentattendance/' in request.path or '/facultydocument/' in request.path %}open{% endif %}>
+                <summary class="flex items-center justify-between gap-3 py-2.5 px-3 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl cursor-pointer font-bold text-sm select-none list-none [&::-webkit-details-marker]:hidden group">
+                    <div class="flex items-center gap-3">
+                        <i class="fa-solid fa-calendar-check w-5 text-center text-gray-400 group-hover:text-primary dark:group-hover:text-primary transition-colors"></i>
+                        <span>Leave & Attendance</span>
+                    </div>
+                    <i class="fa-solid fa-chevron-down text-xs transition-transform duration-200 group-open/lv:rotate-180"></i>
+                </summary>
+                <div class="pl-4 mt-1 space-y-1 border-l border-gray-200 dark:border-gray-800 ml-5">
+                    {% if request.user.role != 'TEACHER' and request.user.role != 'FACULTY' %}
+                    <a href="{% url 'generic_model_list' model_name='studentleave' %}" class="flex items-center gap-2.5 py-1.5 px-3 text-xs text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/40 hover:text-primary dark:hover:text-primary rounded-lg transition-colors font-medium">
+                        <i class="fa-solid fa-envelope-open w-4 text-center"></i> <span>Student Leaves</span>
+                    </a>
+                    {% endif %}
+                    <a href="{% url 'generic_model_list' model_name='facultyleave' %}" class="flex items-center gap-2.5 py-1.5 px-3 text-xs text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/40 hover:text-primary dark:hover:text-primary rounded-lg transition-colors font-medium">
+                        <i class="fa-solid fa-envelope-open-text w-4 text-center"></i> <span>{% if request.user.role == 'TEACHER' or request.user.role == 'FACULTY' %}My Leaves{% else %}Faculty Leaves{% endif %}</span>
+                    </a>
+                    <a href="{% url 'generic_model_list' model_name='facultyleavebalance' %}" class="flex items-center gap-2.5 py-1.5 px-3 text-xs text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/40 hover:text-primary dark:hover:text-primary rounded-lg transition-colors font-medium">
+                        <i class="fa-solid fa-wallet w-4 text-center"></i> <span>{% if request.user.role == 'TEACHER' or request.user.role == 'FACULTY' %}Leave Balances{% else %}Faculty Leave Balances{% endif %}</span>
+                    </a>
+                    <a href="{% url 'generic_model_list' model_name='studentattendance' %}" class="flex items-center gap-2.5 py-1.5 px-3 text-xs text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/40 hover:text-primary dark:hover:text-primary rounded-lg transition-colors font-medium">
+                        <i class="fa-solid fa-user-check w-4 text-center"></i> <span>Student Attendance</span>
+                    </a>
+                    <a href="{% url 'generic_model_list' model_name='facultydocument' %}" class="flex items-center gap-2.5 py-1.5 px-3 text-xs text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/40 hover:text-primary dark:hover:text-primary rounded-lg transition-colors font-medium">
+                        <i class="fa-solid fa-file-pdf w-4 text-center"></i> <span>{% if request.user.role == 'TEACHER' or request.user.role == 'FACULTY' %}Digital Cabinet{% else %}Faculty Documents{% endif %}</span>
+                    </a>
+                </div>
+            </details>
+
+            <!-- 4. Communications -->
+            {% if request.user.role != 'TEACHER' and request.user.role != 'FACULTY' %}
+            <details class="group/comm w-full" {% if '/guardian/' in request.path or '/communicationtemplate/' in request.path or '/communicationlog/' in request.path %}open{% endif %}>
+                <summary class="flex items-center justify-between gap-3 py-2.5 px-3 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl cursor-pointer font-bold text-sm select-none list-none [&::-webkit-details-marker]:hidden group">
+                    <div class="flex items-center gap-3">
+                        <i class="fa-solid fa-comments w-5 text-center text-gray-400 group-hover:text-primary dark:group-hover:text-primary transition-colors"></i>
+                        <span>Communications</span>
+                    </div>
+                    <i class="fa-solid fa-chevron-down text-xs transition-transform duration-200 group-open/comm:rotate-180"></i>
+                </summary>
+                <div class="pl-4 mt-1 space-y-1 border-l border-gray-200 dark:border-gray-800 ml-5">
+                    <a href="{% url 'generic_model_list' model_name='guardian' %}" class="flex items-center gap-2.5 py-1.5 px-3 text-xs text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/40 hover:text-primary dark:hover:text-primary rounded-lg transition-colors font-medium">
+                        <i class="fa-solid fa-user-shield w-4 text-center"></i> <span>Guardians</span>
+                    </a>
+                    <a href="{% url 'generic_model_list' model_name='communicationtemplate' %}" class="flex items-center gap-2.5 py-1.5 px-3 text-xs text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/40 hover:text-primary dark:hover:text-primary rounded-lg transition-colors font-medium">
+                        <i class="fa-solid fa-paste w-4 text-center"></i> <span>Comm Templates</span>
+                    </a>
+                    <a href="{% url 'generic_model_list' model_name='communicationlog' %}" class="flex items-center gap-2.5 py-1.5 px-3 text-xs text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/40 hover:text-primary dark:hover:text-primary rounded-lg transition-colors font-medium">
+                        <i class="fa-solid fa-history w-4 text-center"></i> <span>Comm Logs</span>
+                    </a>
+                </div>
+            </details>
+            {% endif %}
+        {% endif %}
+    </div>
+
+    <!-- Sidebar Footer -->
+    <div class="p-4 border-t border-gray-100 dark:border-gray-800">
+        <a href="javascript:document.getElementById('logout-form').submit();" class="flex items-center justify-center gap-3 py-3 w-full bg-red-50 dark:bg-red-950/20 text-secondary font-bold text-xs rounded-xl hover:bg-red-100 transition-all uppercase tracking-widest">
+            <i class="fa-solid fa-power-off"></i> Sign Out
+        </a>
+    </div>
+</aside>

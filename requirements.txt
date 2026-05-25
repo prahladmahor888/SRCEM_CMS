@@ -1,0 +1,6 @@
+django
+psycopg2-binary
+python-decouple
+Pillow
+pandas
+openpyxl

@@ -1,0 +1,43 @@
+<header class="h-16 bg-white dark:bg-darkSidebar border-b border-gray-200 dark:border-gray-800 flex items-center justify-between px-4 sm:px-6 z-30 flex-shrink-0 shadow-sm transition-all duration-300">
+    
+    <!-- Left: Mobile Menu Toggle & Search -->
+    <div class="flex items-center gap-4">
+        <button id="openSidebarBtn" class="md:hidden text-gray-500 hover:text-primary focus:outline-none p-1.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 transition-all">
+            <i class="fa-solid fa-bars-staggered text-xl"></i>
+        </button>
+        
+        <!-- Quick Search (Global) -->
+        <div class="hidden lg:flex relative w-64 lg:w-80">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <i class="fa-solid fa-magnifying-glass text-gray-400"></i>
+            </div>
+            <input type="text" class="w-full pl-10 pr-3 py-1.5 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl text-sm transition-all focus:ring-2 focus:ring-primary/20 focus:border-primary" placeholder="Global search...">
+        </div>
+    </div>
+
+    <!-- Right: Actions & Profile -->
+    <div class="flex items-center gap-3 sm:gap-5">
+        <!-- Status Badge -->
+        <span class="hidden md:inline-flex bg-primary/10 text-primary dark:bg-primary/20 dark:text-blue-400 border border-primary/20 text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-widest items-center gap-1.5">
+            <span class="w-1.5 h-1.5 bg-primary dark:bg-blue-400 rounded-full animate-pulse"></span>
+            {% if request.user.is_superuser %}IT Cell Head{% else %}{{ request.user.role }}{% endif %}
+        </span>
+
+        <!-- Dark Mode Toggle -->
+        <button id="themeToggleBtnPortal" class="text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 p-2 rounded-xl transition-all">
+            <i class="fa-solid fa-moon text-lg" id="themeIconPortal"></i>
+        </button>
+
+        <!-- Profile -->
+        <div class="flex items-center gap-3 pl-3 sm:pl-5 border-l border-gray-200 dark:border-gray-700 cursor-pointer group">
+            <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-blue-600 text-white flex items-center justify-center font-bold shadow-lg shadow-primary/20 group-hover:scale-105 transition-transform">
+                <i class="fa-solid fa-user-shield"></i>
+            </div>
+            <div class="hidden md:block">
+                <p class="text-sm font-bold text-gray-800 dark:text-white leading-none">{{ request.user.get_full_name|default:request.user.username }}</p>
+                <p class="text-[10px] text-gray-500 dark:text-gray-400 mt-1 uppercase font-black tracking-tighter opacity-70">portal account</p>
+            </div>
+        </div>
+    </div>
+</header>
+

@@ -1,0 +1,240 @@
+{% extends 'base/dashboard_base.html' %}
+{% load static %}
+
+{% block title %}Accountant Command Centre - SRCEM{% endblock %}
+
+{% block extra_css %}
+<style>
+    .custom-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    .custom-card:hover { transform: translateY(-4px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
+</style>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="space-y-8 pb-32">
+
+    <!-- Welcome Hero Banner -->
+    <div class="bg-emerald-800 dark:bg-emerald-900 relative overflow-hidden rounded-2xl shadow-md border border-emerald-900/50">
+        <div class="absolute top-0 right-0 p-10 opacity-10 pointer-events-none rotate-12">
+            <i class="fa-solid fa-building-columns text-[180px] text-white"></i>
+        </div>
+        <div class="p-6 sm:p-10 relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-8">
+            <div class="space-y-3 text-center md:text-left">
+                <div class="inline-flex items-center gap-2 px-3 py-1 bg-emerald-600/30 border border-emerald-400/20 rounded-full text-white text-[10px] font-black uppercase tracking-[0.2em] backdrop-blur-sm">
+                    <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span> Fiscal Year 2025-26
+                </div>
+                <h2 class="text-3xl sm:text-5xl font-black text-white uppercase tracking-tight leading-tight">Accounts Overview</h2>
+                <p class="text-emerald-100 text-sm font-medium max-w-xl leading-relaxed">Welcome back, {{ request.user.get_full_name }}. Aaj ki total collection <span class="text-white font-black underline decoration-emerald-400 decoration-2 underline-offset-4">₹{{ today_revenue|default:"0" }}</span> hai.</p>
+            </div>
+            <div class="flex flex-wrap gap-3 justify-center">
+                <a href="{% url 'collect_fee' %}" class="bg-white text-emerald-900 px-6 py-3.5 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-md hover:bg-emerald-50 transition-all hover:-translate-y-1 text-center">Collect New Fee</a>
+                <a href="{% url 'accountant_ledger' %}" class="bg-emerald-600/40 text-white border border-white/20 px-6 py-3.5 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-emerald-600 transition-all hover:-translate-y-1 text-center">Audit Ledger</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- FINANCIAL TILES -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        <div class="bg-white dark:bg-darkSurface p-6 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm flex items-center justify-between group custom-card border-l-4 border-l-success">
+            <div>
+                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Today's Revenue</p>
+                <h3 class="text-2xl font-black text-success">₹{{ today_revenue|default:"0" }}</h3>
+                <p class="text-[9px] text-gray-500 font-bold mt-1 uppercase">Across {{ today_receipt_count|default:"0" }} Receipts</p>
+            </div>
+            <div class="w-12 h-12 rounded-xl bg-green-50 dark:bg-green-900/20 text-success flex items-center justify-center text-xl group-hover:scale-110 transition-transform"><i class="fa-solid fa-indian-rupee-sign"></i></div>
+        </div>
+
+        <div class="bg-white dark:bg-darkSurface p-6 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm flex items-center justify-between group custom-card border-l-4 border-l-secondary">
+            <div>
+                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Pending Dues</p>
+                <h3 class="text-2xl font-black text-secondary">{{ pending_dues }}</h3>
+                <p class="text-[9px] text-gray-500 font-bold mt-1 uppercase tracking-tighter">Current Sem Total</p>
+            </div>
+            <div class="w-12 h-12 rounded-xl bg-red-50 dark:bg-red-900/20 text-secondary flex items-center justify-center text-xl group-hover:scale-110 transition-transform"><i class="fa-solid fa-clock-rotate-left"></i></div>
+        </div>
+
+        <div class="bg-white dark:bg-darkSurface p-6 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm flex items-center justify-between group custom-card border-l-4 border-l-warning">
+            <div>
+                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Monthly Expenses</p>
+                <h3 class="text-2xl font-black text-warning">₹{{ monthly_expenses|default:"0" }}</h3>
+                <p class="text-[9px] text-gray-500 font-bold mt-1 uppercase">Current Month Total</p>
+            </div>
+            <div class="w-12 h-12 rounded-xl bg-orange-50 dark:bg-orange-900/20 text-warning flex items-center justify-center text-xl group-hover:scale-110 transition-transform"><i class="fa-solid fa-wallet"></i></div>
+        </div>
+
+        <div class="bg-white dark:bg-darkSurface p-6 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm flex items-center justify-between group custom-card border-l-4 border-l-primary">
+            <div>
+                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Defaulters</p>
+                <h3 class="text-2xl font-black text-primary dark:text-blue-400">{{ defaulters_count }}</h3>
+                <p class="text-[9px] text-gray-500 font-bold mt-1 uppercase tracking-tighter">Require Follow-up</p>
+            </div>
+            <div class="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-900/20 text-primary flex items-center justify-center text-xl group-hover:scale-110 transition-transform"><i class="fa-solid fa-users-slash"></i></div>
+        </div>
+    </div>
+
+    <!-- MAIN WORKSPACE -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        <!-- LEFT COLUMN: RECENT TRANSACTIONS -->
+        <div class="lg:col-span-8 space-y-8">
+            <div class="bg-white dark:bg-darkSurface rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden p-0">
+                <div class="p-5 border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/40 flex justify-between items-center">
+                    <h3 class="text-sm font-black text-gray-900 dark:text-white uppercase tracking-[0.25em] flex items-center gap-3">
+                        <i class="fa-solid fa-file-invoice-dollar text-emerald-600"></i> Recent Fee Collections
+                    </h3>
+                    <button class="text-[9px] font-black text-primary dark:text-blue-400 hover:underline uppercase tracking-widest">Full Ledger View</button>
+                </div>
+                <div class="p-0 overflow-x-auto no-scrollbar">
+                    <table class="w-full text-left border-collapse min-w-[650px]">
+                        <thead>
+                            <tr class="bg-gray-50/50 dark:bg-gray-900/50 text-[9px] font-black uppercase tracking-widest text-gray-400 border-b border-gray-200 dark:border-gray-700">
+                                <th class="p-4">Receipt No. & Date</th>
+                                <th class="p-4">Student Identity</th>
+                                <th class="p-4 text-right">Amount Paid</th>
+                                <th class="p-4 text-center">Payment Mode</th>
+                                <th class="p-4 text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-50 dark:divide-gray-800/50 text-xs font-bold">
+                            {% for receipt in recent_transactions %}
+                            <tr class="hover:bg-gray-50 dark:hover:bg-emerald-900/5 transition-colors">
+                                <td class="p-4">
+                                    <p class="text-gray-900 dark:text-white">{{ receipt.receipt_no }}</p>
+                                    <p class="text-[9px] text-gray-400 mt-1 uppercase font-black">{{ receipt.transaction_date|date:"h:i A" }}</p>
+                                </td>
+                                <td class="p-4">
+                                    <p class="text-gray-800 dark:text-gray-200">{{ receipt.student.user.get_full_name }}</p>
+                                    <p class="text-[9px] text-gray-400 mt-1 uppercase font-black tracking-widest">{{ receipt.student.enrollment_number }} • {{ receipt.student.semester }}th Sem</p>
+                                </td>
+                                <td class="p-4 text-right">
+                                    <span class="text-emerald-600 font-black">₹{{ receipt.amount }}</span>
+                                </td>
+                                <td class="p-4 text-center">
+                                    <span class="inline-block px-2 py-1 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 text-[9px] font-black uppercase rounded-sm border border-blue-100 dark:border-blue-800">{{ receipt.get_payment_mode_display }}</span>
+                                </td>
+                                <td class="p-4 text-center">
+                                    <button class="text-gray-400 hover:text-emerald-600 transition-colors"><i class="fa-solid fa-print"></i></button>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="p-10 text-center text-gray-400 italic">No recent transactions found.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Pending Dues Alerts List (Mock) -->
+            <div class="bg-white dark:bg-darkSurface rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden p-0">
+                <div class="p-5 border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/40 flex justify-between items-center">
+                    <h3 class="text-xs font-black text-gray-900 dark:text-white uppercase tracking-[0.25em] flex items-center gap-3">
+                        <i class="fa-solid fa-triangle-exclamation text-secondary"></i> High Pending Dues (Alerts)
+                    </h3>
+                </div>
+                <div class="p-0 overflow-x-auto">
+                    <table class="w-full text-left border-collapse min-w-[600px]">
+                        <thead>
+                            <tr class="bg-gray-50/50 dark:bg-gray-900/50 text-[9px] font-black uppercase tracking-widest text-gray-400 border-b border-gray-200 dark:border-gray-700">
+                                <th class="p-4">Student & Batch</th>
+                                <th class="p-4 text-right">Outstanding Amount</th>
+                                <th class="p-4 text-center">Last Follow-up</th>
+                                <th class="p-4 text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-50 dark:divide-gray-800/50 text-xs font-bold">
+                            {% for item in high_dues_list %}
+                            <tr class="hover:bg-red-50 dark:hover:bg-red-900/5 transition-colors">
+                                <td class="p-4">
+                                    <p class="text-gray-800 dark:text-gray-200">{{ item.student.user.get_full_name }}</p>
+                                    <p class="text-[9px] text-gray-400 mt-1 uppercase font-black tracking-widest">
+                                        {{ item.student.branch.program.program_code }} - {{ item.student.branch.branch_name }} • {{ item.student.semester }}th Sem
+                                    </p>
+                                </td>
+                                <td class="p-4 text-right">
+                                    <p class="text-secondary font-black">₹{{ item.pending|floatformat:0 }}</p>
+                                    <p class="text-[9px] text-gray-400 mt-0.5">Paid: ₹{{ item.paid|floatformat:0 }}</p>
+                                </td>
+                                <td class="p-4 text-center">
+                                    <span class="inline-block px-2 py-1 bg-gray-50 dark:bg-gray-850 text-gray-500 text-[9px] font-black uppercase rounded-sm border border-gray-100 dark:border-gray-800">No Contact</span>
+                                </td>
+                                <td class="p-4 text-center">
+                                    <button class="px-3 py-1 bg-red-50 dark:bg-red-900/20 text-secondary border border-red-100 dark:border-red-800/50 hover:bg-secondary hover:text-white rounded-lg font-black text-[9px] uppercase tracking-wider transition-all">Send Alert</button>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td class="p-4 text-center py-8 text-gray-400 italic" colspan="4">
+                                    No active students have outstanding dues.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT COLUMN: TOOLS & BREAKDOWN -->
+        <div class="lg:col-span-4 space-y-8">
+            
+            <!-- Quick Accounting Tools -->
+            <div class="bg-white dark:bg-darkSurface rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-6">
+                <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-6 leading-none">Accountant Tools</h3>
+                <div class="grid grid-cols-2 gap-4">
+                    <a href="{% url 'collect_fee' %}" class="flex flex-col items-center justify-center p-5 bg-gray-50 dark:bg-gray-900 rounded-2xl border border-transparent hover:border-emerald-600 transition-all group shadow-sm text-center">
+                        <i class="fa-solid fa-cash-register text-emerald-600 text-2xl mb-2 group-hover:-translate-y-1 transition-transform"></i>
+                        <span class="text-[9px] font-black uppercase text-gray-700 dark:text-gray-300">Collect Fee</span>
+                    </a>
+                    <button class="flex flex-col items-center justify-center p-5 bg-gray-50 dark:bg-gray-900 rounded-2xl border border-transparent hover:border-primary transition-all group shadow-sm">
+                        <i class="fa-solid fa-file-invoice text-primary text-2xl mb-2 group-hover:-translate-y-1 transition-transform"></i>
+                        <span class="text-[9px] font-black uppercase text-gray-700 dark:text-gray-300">Add Voucher</span>
+                    </button>
+                    <button class="flex flex-col items-center justify-center p-5 bg-gray-50 dark:bg-gray-900 rounded-2xl border border-transparent hover:border-orange-500 transition-all group shadow-sm">
+                        <i class="fa-solid fa-money-check text-orange-500 text-2xl mb-2 group-hover:-translate-y-1 transition-transform"></i>
+                        <span class="text-[9px] font-black uppercase text-gray-700 dark:text-gray-300">Payroll</span>
+                    </button>
+                    <button class="flex flex-col items-center justify-center p-5 bg-gray-50 dark:bg-gray-900 rounded-2xl border border-transparent hover:border-secondary transition-all group shadow-sm">
+                        <i class="fa-solid fa-envelope-open-text text-secondary text-2xl mb-2 group-hover:-translate-y-1 transition-transform"></i>
+                        <span class="text-[9px] font-black uppercase text-gray-700 dark:text-gray-300">Dues SMS</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Mode of Collection Breakdown (Mock Logic) -->
+            <div class="bg-white dark:bg-darkSurface rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-6">
+                <div class="flex items-center justify-between mb-8">
+                    <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none">Mode of Collection (Total)</h3>
+                </div>
+                <div class="space-y-6 text-center py-4">
+                    <p class="text-[10px] text-gray-400 italic">Advanced analytics will be available as data accumulates.</p>
+                </div>
+            </div>
+
+            <!-- Critical Alert Section -->
+            <div class="bg-primary dark:bg-blue-800 p-8 rounded-2xl text-white shadow-2xl relative overflow-hidden group">
+                <i class="fa-solid fa-shield-halved absolute -right-6 -bottom-6 text-9xl opacity-10 group-hover:rotate-12 transition-transform duration-500"></i>
+                <h4 class="font-black text-sm uppercase tracking-widest mb-3 leading-none">Security Reminder</h4>
+                <p class="text-[11px] text-blue-100 leading-relaxed font-medium">Daily reconciliation list sham 5 baje tak Principal office ko submit karna anivarya hai.</p>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block footer %}
+<!-- STICKY FOOTER ACTION BAR -->
+<div class="fixed bottom-0 right-0 left-0 lg:left-64 bg-white dark:bg-darkSidebar border-t border-gray-100 dark:border-gray-800 p-5 sm:px-10 flex flex-col sm:flex-row items-center justify-between gap-4 z-40 shadow-[0_-10px_30px_rgba(0,0,0,0.03)] transition-colors duration-500">
+    <div class="flex items-center gap-3">
+        <span class="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(16,163,74,0.5)]"></span>
+        <p class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] leading-none">Accounts Sync: <span class="text-gray-900 dark:text-gray-200 uppercase">Live & Verified</span></p>
+    </div>
+    <div class="flex items-center gap-4 w-full sm:w-auto">
+        <a href="{% url 'download_ledger_csv' %}" class="flex-1 sm:flex-none px-6 py-2.5 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-all text-center">Download Log</a>
+        <a href="{% url 'daily_summary_report' %}" class="flex-1 sm:flex-none px-12 py-3 bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-black uppercase tracking-widest rounded-xl shadow-2xl shadow-emerald-500/20 transition-all border border-emerald-600 active:scale-95 text-center">Daily Summary Report</a>
+    </div>
+</div>
+{% endblock %}

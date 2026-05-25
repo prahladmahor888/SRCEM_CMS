@@ -1,0 +1,310 @@
+<header class="w-full relative z-50">
+    <!-- 1. Top Info Bar (Darker Blue) -->
+    <div class="bg-primaryDark text-white text-xs py-2 hidden md:block border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+            <div class="flex gap-4 items-center">
+                <span class="flex items-center gap-1 text-yellow-300 font-bold tracking-wider"><i class="fa-solid fa-medal"></i> NAAC 'A+' ACCREDITED</span>
+                <span class="border-l border-white/20 h-3"></span>
+                <a href="#" class="hover:text-yellow-300 transition">NIRF Ranking</a>
+                <span class="border-l border-white/20 h-3"></span>
+                <a href="#" class="hover:text-yellow-300 transition">Mandatory Disclosures</a>
+                <span class="border-l border-white/20 h-3"></span>
+                <a href="#" class="hover:text-yellow-300 transition">Careers</a>
+            </div>
+            <div class="flex gap-4 items-center font-medium">
+                <a href="#" class="hover:text-yellow-300 transition flex items-center gap-1"><i class="fa-solid fa-envelope"></i> Webmail</a>
+                <a href="#" class="hover:text-yellow-300 transition flex items-center gap-1"><i class="fa-solid fa-chalkboard-user"></i> Faculty Portal</a>
+                <a href="#" class="bg-yellow-500 text-gray-900 px-3 py-1 rounded-sm font-bold hover:bg-yellow-400 transition flex items-center gap-1"><i class="fa-solid fa-user-graduate"></i> Student ERP</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. Branding Section (White Background - Not Sticky) -->
+    <div class="bg-white py-4 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+            <!-- Logo & Title -->
+            <div class="flex items-center gap-4 cursor-pointer">
+                <img src="https://srgoc.org/wp-content/uploads/2024/12/cropped-Group-Logo-1.png" alt="" class="h-16 md:h-20 w-auto object-contain dark:bg-white dark:rounded dark:p-1" />
+                <div class="flex flex-col border-l-2 border-gray-300 dark:border-gray-600 pl-4">
+                    <span class="font-extrabold text-3xl md:text-4xl tracking-tight text-primary dark:text-white leading-none mb-1">SRCEM</span>
+                    <span class="text-xs md:text-sm text-gray-600 dark:text-gray-400 font-bold uppercase tracking-widest leading-tight">Shri Ram College<br>of Engineering & Management</span>
+                </div>
+            </div>
+
+            <!-- Accreditations & Contact (Hidden on small screens) -->
+            <div class="hidden lg:flex items-center gap-6 text-right">
+                <div class="flex flex-col items-end">
+                    <span class="text-sm font-extrabold text-gray-800 dark:text-gray-200"><i class="fa-solid fa-phone text-secondary"></i> 1800-270-0000</span>
+                    <span class="text-xs text-gray-500 dark:text-gray-400 font-medium">Toll Free Admission Helpline</span>
+                </div>
+                <div class="h-10 border-l border-gray-300 dark:border-gray-700"></div>
+                <div class="flex flex-col items-start gap-1">
+                    <span class="text-[10px] font-bold bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400 border border-green-200 dark:border-green-800 px-2 py-0.5 rounded uppercase">AICTE Approved</span>
+                    <span class="text-[10px] font-bold bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400 border border-blue-200 dark:border-blue-800 px-2 py-0.5 rounded uppercase">ISO 9001:2015</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. Separate Main Navigation Bar (Primary Color - Sticky) -->
+    <nav class="sticky top-0 z-40 bg-primary dark:bg-primaryDark shadow-lg transition-colors duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-14 md:h-16">
+                
+                <!-- Desktop Menu -->
+                <div class="hidden lg:flex items-center h-full space-x-1">
+                    <a href="/" class="flex items-center h-full text-white bg-blue-800 px-4 text-sm font-bold uppercase tracking-wider transition border-b-4 border-yellow-400">Home</a>
+                    
+                    <!-- Dropdown: About Us -->
+                    <div class="relative group h-full flex items-center">
+                        <a href="#about" class="flex items-center h-full text-white hover:bg-blue-800 hover:text-yellow-300 px-4 text-sm font-bold uppercase tracking-wider transition border-b-4 border-transparent hover:border-yellow-400">
+                            About SRCEM <i class="fa-solid fa-chevron-down ml-1.5 text-[10px] transition-transform group-hover:rotate-180"></i>
+                        </a>
+                        <!-- Dropdown Menu -->
+                        <div class="absolute top-[100%] left-0 w-64 bg-white dark:bg-gray-800 shadow-xl border-t-4 border-yellow-400 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform translate-y-2 group-hover:translate-y-0 z-50 rounded-b-md">
+                            <ul class="py-2">
+                                <li class="border-b border-gray-100 dark:border-gray-700 last:border-0"><a href="#" class="block px-5 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700 hover:text-primary dark:hover:text-blue-400 font-semibold transition"><i class="fa-solid fa-angle-right text-secondary mr-2"></i> Vision & Mission</a></li>
+                                <li class="border-b border-gray-100 dark:border-gray-700 last:border-0"><a href="#" class="block px-5 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700 hover:text-primary dark:hover:text-blue-400 font-semibold transition"><i class="fa-solid fa-angle-right text-secondary mr-2"></i> Leadership & Management</a></li>
+                                <li class="border-b border-gray-100 dark:border-gray-700 last:border-0"><a href="#" class="block px-5 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700 hover:text-primary dark:hover:text-blue-400 font-semibold transition"><i class="fa-solid fa-angle-right text-secondary mr-2"></i> Recognitions & Approvals</a></li>
+                                <li class="border-b border-gray-100 dark:border-gray-700 last:border-0"><a href="#" class="block px-5 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700 hover:text-primary dark:hover:text-blue-400 font-semibold transition"><i class="fa-solid fa-angle-right text-secondary mr-2"></i> Core Values</a></li>
+                                <li class="border-b border-gray-100 dark:border-gray-700 last:border-0"><a href="#" class="block px-5 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700 hover:text-primary dark:hover:text-blue-400 font-semibold transition"><i class="fa-solid fa-angle-right text-secondary mr-2"></i> Contact Us</a></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Dropdown: Academics -->
+                    <div class="relative group h-full flex items-center">
+                        <a href="#programs" class="flex items-center h-full text-white hover:bg-blue-800 hover:text-yellow-300 px-4 text-sm font-bold uppercase tracking-wider transition border-b-4 border-transparent hover:border-yellow-400">
+                            Academics <i class="fa-solid fa-chevron-down ml-1.5 text-[10px] transition-transform group-hover:rotate-180"></i>
+                        </a>
+                        <!-- Dropdown Menu -->
+                        <div class="absolute top-[100%] left-0 w-64 bg-white dark:bg-gray-800 shadow-xl border-t-4 border-yellow-400 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform translate-y-2 group-hover:translate-y-0 z-50 rounded-b-md">
+                            <ul class="py-2">
+                                <li class="border-b border-gray-100 dark:border-gray-700 last:border-0"><a href="#" class="block px-5 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700 hover:text-primary dark:hover:text-blue-400 font-semibold transition"><i class="fa-solid fa-laptop-code text-secondary mr-2"></i> Faculty of Engineering</a></li>
+                                <li class="border-b border-gray-100 dark:border-gray-700 last:border-0"><a href="#" class="block px-5 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700 hover:text-primary dark:hover:text-blue-400 font-semibold transition"><i class="fa-solid fa-chart-pie text-secondary mr-2"></i> Faculty of Management</a></li>
+                                <li class="border-b border-gray-100 dark:border-gray-700 last:border-0"><a href="#" class="block px-5 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700 hover:text-primary dark:hover:text-blue-400 font-semibold transition"><i class="fa-solid fa-flask text-secondary mr-2"></i> Faculty of Pharmacy</a></li>
+                                <li class="border-b border-gray-100 dark:border-gray-700 last:border-0"><a href="#" class="block px-5 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700 hover:text-primary dark:hover:text-blue-400 font-semibold transition"><i class="fa-solid fa-calendar-alt text-secondary mr-2"></i> Academic Calendar</a></li>
+                                <li class="border-b border-gray-100 dark:border-gray-700 last:border-0"><a href="#" class="block px-5 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700 hover:text-primary dark:hover:text-blue-400 font-semibold transition"><i class="fa-solid fa-file-pdf text-secondary mr-2"></i> Syllabus & Curriculum</a></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Dropdown: Admissions -->
+                    <div class="relative group h-full flex items-center">
+                        <a href="#admissions" class="flex items-center h-full text-white hover:bg-blue-800 hover:text-yellow-300 px-4 text-sm font-bold uppercase tracking-wider transition border-b-4 border-transparent hover:border-yellow-400">
+                            Admissions <i class="fa-solid fa-chevron-down ml-1.5 text-[10px] transition-transform group-hover:rotate-180"></i>
+                        </a>
+                        <!-- Dropdown Menu -->
+                        <div class="absolute top-[100%] left-0 w-64 bg-white dark:bg-gray-800 shadow-xl border-t-4 border-yellow-400 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform translate-y-2 group-hover:translate-y-0 z-50 rounded-b-md">
+                            <ul class="py-2">
+                                <li class="border-b border-gray-100 dark:border-gray-700 last:border-0"><a href="#" class="block px-5 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700 hover:text-primary dark:hover:text-blue-400 font-semibold transition"><i class="fa-solid fa-angle-right text-secondary mr-2"></i> UG Programs (B.Tech/BBA)</a></li>
+                                <li class="border-b border-gray-100 dark:border-gray-700 last:border-0"><a href="#" class="block px-5 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700 hover:text-primary dark:hover:text-blue-400 font-semibold transition"><i class="fa-solid fa-angle-right text-secondary mr-2"></i> PG Programs (M.Tech/MBA)</a></li>
+                                <li class="border-b border-gray-100 dark:border-gray-700 last:border-0"><a href="#" class="block px-5 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700 hover:text-primary dark:hover:text-blue-400 font-semibold transition"><i class="fa-solid fa-angle-right text-secondary mr-2"></i> Fee Structure 2026-27</a></li>
+                                <li class="border-b border-gray-100 dark:border-gray-700 last:border-0"><a href="#" class="block px-5 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700 hover:text-primary dark:hover:text-blue-400 font-semibold transition"><i class="fa-solid fa-angle-right text-secondary mr-2"></i> Scholarships</a></li>
+                                <li class="border-b border-gray-100 dark:border-gray-700 last:border-0"><a href="{% url 'apply_now' %}" class="block px-5 py-2.5 text-sm font-bold text-primary dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-700 transition"><i class="fa-solid fa-pen-to-square text-secondary mr-2"></i> Apply Online Now</a></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Dropdown: Placements -->
+                    <div class="relative group h-full flex items-center">
+                        <a href="#" class="flex items-center h-full text-white hover:bg-blue-800 hover:text-yellow-300 px-4 text-sm font-bold uppercase tracking-wider transition border-b-4 border-transparent hover:border-yellow-400">
+                            Placements <i class="fa-solid fa-chevron-down ml-1.5 text-[10px] transition-transform group-hover:rotate-180"></i>
+                        </a>
+                        <!-- Dropdown Menu -->
+                        <div class="absolute top-[100%] left-0 w-64 bg-white dark:bg-gray-800 shadow-xl border-t-4 border-yellow-400 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform translate-y-2 group-hover:translate-y-0 z-50 rounded-b-md">
+                            <ul class="py-2">
+                                <li class="border-b border-gray-100 dark:border-gray-700 last:border-0"><a href="{% url 'placements' %}" class="block px-5 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700 hover:text-primary dark:hover:text-blue-400 font-semibold transition"><i class="fa-solid fa-angle-right text-secondary mr-2"></i> Training & Placement Cell</a></li>
+                                <li class="border-b border-gray-100 dark:border-gray-700 last:border-0"><a href="{% url 'placements' %}#stats" class="block px-5 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700 hover:text-primary dark:hover:text-blue-400 font-semibold transition"><i class="fa-solid fa-angle-right text-secondary mr-2"></i> Placement Statistics 2025</a></li>
+                                <li class="border-b border-gray-100 dark:border-gray-700 last:border-0"><a href="#" class="block px-5 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700 hover:text-primary dark:hover:text-blue-400 font-semibold transition"><i class="fa-solid fa-angle-right text-secondary mr-2"></i> Top Recruiters</a></li>
+                                <li class="border-b border-gray-100 dark:border-gray-700 last:border-0"><a href="#" class="block px-5 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700 hover:text-primary dark:hover:text-blue-400 font-semibold transition"><i class="fa-solid fa-angle-right text-secondary mr-2"></i> Industry Tie-ups</a></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Dropdown: Student Corner -->
+                    <div class="relative group h-full flex items-center">
+                        <a href="#campus" class="flex items-center h-full text-white hover:bg-blue-800 hover:text-yellow-300 px-4 text-sm font-bold uppercase tracking-wider transition border-b-4 border-transparent hover:border-yellow-400">
+                            Student Corner <i class="fa-solid fa-chevron-down ml-1.5 text-[10px] transition-transform group-hover:rotate-180"></i>
+                        </a>
+                        <!-- Dropdown Menu -->
+                        <div class="absolute top-[100%] right-0 w-64 bg-white dark:bg-gray-800 shadow-xl border-t-4 border-yellow-400 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform translate-y-2 group-hover:translate-y-0 z-50 rounded-b-md">
+                            <ul class="py-2">
+                                <li class="border-b border-gray-100 dark:border-gray-700 last:border-0"><a href="{% url 'student_erp' %}" class="block px-5 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700 hover:text-primary dark:hover:text-blue-400 font-semibold transition"><i class="fa-solid fa-user-graduate text-secondary mr-2"></i> Student ERP</a></li>
+                                <li class="border-b border-gray-100 dark:border-gray-700 last:border-0"><a href="{% url 'digital_library' %}" class="block px-5 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700 hover:text-primary dark:hover:text-blue-400 font-semibold transition"><i class="fa-solid fa-book-open-reader text-secondary mr-2"></i> Digital Library</a></li>
+                                <li class="border-b border-gray-100 dark:border-gray-700 last:border-0"><a href="#" class="block px-5 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700 hover:text-primary dark:hover:text-blue-400 font-semibold transition"><i class="fa-solid fa-house-chimney text-secondary mr-2"></i> Hostel Facility</a></li>
+                                <li class="border-b border-gray-100 dark:border-gray-700 last:border-0"><a href="{% url 'transport' %}" class="block px-5 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700 hover:text-primary dark:hover:text-blue-400 font-semibold transition"><i class="fa-solid fa-bus text-secondary mr-2"></i> Transport Info</a></li>
+                                <li class="border-b border-gray-100 dark:border-gray-700 last:border-0"><a href="#" class="block px-5 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700 hover:text-primary dark:hover:text-blue-400 font-semibold transition"><i class="fa-solid fa-calendar-days text-secondary mr-2"></i> Clubs & Events</a></li>
+                                <li class="border-b border-gray-100 dark:border-gray-700 last:border-0"><a href="{% if user.is_authenticated and user.is_student_user %}{% url 'student_timetable' %}{% else %}{% url 'home' %}#notices{% endif %}" class="block px-5 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700 hover:text-primary dark:hover:text-blue-400 font-semibold transition"><i class="fa-solid fa-file-invoice text-secondary mr-2"></i> Exam Notices & Results</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mobile Menu Title -->
+                <div class="lg:hidden text-white font-bold uppercase tracking-widest text-sm">
+                    Menu
+                </div>
+
+                <!-- Right Side Buttons -->
+                <div class="flex items-center space-x-2 md:space-x-4">
+                    <button id="themeToggleBtnPortal" class="p-2 rounded bg-blue-800/50 text-white hover:bg-blue-700 transition">
+                        <i class="fa-solid fa-moon" id="themeIconPortal"></i>
+                    </button>
+                    
+                    {% if user.is_authenticated %}
+                        <div class="relative group hidden md:block">
+                            <button class="bg-blue-800/50 text-white px-4 py-2 rounded-sm font-bold flex items-center gap-2 hover:bg-blue-700 transition uppercase tracking-wide text-xs border border-white/20">
+                                <i class="fa-solid fa-user-circle text-lg"></i> {{ user.username }}
+                            </button>
+                            <!-- User Dropdown -->
+                            <div class="absolute right-0 top-full pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform translate-y-2 group-hover:translate-y-0 z-50">
+                                <div class="bg-white dark:bg-gray-800 shadow-2xl rounded-md border border-gray-100 dark:border-gray-700 py-2 w-48 overflow-hidden">
+                                    <a href="{% url 'profile' %}" class="block px-5 py-2.5 text-xs font-bold text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700 hover:text-primary dark:hover:text-blue-400 transition uppercase tracking-widest"><i class="fa-solid fa-id-badge mr-2"></i> My Profile</a>
+                                    <div class="border-t border-gray-100 dark:border-gray-700 my-1"></div>
+                                    <a href="javascript:document.getElementById('logout-form').submit();" class="block px-5 py-2.5 text-xs font-bold text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition uppercase tracking-widest leading-none"><i class="fa-solid fa-power-off mr-2"></i> Logout</a>
+                                </div>
+                            </div>
+                        </div>
+                    {% else %}
+                        <a href="{% url 'login' %}" class="hidden md:flex bg-white/10 hover:bg-white/20 text-white px-5 py-2 rounded-sm font-bold transition items-center gap-2 uppercase tracking-wide text-xs border border-white/30">
+                            <i class="fa-solid fa-lock text-[10px]"></i> Portal Login
+                        </a>
+                    {% endif %}
+
+                    <a href="{% url 'apply_now' %}" class="hidden lg:flex bg-secondary hover:bg-secondaryLight text-white px-6 py-2 rounded-sm font-bold transition shadow-md items-center gap-2 uppercase tracking-wide text-sm border border-red-400/50">
+                        Apply Now '26
+                    </a>
+                    
+                    <!-- Mobile Login/User Button -->
+                    {% if user.is_authenticated %}
+                         <button class="md:hidden text-white p-2">
+                             <i class="fa-solid fa-user-circle text-xl"></i>
+                         </button>
+                    {% endif %}
+
+                    <!-- Mobile menu button -->
+                    <button id="mobileMenuBtn" class="lg:hidden text-white hover:text-yellow-300 focus:outline-none p-2 ml-2 bg-blue-800/50 rounded">
+                        <i class="fa-solid fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu Panel -->
+        <div id="mobileMenu" class="hidden lg:hidden bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 shadow-xl absolute w-full max-h-screen overflow-y-auto z-50">
+            <div class="px-4 pt-2 pb-6 space-y-2">
+                <a href="/" class="block px-3 py-3 rounded-md text-base font-bold text-primary bg-blue-50 dark:bg-gray-800 border-l-4 border-primary">Home</a>
+                
+                <!-- Mobile Dropdown: About -->
+                <div class="mobile-dropdown-wrapper">
+                    <button class="mobile-dropdown-btn w-full flex justify-between items-center px-3 py-3 rounded-md text-base font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800">
+                        About SRCEM <i class="fa-solid fa-chevron-down text-sm transition-transform duration-300"></i>
+                    </button>
+                    <div class="mobile-dropdown-content hidden pl-6 pr-3 py-2 space-y-2 bg-gray-50 dark:bg-gray-800/50 rounded-b-md">
+                        <a href="#" class="block py-1 text-sm text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-blue-400">Vision & Mission</a>
+                        <a href="#" class="block py-1 text-sm text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-blue-400">Leadership & Management</a>
+                        <a href="#" class="block py-1 text-sm text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-blue-400">Recognitions & Approvals</a>
+                        <a href="#" class="block py-1 text-sm text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-blue-400">Contact Us</a>
+                    </div>
+                </div>
+
+                <!-- Mobile Dropdown: Academics -->
+                <div class="mobile-dropdown-wrapper">
+                    <button class="mobile-dropdown-btn w-full flex justify-between items-center px-3 py-3 rounded-md text-base font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800">
+                        Academics <i class="fa-solid fa-chevron-down text-sm transition-transform duration-300"></i>
+                    </button>
+                    <div class="mobile-dropdown-content hidden pl-6 pr-3 py-2 space-y-2 bg-gray-50 dark:bg-gray-800/50 rounded-b-md">
+                        <a href="#" class="block py-1 text-sm text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-blue-400">Faculty of Engineering</a>
+                        <a href="#" class="block py-1 text-sm text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-blue-400">Faculty of Management</a>
+                        <a href="#" class="block py-1 text-sm text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-blue-400">Faculty of Pharmacy</a>
+                        <a href="#" class="block py-1 text-sm text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-blue-400">Academic Calendar</a>
+                    </div>
+                </div>
+
+                <!-- Mobile Dropdown: Admissions -->
+                <div class="mobile-dropdown-wrapper">
+                    <button class="mobile-dropdown-btn w-full flex justify-between items-center px-3 py-3 rounded-md text-base font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800">
+                        Admissions <i class="fa-solid fa-chevron-down text-sm transition-transform duration-300"></i>
+                    </button>
+                    <div class="mobile-dropdown-content hidden pl-6 pr-3 py-2 space-y-2 bg-gray-50 dark:bg-gray-800/50 rounded-b-md">
+                        <a href="#" class="block py-1 text-sm text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-blue-400">UG Programs</a>
+                        <a href="#" class="block py-1 text-sm text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-blue-400">PG Programs</a>
+                        <a href="#" class="block py-1 text-sm text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-blue-400">Fee Structure</a>
+                    </div>
+                </div>
+
+                <!-- Mobile Dropdown: Placements -->
+                <div class="mobile-dropdown-wrapper">
+                    <button class="mobile-dropdown-btn w-full flex justify-between items-center px-3 py-3 rounded-md text-base font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800">
+                        Placements <i class="fa-solid fa-chevron-down text-sm transition-transform duration-300"></i>
+                    </button>
+                    <div class="mobile-dropdown-content hidden pl-6 pr-3 py-2 space-y-2 bg-gray-50 dark:bg-gray-800/50 rounded-b-md">
+                        <a href="{% url 'placements' %}" class="block py-1 text-sm text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-blue-400">Training & Placement Cell</a>
+                        <a href="{% url 'placements' %}#stats" class="block py-1 text-sm text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-blue-400">Placement Statistics</a>
+                        <a href="{% url 'placements' %}#recruiters" class="block py-1 text-sm text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-blue-400">Top Recruiters</a>
+                    </div>
+                </div>
+
+                <!-- Mobile Dropdown: Student Corner -->
+                <div class="mobile-dropdown-wrapper">
+                    <button class="mobile-dropdown-btn w-full flex justify-between items-center px-3 py-3 rounded-md text-base font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800">
+                        Student Corner <i class="fa-solid fa-chevron-down text-sm transition-transform duration-300"></i>
+                    </button>
+                    <div class="mobile-dropdown-content hidden pl-6 pr-3 py-2 space-y-2 bg-gray-50 dark:bg-gray-800/50 rounded-b-md">
+                        <a href="{% url 'student_erp' %}" class="block py-1 text-sm text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-blue-400">Student ERP</a>
+                        <a href="{% url 'digital_library' %}" class="block py-1 text-sm text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-blue-400">Digital Library</a>
+                        <a href="{% url 'transport' %}" class="block py-1 text-sm text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-blue-400">Hostel & Transport</a>
+                        <a href="{% if user.is_authenticated and user.is_student_user %}{% url 'student_timetable' %}{% else %}{% url 'home' %}#notices{% endif %}" class="block py-1 text-sm text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-blue-400">Notices & Results</a>
+                    </div>
+                </div>
+
+                <div class="border-t border-gray-200 dark:border-gray-700 my-2 pt-2"></div>
+                
+                {% if user.is_authenticated %}
+                    <div class="px-3 py-3 rounded-md bg-blue-50 dark:bg-gray-800 mb-2 border-l-4 border-primary">
+                        <span class="block text-[10px] font-extrabold text-primary dark:text-blue-400 uppercase tracking-widest mb-1 leading-none">Logged in as</span>
+                        <span class="block text-sm font-bold text-gray-900 dark:text-white">{{ user.username }}</span>
+                    </div>
+                    <a href="{% url 'profile' %}" class="block px-3 py-3 rounded-md text-base font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 uppercase tracking-wide text-xs">My Profile</a>
+                    <a href="javascript:document.getElementById('logout-form').submit();" class="block px-3 py-3 rounded-md text-base font-bold text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 uppercase tracking-wide text-xs">Logout</a>
+                {% else %}
+                    <a href="{% url 'login' %}" class="block px-3 py-3 rounded-md text-base font-extrabold text-primary bg-blue-50 dark:bg-gray-800 border-l-4 border-primary uppercase tracking-wide text-xs">Student/Faculty Login</a>
+                {% endif %}
+
+                <div class="border-t border-gray-200 dark:border-gray-700 my-2 pt-2"></div>
+                <a href="{% url 'apply_now' %}" class="block px-3 py-3 text-center rounded-md text-base font-bold bg-secondary text-white shadow uppercase tracking-widest text-sm">Apply Now 2026</a>
+            </div>
+        </div>
+    </nav>
+</header>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const mobileMenuBtns = document.querySelectorAll('.mobile-dropdown-btn');
+        mobileMenuBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const content = this.nextElementSibling;
+                const icon = this.querySelector('i');
+                content.classList.toggle('hidden');
+                icon.classList.toggle('rotate-180');
+            });
+        });
+        
+        // Mobile Menu toggle logic
+        const mainMobileBtn = document.getElementById('mobileMenuBtn');
+        const mobileMenu = document.getElementById('mobileMenu');
+        if (mainMobileBtn && mobileMenu) {
+            mainMobileBtn.addEventListener('click', function() {
+                mobileMenu.classList.toggle('hidden');
+            });
+
+            // Close mobile menu on clicking any link inside it
+            const mobileLinks = mobileMenu.querySelectorAll('a');
+            mobileLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    mobileMenu.classList.add('hidden');
+                });
+            });
+        }
+    });
+</script>

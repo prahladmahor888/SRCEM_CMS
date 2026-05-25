@@ -1,0 +1,243 @@
+{% extends 'base/dashboard_base.html' %}
+{% load static %}
+
+{% block title %}Collect Student Fee - SRCEM{% endblock %}
+
+{% block dashboard_content %}
+<div class="max-w-xl mx-auto space-y-6 pb-12">
+    <!-- Header Page -->
+    <div class="flex items-center gap-3">
+        <a href="{% url 'dashboard' %}" class="w-10 h-10 rounded-xl bg-white dark:bg-darkSurface border border-gray-200 dark:border-gray-800 flex items-center justify-center text-gray-500 hover:text-emerald-600 transition-colors">
+            <i class="fa-solid fa-arrow-left"></i>
+        </a>
+        <div>
+            <h2 class="text-xl font-black text-gray-900 dark:text-white uppercase tracking-wider">Collect Student Fee</h2>
+            <p class="text-xs text-gray-500">Record a new fee collection transaction</p>
+        </div>
+    </div>
+
+    <!-- Form Container -->
+    <div class="bg-white dark:bg-darkSurface rounded-2xl border border-gray-150 dark:border-gray-800 shadow-sm p-6 sm:p-8">
+        <form method="POST" action="{% url 'collect_fee' %}" class="space-y-6">
+            {% csrf_token %}
+
+            <!-- Student Selection -->
+            <div class="space-y-2 relative" id="student-dropdown-wrapper">
+                <label class="text-xs font-black text-gray-400 uppercase tracking-widest block">Select Student *</label>
+                
+                <!-- Hidden input for form submission & native HTML5 validation -->
+                <input type="text" name="student" id="student-id-input" required class="absolute opacity-0 w-px h-px pointer-events-none" style="top: 2.5rem; left: 1.5rem;">
+                
+                <!-- Custom Dropdown Button -->
+                <button type="button" id="student-dropdown-btn" class="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl text-sm font-semibold text-gray-900 dark:text-white focus:outline-none focus:border-emerald-500 transition-all flex items-center justify-between text-left cursor-pointer hover:border-emerald-500/50">
+                    <span id="selected-student-label" class="text-gray-400 dark:text-gray-500 font-medium">Choose a student...</span>
+                    <i class="fa-solid fa-chevron-down text-xs text-gray-400 transition-transform duration-200" id="dropdown-chevron"></i>
+                </button>
+                
+                <!-- Custom Dropdown Menu -->
+                <div id="student-dropdown-menu" class="absolute z-50 left-0 right-0 mt-2 bg-white dark:bg-darkSurface border border-gray-150 dark:border-gray-800 rounded-2xl shadow-xl hidden flex-col overflow-hidden max-h-80">
+                    <!-- Search Box inside dropdown -->
+                    <div class="p-3 border-b border-gray-100 dark:border-gray-800 flex items-center gap-2 bg-gray-50/50 dark:bg-gray-900/50">
+                        <i class="fa-solid fa-magnifying-glass text-gray-400 text-sm"></i>
+                        <input type="text" id="student-search-input" placeholder="Type to filter by name, roll no, or branch..." class="w-full bg-transparent border-none text-sm font-semibold text-gray-900 dark:text-white focus:outline-none placeholder-gray-400">
+                    </div>
+                    
+                    <!-- Options list -->
+                    <div id="student-options-list" class="overflow-y-auto max-h-60 divide-y divide-gray-50 dark:divide-gray-800/50">
+                        {% for student in students %}
+                            <button type="button" class="student-option w-full px-4 py-3 text-left hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20 flex flex-col gap-0.5 transition-colors focus:outline-none"
+                                    data-id="{{ student.id }}"
+                                    data-display-name="{{ student.user.get_full_name }}"
+                                    data-roll="{{ student.enrollment_number|default:student.user.login_id }}"
+                                    data-branch="{{ student.branch.branch_code }}"
+                                    data-search-text="{{ student.user.get_full_name|lower }} {{ student.enrollment_number|default:student.user.login_id|lower }} {{ student.branch.branch_code|lower }}">
+                                <span class="text-sm font-bold text-gray-900 dark:text-white">{{ student.user.get_full_name }}</span>
+                                <span class="text-xs text-gray-450 dark:text-gray-500 font-semibold">{{ student.enrollment_number|default:student.user.login_id }} • {{ student.branch.branch_code }}</span>
+                            </button>
+                        {% endfor %}
+                        <div id="no-students-found" class="px-4 py-6 text-center text-sm font-semibold text-gray-400 dark:text-gray-500 hidden">
+                            No matching students found
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Amount -->
+            <div class="space-y-2">
+                <label for="amount" class="text-xs font-black text-gray-400 uppercase tracking-widest block">Amount (₹) *</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400">
+                        <i class="fa-solid fa-indian-rupee-sign text-sm"></i>
+                    </div>
+                    <input type="number" step="0.01" name="amount" id="amount" required min="0.01" placeholder="Enter amount" class="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl text-sm font-semibold text-gray-900 dark:text-white focus:outline-none focus:border-emerald-500 transition-colors">
+                </div>
+            </div>
+
+            <!-- Payment Mode -->
+            <div class="space-y-2">
+                <label for="payment_mode" class="text-xs font-black text-gray-400 uppercase tracking-widest block">Payment Mode *</label>
+                <select name="payment_mode" id="payment_mode" required class="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl text-sm font-semibold text-gray-900 dark:text-white focus:outline-none focus:border-emerald-500 transition-colors cursor-pointer">
+                    {% for val, label in payment_modes %}
+                        <option value="{{ val }}">{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Remarks -->
+            <div class="space-y-2">
+                <label for="remarks" class="text-xs font-black text-gray-400 uppercase tracking-widest block">Remarks / Notes</label>
+                <textarea name="remarks" id="remarks" rows="3" placeholder="Enter optional transaction notes..." class="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl text-sm font-semibold text-gray-900 dark:text-white focus:outline-none focus:border-emerald-500 transition-colors resize-none"></textarea>
+            </div>
+
+            <!-- Action Button -->
+            <button type="submit" class="w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs uppercase tracking-widest rounded-xl shadow-lg shadow-emerald-500/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+                <i class="fa-solid fa-cash-register"></i> Complete Transaction
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const dropdownWrapper = document.getElementById('student-dropdown-wrapper');
+        const dropdownBtn = document.getElementById('student-dropdown-btn');
+        const dropdownMenu = document.getElementById('student-dropdown-menu');
+        const dropdownChevron = document.getElementById('dropdown-chevron');
+        const searchInput = document.getElementById('student-search-input');
+        const idInput = document.getElementById('student-id-input');
+        const label = document.getElementById('selected-student-label');
+        const options = document.querySelectorAll('.student-option');
+        const noResults = document.getElementById('no-students-found');
+
+        let highlightedIndex = -1;
+
+        function getVisibleOptions() {
+            return Array.from(options).filter(opt => opt.style.display !== 'none');
+        }
+
+        function updateHighlight() {
+            const visibleOptions = getVisibleOptions();
+            options.forEach(opt => opt.classList.remove('bg-emerald-50/70', 'dark:bg-emerald-950/40', 'ring-1', 'ring-emerald-500/50'));
+            
+            if (highlightedIndex >= 0 && highlightedIndex < visibleOptions.length) {
+                const activeOpt = visibleOptions[highlightedIndex];
+                activeOpt.classList.add('bg-emerald-50/70', 'dark:bg-emerald-950/40', 'ring-1', 'ring-emerald-500/50');
+                activeOpt.scrollIntoView({ block: 'nearest' });
+            }
+        }
+
+        function openDropdown() {
+            dropdownMenu.classList.remove('hidden');
+            dropdownMenu.classList.add('flex');
+            dropdownChevron.classList.add('rotate-180');
+            highlightedIndex = -1;
+            updateHighlight();
+            setTimeout(() => searchInput.focus(), 50);
+        }
+
+        function closeDropdown() {
+            dropdownMenu.classList.remove('flex');
+            dropdownMenu.classList.add('hidden');
+            dropdownChevron.classList.remove('rotate-180');
+        }
+
+        dropdownBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const isHidden = dropdownMenu.classList.contains('hidden');
+            if (isHidden) {
+                openDropdown();
+            } else {
+                closeDropdown();
+            }
+        });
+
+        // Filter students on input change
+        searchInput.addEventListener('input', function() {
+            const query = searchInput.value.toLowerCase().trim();
+            let anyVisible = false;
+
+            options.forEach(option => {
+                const searchText = option.getAttribute('data-search-text');
+                if (searchText.includes(query)) {
+                    option.style.display = 'flex';
+                    anyVisible = true;
+                } else {
+                    option.style.display = 'none';
+                }
+            });
+
+            if (anyVisible) {
+                noResults.classList.add('hidden');
+            } else {
+                noResults.classList.remove('hidden');
+            }
+
+            highlightedIndex = -1;
+            updateHighlight();
+        });
+
+        // Click on search input shouldn't close dropdown
+        searchInput.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+
+        // Keyboard navigation inside search input
+        searchInput.addEventListener('keydown', function(e) {
+            const visibleOptions = getVisibleOptions();
+            
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                if (visibleOptions.length > 0) {
+                    highlightedIndex = (highlightedIndex + 1) % visibleOptions.length;
+                    updateHighlight();
+                }
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                if (visibleOptions.length > 0) {
+                    highlightedIndex = (highlightedIndex - 1 + visibleOptions.length) % visibleOptions.length;
+                    updateHighlight();
+                }
+            } else if (e.key === 'Enter') {
+                e.preventDefault(); // Prevent form submission
+                if (highlightedIndex >= 0 && highlightedIndex < visibleOptions.length) {
+                    visibleOptions[highlightedIndex].click();
+                }
+            } else if (e.key === 'Escape') {
+                e.preventDefault();
+                closeDropdown();
+                dropdownBtn.focus();
+            }
+        });
+
+        // Select student option
+        options.forEach(option => {
+            option.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const studentId = option.getAttribute('data-id');
+                const displayName = option.getAttribute('data-display-name');
+                const roll = option.getAttribute('data-roll');
+                const branch = option.getAttribute('data-branch');
+
+                idInput.value = studentId;
+                idInput.dispatchEvent(new Event('change'));
+
+                label.textContent = `${displayName} (${roll} • ${branch})`;
+                label.classList.remove('text-gray-400', 'dark:text-gray-500', 'font-medium');
+                label.classList.add('text-gray-900', 'dark:text-white', 'font-bold');
+
+                closeDropdown();
+                dropdownBtn.focus();
+            });
+        });
+
+        // Click outside to close
+        document.addEventListener('click', function(event) {
+            if (!dropdownWrapper.contains(event.target)) {
+                closeDropdown();
+            }
+        });
+    });
+</script>
+{% endblock %}

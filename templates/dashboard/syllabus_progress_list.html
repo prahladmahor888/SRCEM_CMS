@@ -1,0 +1,112 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Syllabus Progress Audit - SRCEM CMS{% endblock %}
+
+{% block navbar %}{% endblock %}
+{% block ticker %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block content %}
+<div class="flex-1 flex flex-col min-w-0 bg-gray-50 dark:bg-darkBg transition-all duration-300 h-full overflow-hidden">
+    {% include 'base/header_dashboard.html' %}
+
+    <div class="flex-1 overflow-y-auto p-4 sm:p-8 no-scrollbar bg-gray-50 dark:bg-darkBg pb-40">
+        <div class="max-w-7xl mx-auto space-y-8">
+            
+            <!-- Header Section -->
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div>
+                    <h1 class="text-3xl font-black text-gray-900 dark:text-white uppercase tracking-tight">Syllabus Progress Audit</h1>
+                    <p class="text-gray-500 font-medium text-sm mt-1">Reviewing curriculum coverage across the {{ user.faculty_profile.department.dept_name }} Department.</p>
+                </div>
+                <div class="flex gap-3">
+                    <button class="bg-white dark:bg-darkSurface border border-gray-100 dark:border-gray-800 px-6 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest text-gray-500 shadow-sm hover:bg-gray-50 transition-all">Download Audit PDF</button>
+                </div>
+            </div>
+
+            <!-- Stats Overview -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-primary dark:bg-blue-600 p-6 rounded-3xl shadow-xl shadow-primary/20 relative overflow-hidden">
+                    <div class="absolute -right-4 -top-4 opacity-10 rotate-12">
+                        <i class="fa-solid fa-graduation-cap text-8xl text-white"></i>
+                    </div>
+                    <p class="text-[10px] font-black text-blue-100 uppercase tracking-widest mb-1">Average Dept. Progress</p>
+                    <h3 class="text-4xl font-black text-white">64%</h3>
+                </div>
+                <!-- Add more stats if needed -->
+            </div>
+
+            <!-- Coverage Table -->
+            <div class="bg-white dark:bg-darkSurface rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden">
+                <div class="p-6 border-b border-gray-50 dark:border-gray-800 flex justify-between items-center">
+                    <h3 class="text-xs font-black text-gray-900 dark:text-white uppercase tracking-widest">Syllabus Coverage Roster</h3>
+                    <div class="flex items-center gap-4">
+                        <span class="text-[10px] text-gray-400 font-bold uppercase">Filter: All Semesters</span>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto no-scrollbar">
+                    <table class="w-full text-left border-collapse min-w-[800px]">
+                        <thead>
+                            <tr class="bg-gray-50 dark:bg-gray-900/50 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 dark:border-gray-800">
+                                <th class="p-6">Subject & Code</th>
+                                <th class="p-6 text-center">Semester</th>
+                                <th class="p-6">Assigned Faculty</th>
+                                <th class="p-6">Completion Progress</th>
+                                <th class="p-6">Last Updated</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-50 dark:divide-gray-800">
+                            {% for coverage in object_list %}
+                            <tr class="hover:bg-gray-50 dark:hover:bg-gray-900/30 transition-all group">
+                                <td class="p-6">
+                                    <h4 class="text-xs font-black text-gray-900 dark:text-white uppercase">{{ coverage.allotment.subject.subject_name }}</h4>
+                                    <p class="text-[10px] font-bold text-gray-400 mt-0.5 tracking-widest">{{ coverage.allotment.subject.subject_code }}</p>
+                                </td>
+                                <td class="p-6 text-center">
+                                    <span class="px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-[10px] font-black text-gray-600 dark:text-gray-400">
+                                        SEM {{ coverage.allotment.semester }}
+                                    </span>
+                                </td>
+                                <td class="p-6">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg flex items-center justify-center font-black text-[10px]">
+                                            {{ coverage.allotment.faculty.user.first_name|slice:":1" }}{{ coverage.allotment.faculty.user.last_name|slice:":1" }}
+                                        </div>
+                                        <div>
+                                            <p class="text-xs font-bold text-gray-800 dark:text-gray-200">{{ coverage.allotment.faculty.user.get_full_name }}</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="p-6 w-1/4">
+                                    <div class="flex justify-between items-center mb-1.5">
+                                        <span class="text-[10px] font-black {% if coverage.percentage < 30 %}text-secondary{% elif coverage.percentage < 70 %}text-warning{% else %}text-success{% endif %}">
+                                            {{ coverage.percentage }}%
+                                        </span>
+                                    </div>
+                                    <div class="h-1.5 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
+                                        <div class="h-full {% if coverage.percentage < 30 %}bg-secondary{% elif coverage.percentage < 70 %}bg-warning{% else %}bg-success{% endif %} transition-all duration-1000" 
+                                             style="width: {{ coverage.percentage }}%"></div>
+                                    </div>
+                                </td>
+                                <td class="p-6">
+                                    <p class="text-[10px] font-bold text-gray-500 uppercase">{{ coverage.last_updated|timesince }} ago</p>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="p-20 text-center text-gray-400 text-xs font-black uppercase tracking-widest">
+                                    No syllabus coverage data available for this session.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

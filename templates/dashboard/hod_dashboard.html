@@ -1,0 +1,226 @@
+{% extends 'dashboard/faculty_dashboard_base.html' %}
+
+{% block title %}HOD Command Centre - {{ user.faculty_profile.department.dept_name|default:"CSE" }} Department{% endblock %}
+
+{% block welcome_banner %}
+    <div class="bg-gradient-to-br from-primary/10 to-primary/5 dark:from-primaryDark dark:to-darkSidebar relative overflow-hidden rounded-2xl shadow-sm border border-primary/10 dark:border-blue-900/50 transition-all duration-500">
+        <!-- Decorative Icon -->
+        <div class="absolute top-0 right-0 p-10 opacity-[0.03] dark:opacity-5 pointer-events-none rotate-12 transition-opacity">
+            <i class="fa-solid fa-sitemap text-[180px] text-primary dark:text-white"></i>
+        </div>
+        
+        <div class="p-6 sm:p-10 relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-8">
+            <div class="space-y-3 text-center md:text-left">
+                <!-- Session Badge -->
+                <div class="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 dark:bg-blue-600/30 border border-primary/20 dark:border-blue-400/20 rounded-full text-primary dark:text-white text-[10px] font-black uppercase tracking-[0.2em] backdrop-blur-sm transition-all">
+                    <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span> Academic Control Centre
+                </div>
+                
+                <!-- Title -->
+                <h2 class="text-3xl sm:text-5xl font-black text-gray-900 dark:text-white uppercase tracking-tight leading-tight transition-colors">{{ user.faculty_profile.department.dept_name|default:"CSE" }} Department Hub</h2>
+                
+                <!-- Info -->
+                <p class="text-gray-600 dark:text-blue-100 text-sm font-medium max-w-xl leading-relaxed transition-colors">
+                    Head: Dr. {{ user.get_full_name }} • Session 2025-26 • Semesters: II, IV, VI, VIII
+                </p>
+            </div>
+            
+            <div class="flex flex-wrap gap-3 justify-center">
+                <a href="{% url 'syllabus_progress_list' %}" class="bg-primary dark:bg-white text-white dark:text-primaryDark px-6 py-3.5 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all">Syllabus Progress</a>
+                <button class="bg-white dark:bg-blue-600/40 text-primary dark:text-white border border-primary/20 dark:border-white/20 px-6 py-3.5 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-gray-50 dark:hover:bg-blue-600 transition-all hover:-translate-y-1">Faculty Roster</button>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block metric_tiles %}
+    <div class="bg-white dark:bg-darkSurface rounded-2xl border border-gray-100 dark:border-white/5 shadow-sm dark:shadow-xl relative overflow-hidden group custom-card">
+        <div class="absolute -right-4 -top-4 opacity-[0.02] dark:opacity-[0.03] group-hover:opacity-[0.05] dark:group-hover:opacity-[0.07] group-hover:scale-110 transition-all duration-700">
+            <i class="fa-solid fa-users text-9xl text-primary dark:text-white"></i>
+        </div>
+        <div class="p-6">
+            <p class="text-[10px] font-black text-primary/60 dark:text-blue-300 uppercase tracking-widest mb-1">Total Students</p>
+            <h3 class="text-3xl font-black text-gray-900 dark:text-white transition-colors">{{ total_students|default:"0" }}</h3>
+            <div class="mt-4 flex items-center gap-2">
+                <span class="flex items-center text-[10px] font-bold text-success bg-success/10 px-2 py-0.5 rounded-full">
+                    <i class="fa-solid fa-arrow-up mr-1 text-[8px]"></i> 12%
+                </span>
+                <span class="text-[9px] text-gray-400 dark:text-blue-300/60 font-medium lowercase">vs last month</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white dark:bg-darkSurface rounded-2xl border border-gray-100 dark:border-white/5 shadow-sm dark:shadow-xl relative overflow-hidden group custom-card">
+        <div class="absolute -right-4 -top-4 opacity-[0.02] dark:opacity-[0.03] group-hover:opacity-[0.05] dark:group-hover:opacity-[0.07] group-hover:scale-110 transition-all duration-700">
+            <i class="fa-solid fa-book-open text-9xl text-primary dark:text-white"></i>
+        </div>
+        <div class="p-6">
+            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Active Courses</p>
+            <h3 class="text-3xl font-black text-gray-900 dark:text-white transition-colors">{{ active_courses|default:"0" }}</h3>
+            <p class="mt-4 text-[9px] text-gray-400 font-bold uppercase tracking-tighter">Current Semester</p>
+        </div>
+    </div>
+
+    <div class="bg-white dark:bg-darkSurface rounded-2xl border border-gray-100 dark:border-white/5 shadow-sm dark:shadow-xl relative overflow-hidden group custom-card">
+        <div class="absolute -right-4 -top-4 opacity-[0.02] dark:opacity-[0.03] group-hover:opacity-[0.05] dark:group-hover:opacity-[0.07] group-hover:scale-110 transition-all duration-700">
+            <i class="fa-solid fa-chalkboard-user text-9xl text-primary dark:text-white"></i>
+        </div>
+        <div class="p-6">
+            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Total Faculty</p>
+            <h3 class="text-3xl font-black text-gray-900 dark:text-white transition-colors">{{ total_faculty|default:"0" }}</h3>
+            <p class="mt-4 text-[9px] text-gray-400 font-bold uppercase tracking-tighter">Dept. Roster</p>
+        </div>
+    </div>
+
+    <div class="bg-white dark:bg-darkSurface rounded-2xl border border-gray-100 dark:border-white/5 shadow-sm dark:shadow-xl relative overflow-hidden group custom-card">
+        <div class="absolute -right-4 -top-4 opacity-[0.02] dark:opacity-[0.03] group-hover:opacity-[0.05] dark:group-hover:opacity-[0.07] group-hover:scale-110 transition-all duration-700">
+            <i class="fa-solid fa-flask text-9xl text-primary dark:text-white"></i>
+        </div>
+        <div class="p-6">
+            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Research Output</p>
+            <h3 class="text-3xl font-black text-indigo-600 dark:text-indigo-400">{{ research_stats.total_pubs|default:"00" }}</h3>
+            <p class="mt-4 text-[9px] text-gray-400 font-bold uppercase tracking-tighter">Publications</p>
+        </div>
+    </div>
+{% endblock %}
+
+{% block dashboard_main_left %}
+    <!-- Syllabus Completion Tracker -->
+    <div class="bg-white dark:bg-darkSurface rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden">
+        <div class="p-5 border-b border-gray-50 dark:border-gray-800 flex justify-between items-center bg-gray-50 dark:bg-gray-800/40">
+            <h3 class="text-sm font-black text-gray-900 dark:text-white uppercase tracking-widest flex items-center gap-3">
+                <i class="fa-solid fa-bars-progress text-primary"></i> Syllabus Coverage Audit
+            </h3>
+            <a href="{% url 'syllabus_progress_list' %}" class="text-[10px] font-bold text-primary hover:underline uppercase">View Full Report</a>
+        </div>
+        <div class="p-6">
+            <div class="grid sm:grid-cols-3 gap-6">
+                {% for coverage in top_coverage %}
+                <div class="p-4 bg-gray-50 dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 flex items-center justify-between">
+                    <div class="min-w-0">
+                        <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest truncate">{{ coverage.allotment.subject.subject_code }}</p>
+                        <h4 class="text-xs font-bold text-gray-800 dark:text-gray-200 truncate">{{ coverage.allotment.subject.subject_name }}</h4>
+                    </div>
+                    <div class="flex flex-col items-end">
+                        <span class="text-sm font-black text-primary dark:text-blue-400">{{ coverage.percentage }}%</span>
+                        <div class="w-12 h-1 bg-gray-200 dark:bg-gray-800 rounded-full mt-1 overflow-hidden">
+                            <div class="h-full bg-primary transition-all duration-1000" style="width: {{ coverage.percentage }}%"></div>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="sm:col-span-3 text-center py-4 text-gray-400 text-xs">No coverage data available</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Faculty Workload Hub -->
+    <div class="bg-white dark:bg-darkSurface rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden mt-8">
+        <div class="p-4 sm:p-6 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
+            <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Faculty Workload Audit</h3>
+            <button class="text-primary text-[10px] font-black uppercase tracking-widest hover:underline">Full Report</button>
+        </div>
+        <div class="overflow-x-auto no-scrollbar">
+            <table class="w-full text-left min-w-[600px]">
+                <thead class="bg-gray-50 dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800">
+                    <tr class="text-[9px] font-black text-gray-400 uppercase tracking-widest">
+                        <th class="p-4">Faculty Name</th>
+                        <th class="p-4 text-center">Semester</th>
+                        <th class="p-4 text-center">Total Load</th>
+                        <th class="p-4 text-center">Status</th>
+                    </tr>
+                </thead>
+                <tbody class="text-xs font-bold divide-y divide-gray-50 dark:divide-gray-800">
+                    {% for faculty in faculty_workload %}
+                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-900/20 transition-colors">
+                        <td class="p-4 flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-lg bg-blue-100 text-primary flex items-center justify-center uppercase">
+                                {{ faculty.user.first_name|slice:":1" }}{{ faculty.user.last_name|slice:":1" }}
+                            </div>
+                            <span class="text-gray-800 dark:text-gray-200 uppercase">{{ faculty.user.get_full_name }}</span>
+                        </td>
+                        <td class="p-4 text-center text-gray-500 italic">Odd/Even</td>
+                        <td class="p-4 text-center">{{ faculty.total_sessions|default:"0" }} Cls/wk</td>
+                        <td class="p-4 text-center">
+                            <span class="px-2 py-0.5 {% if faculty.total_sessions > 15 %}bg-red-50 text-secondary border-red-100{% else %}bg-green-50 text-success border-green-100{% endif %} rounded-sm text-[9px] uppercase border">
+                                {% if faculty.total_sessions > 15 %}Overloaded{% else %}Optimal{% endif %}
+                            </span>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="4" class="p-4 text-center text-gray-400">No faculty workload data available</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}
+
+{% block dashboard_main_right %}
+    <!-- HOD Management Suite -->
+    <div class="bg-white dark:bg-darkSurface rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-6 space-y-4">
+        <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 leading-none">Management Suite</h3>
+        <div class="grid grid-cols-2 gap-3">
+            <button class="flex flex-col items-center justify-center p-4 bg-gray-50 dark:bg-gray-900 rounded-xl border border-transparent hover:border-primary group transition-all">
+                <i class="fa-solid fa-money-bill-transfer text-primary text-lg mb-2 group-hover:-translate-y-1 transition-transform"></i>
+                <span class="text-[9px] font-black uppercase text-gray-700 dark:text-gray-300">Fund Request</span>
+            </button>
+            <button class="flex flex-col items-center justify-center p-4 bg-gray-50 dark:bg-gray-900 rounded-xl border border-transparent hover:border-primary group transition-all">
+                <i class="fa-solid fa-graduation-cap text-success text-lg mb-2 group-hover:-translate-y-1 transition-transform"></i>
+                <span class="text-[9px] font-black uppercase text-gray-700 dark:text-gray-300">Degree Verif.</span>
+            </button>
+            <button class="flex flex-col items-center justify-center p-4 bg-gray-50 dark:bg-gray-900 rounded-xl border border-transparent hover:border-primary group transition-all">
+                <i class="fa-solid fa-boxes-packing text-warning text-lg mb-2 group-hover:-translate-y-1 transition-transform"></i>
+                <span class="text-[9px] font-black uppercase text-gray-700 dark:text-gray-300">Asset Audit</span>
+            </button>
+            <button class="flex flex-col items-center justify-center p-4 bg-gray-50 dark:bg-gray-900 rounded-xl border border-transparent hover:border-primary group transition-all">
+                <i class="fa-solid fa-file-shield text-secondary text-lg mb-2 group-hover:-translate-y-1 transition-transform"></i>
+                <span class="text-[9px] font-black uppercase text-gray-700 dark:text-gray-300">UFM Report</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Departmental Alerts -->
+    <div class="bg-white dark:bg-darkSurface rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden">
+        <div class="p-4 border-b border-gray-100 dark:border-gray-800 bg-red-50 dark:bg-red-950/20">
+            <h3 class="font-black text-[10px] uppercase tracking-widest text-secondary flex items-center gap-2">
+                <i class="fa-solid fa-circle-exclamation"></i> Critical Alerts
+            </h3>
+        </div>
+        <div class="p-4 space-y-4">
+            {% for alert in critical_alerts %}
+            <div class="p-3 bg-gray-50 dark:bg-gray-900 rounded-lg border-l-4 {% if alert.priority == 'critical' %}border-l-secondary{% else %}border-l-warning{% endif %}">
+                <p class="text-xs font-bold text-gray-800 dark:text-gray-200 leading-tight">{{ alert.title }}</p>
+                <p class="text-[9px] text-gray-500 mt-1">{{ alert.message|truncatechars:50 }} • {{ alert.created_at|timesince }} ago</p>
+            </div>
+            {% empty %}
+            <div class="text-center py-4 text-gray-400 text-[9px] uppercase font-black">All systems normal</div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Research & Publications Tracking -->
+    <div class="bg-white dark:bg-darkSurface rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-6">
+        <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-6">Research Output</h3>
+        <div class="space-y-5">
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-gray-600 dark:text-gray-400">Journal Papers</span>
+                <span class="text-sm font-black text-primary dark:text-blue-400">{{ research_stats.journals|default:"0" }}</span>
+            </div>
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-gray-600 dark:text-gray-400">Conference Papers</span>
+                <span class="text-sm font-black text-primary dark:text-blue-400">{{ research_stats.conferences|default:"0" }}</span>
+            </div>
+            <div class="flex items-center justify-between border-t border-gray-50 dark:border-gray-800 pt-3">
+                <span class="text-xs font-bold text-gray-900 dark:text-gray-200">Total Patents Filed</span>
+                <span class="text-sm font-black text-success">{{ research_stats.patents|default:"0" }}</span>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block footer_actions %}
+<button class="flex-1 sm:flex-none px-6 py-2.5 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-all">Annual Report</button>
+<button class="flex-1 sm:flex-none px-10 py-3 bg-primary hover:bg-primaryDark text-white text-[10px] font-black uppercase tracking-widest rounded-xl shadow-xl shadow-primary/20 transition-all">Approve All Papers</button>
+{% endblock %}

@@ -1,0 +1,284 @@
+{% extends 'base/dashboard_base.html' %}
+
+{% block title %}Fee Details & Payments - SRCEM Portal{% endblock %}
+
+{% block page_title %}Fee Details & Payments{% endblock %}
+
+{% block dashboard_content %}
+<!-- Main Fee Details Container -->
+<div class="space-y-6">
+
+    <!-- Page Intro & Header Banner -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-darkSidebar p-6 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800 border-t-4 border-t-primary">
+        <div>
+            <span class="inline-block px-2.5 py-1 bg-blue-50 dark:bg-blue-900/30 text-primary dark:text-blue-400 border border-blue-200 dark:border-blue-800/50 rounded-lg text-xs font-bold uppercase tracking-wider mb-3">
+                Agreed Package at Admission: ₹{{ admission_semester_fee|floatformat:0 }}/Sem + ₹{{ one_time_admission_fee|floatformat:0 }} One-time
+            </span>
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white">Fee Details & Payments</h2>
+            <p class="text-sm font-semibold text-gray-500 dark:text-gray-400 mt-2 flex items-center gap-2">
+                <i class="fa-solid fa-graduation-cap"></i> {{ student.branch.branch_name }} - {{ student.semester }}th Semester | Section {{ student.section|default:"A" }}
+            </p>
+        </div>
+        <div class="flex items-center gap-3">
+            {% if total_due > 0 %}
+            <button onclick="openPaymentModal()" class="bg-primary hover:bg-primaryDark text-white font-bold text-sm px-5 py-2.5 rounded-xl shadow-sm transition-colors flex items-center gap-2">
+                <i class="fa-solid fa-credit-card"></i> Pay Outstanding Dues
+            </button>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Warning / Dues Alert Box -->
+    {% if total_due > 0 %}
+    <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50 rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
+        <div class="flex items-start gap-3">
+            <i class="fa-solid fa-circle-exclamation text-secondary mt-0.5 text-lg"></i>
+            <div>
+                <p class="text-sm font-bold text-secondary">Pending Fee Alert</p>
+                <p class="text-xs text-gray-700 dark:text-gray-300 mt-1">You have an outstanding balance of <span class="font-bold">₹{{ total_due|floatformat:0 }}</span> for the current semester. Please clear your dues before the examination form filling starts.</p>
+            </div>
+        </div>
+        <button onclick="openPaymentModal()" class="bg-secondary hover:bg-red-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-colors whitespace-nowrap shadow-sm">
+            Pay Now
+        </button>
+    </div>
+    {% endif %}
+
+    <!-- Quick Stats Grid (3 Columns) -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+        <!-- Stat 1: Total Payable -->
+        <div class="bg-white dark:bg-darkSidebar p-6 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800 border-t-4 border-t-primary hover:scale-[1.01] transition-transform duration-300">
+            <div class="flex items-center gap-3 mb-2">
+                <div class="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/30 text-primary flex items-center justify-center text-base border border-blue-100 dark:border-blue-800/50">
+                    <i class="fa-solid fa-file-invoice-dollar"></i>
+                </div>
+                <p class="text-sm font-semibold text-gray-500 dark:text-gray-400">Total Applicable Fees (till Sem {{ student.semester }})</p>
+            </div>
+            <h3 class="text-3xl font-extrabold text-gray-900 dark:text-white pl-1">₹{{ total_payable|floatformat:0 }}</h3>
+        </div>
+
+        <!-- Stat 2: Total Paid -->
+        <div class="bg-white dark:bg-darkSidebar p-6 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800 border-t-4 border-t-success hover:scale-[1.01] transition-transform duration-300">
+            <div class="flex items-center gap-3 mb-2">
+                <div class="w-10 h-10 rounded-xl bg-green-50 dark:bg-green-900/30 text-success flex items-center justify-center text-base border border-green-100 dark:border-green-800/50">
+                    <i class="fa-solid fa-check-double"></i>
+                </div>
+                <p class="text-sm font-semibold text-gray-500 dark:text-gray-400">Total Paid</p>
+            </div>
+            <h3 class="text-3xl font-extrabold text-success pl-1">₹{{ total_paid|floatformat:0 }}</h3>
+        </div>
+
+        <!-- Stat 3: Total Due -->
+        <div class="bg-white dark:bg-darkSidebar p-6 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800 border-t-4 border-t-secondary hover:scale-[1.01] transition-transform duration-300">
+            <div class="flex items-center gap-3 mb-2">
+                <div class="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-900/30 text-secondary flex items-center justify-center text-base border border-red-100 dark:border-red-800/50">
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                </div>
+                <p class="text-sm font-semibold text-gray-500 dark:text-gray-400">Total Due Balance</p>
+            </div>
+            <h3 class="text-3xl font-extrabold text-secondary pl-1">₹{{ total_due|floatformat:0 }}</h3>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Left: Breakdown -->
+        <div class="lg:col-span-1">
+            <div class="bg-white dark:bg-darkSidebar rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800 h-full overflow-hidden flex flex-col justify-between">
+                <div>
+                    <div class="p-4 sm:p-5 border-b border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/30">
+                        <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                            <i class="fa-solid fa-list text-primary dark:text-blue-400"></i> Fee Breakdown
+                        </h3>
+                    </div>
+                        <table class="w-full text-left border-collapse">
+                            <tbody class="text-sm divide-y divide-gray-100 dark:divide-gray-800">
+                                <tr class="hover:bg-gray-50/50 dark:hover:bg-gray-800/30 transition-colors">
+                                    <td class="p-4 text-gray-700 dark:text-gray-300 font-medium">
+                                        <div class="font-bold">Agreed Semester Package</div>
+                                        <div class="text-[10px] text-gray-400 font-bold uppercase tracking-wider mt-0.5">Fixed at Admission</div>
+                                    </td>
+                                    <td class="p-4 text-right font-bold text-gray-900 dark:text-white">₹{{ admission_semester_fee|floatformat:0 }} / Sem</td>
+                                </tr>
+                                <tr class="hover:bg-gray-50/50 dark:hover:bg-gray-800/30 transition-colors">
+                                    <td class="p-4 text-gray-700 dark:text-gray-300 font-medium">
+                                        <div class="font-bold">One-time Admission Fee</div>
+                                        <div class="text-[10px] text-gray-400 font-bold uppercase tracking-wider mt-0.5">Registration & Security</div>
+                                    </td>
+                                    <td class="p-4 text-right font-bold text-gray-900 dark:text-white">₹{{ admission_fee|floatformat:0 }}</td>
+                                </tr>
+                                <tr class="hover:bg-gray-50/50 dark:hover:bg-gray-800/30 transition-colors">
+                                    <td class="p-4 text-gray-700 dark:text-gray-300 font-medium">
+                                        <div class="font-bold">Current Academic Period</div>
+                                        <div class="text-[10px] text-gray-400 font-bold uppercase tracking-wider mt-0.5">Completed Semesters</div>
+                                    </td>
+                                    <td class="p-4 text-right font-bold text-gray-900 dark:text-white">{{ student.semester }} Semesters</td>
+                                </tr>
+                                <tr class="hover:bg-gray-50/50 dark:hover:bg-gray-800/30 transition-colors bg-blue-50/10 dark:bg-blue-900/5">
+                                    <td class="p-4 text-gray-700 dark:text-gray-300 font-medium">
+                                        <div class="font-bold text-primary dark:text-blue-400">Total Tuition Fees Due</div>
+                                        <div class="text-[10px] text-gray-400 font-bold uppercase tracking-wider mt-0.5">₹{{ admission_semester_fee|floatformat:0 }} × {{ student.semester }}</div>
+                                    </td>
+                                    <td class="p-4 text-right font-extrabold text-primary dark:text-blue-400">₹{{ tuition_fee|floatformat:0 }}</td>
+                                </tr>
+                                <tr class="hover:bg-gray-50/50 dark:hover:bg-gray-800/30 transition-colors">
+                                    <td class="p-4 text-gray-700 dark:text-gray-300 font-medium">
+                                        <div class="font-bold">Total Course Duration</div>
+                                        <div class="text-[10px] text-gray-400 font-bold uppercase tracking-wider mt-0.5">Program Duration</div>
+                                    </td>
+                                    <td class="p-4 text-right font-bold text-gray-900 dark:text-white">{{ total_semesters }} Semesters</td>
+                                </tr>
+                                <tr class="hover:bg-gray-50/50 dark:hover:bg-gray-800/30 transition-colors">
+                                    <td class="p-4 text-gray-700 dark:text-gray-300 font-medium">
+                                        <div class="font-bold">Total Course Package</div>
+                                        <div class="text-[10px] text-gray-400 font-bold uppercase tracking-wider mt-0.5">Estimated Entire Program Fee</div>
+                                    </td>
+                                    <td class="p-4 text-right font-bold text-gray-900 dark:text-white">₹{{ total_course_fee|floatformat:0 }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                <div class="bg-gray-50/50 dark:bg-gray-900/30 border-t border-gray-200 dark:border-gray-800 p-4">
+                    <div class="flex justify-between items-center">
+                        <span class="font-bold text-gray-900 dark:text-white uppercase tracking-wider text-xs">Total Applicable Fees</span>
+                        <span class="font-extrabold text-primary dark:text-blue-400 text-xl">₹{{ total_payable|floatformat:0 }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Payment History -->
+        <div class="lg:col-span-2">
+            <div class="bg-white dark:bg-darkSidebar rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800 h-full flex flex-col overflow-hidden">
+                <div class="p-4 sm:p-5 border-b border-gray-200 dark:border-gray-800 flex justify-between items-center bg-gray-50/50 dark:bg-gray-900/30">
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                        <i class="fa-solid fa-clock-rotate-left text-primary dark:text-blue-400"></i> Payment History
+                    </h3>
+                </div>
+                <div class="p-0 overflow-x-auto">
+                    <table class="w-full text-left border-collapse min-w-[600px]">
+                        <thead>
+                            <tr class="bg-gray-50/50 dark:bg-gray-900/50 text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-800">
+                                <th class="p-4 font-semibold">Date</th>
+                                <th class="p-4 font-semibold">Receipt No.</th>
+                                <th class="p-4 font-semibold">Amount</th>
+                                <th class="p-4 font-semibold text-center">Status</th>
+                                <th class="p-4 font-semibold text-center">Receipt</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-sm divide-y divide-gray-100 dark:divide-gray-800">
+                            {% for receipt in receipts %}
+                            <tr class="hover:bg-gray-50/50 dark:hover:bg-gray-800/30 transition-colors">
+                                <td class="p-4 font-bold text-gray-900 dark:text-white">{{ receipt.transaction_date|date:"d M Y" }}</td>
+                                <td class="p-4 font-medium text-gray-700 dark:text-gray-300">#{{ receipt.receipt_no }}</td>
+                                <td class="p-4 font-bold text-gray-900 dark:text-white">₹{{ receipt.amount|floatformat:0 }}</td>
+                                <td class="p-4 text-center">
+                                    {% if receipt.is_verified %}
+                                    <span class="inline-flex px-2.5 py-1 bg-green-50 dark:bg-green-900/30 text-success border border-green-200 dark:border-green-800/50 text-[10px] font-bold rounded-lg uppercase tracking-wider">Success</span>
+                                    {% else %}
+                                    <span class="inline-flex px-2.5 py-1 bg-yellow-50 dark:bg-yellow-900/30 text-warning border border-yellow-200 dark:border-yellow-800/50 text-[10px] font-bold rounded-lg uppercase tracking-wider">Pending</span>
+                                    {% endif %}
+                                </td>
+                                <td class="p-4 flex justify-center">
+                                    <button class="w-8 h-8 rounded-lg bg-gray-50/50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-800 text-primary dark:text-blue-400 hover:bg-primary hover:text-white dark:hover:bg-primary dark:hover:text-white transition-all flex items-center justify-center text-xs shadow-sm">
+                                        <i class="fa-solid fa-download"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="p-8 text-center text-gray-500 dark:text-gray-400">No payment receipts found.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Payment Modal -->
+<div id="payment-modal" class="hidden fixed inset-0 z-50 items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+    <div class="bg-white dark:bg-darkSidebar rounded-2xl max-w-md w-full shadow-2xl border border-gray-100 dark:border-gray-800 overflow-hidden transform transition-all scale-100">
+        <!-- Modal Header -->
+        <div class="p-6 border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/30 flex items-center justify-between">
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                <i class="fa-solid fa-indian-rupee-sign text-success"></i> Make Mock Payment
+            </h3>
+            <button onclick="closePaymentModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+        </div>
+        
+        <!-- Modal Form -->
+        <form method="POST" action="{% url 'student_fees' %}" class="p-6 space-y-4">
+            {% csrf_token %}
+            <div>
+                <label class="block text-xs font-black uppercase tracking-wider text-gray-400 mb-2">Outstanding Dues</label>
+                <div class="text-2xl font-black text-secondary">₹{{ total_due|floatformat:2 }}</div>
+            </div>
+            
+            <div>
+                <label for="amount" class="block text-xs font-black uppercase tracking-wider text-gray-400 mb-2">Payment Amount (₹)</label>
+                <div class="relative rounded-xl shadow-sm">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <span class="text-gray-500 sm:text-sm">₹</span>
+                    </div>
+                    <input type="number" name="amount" id="amount" step="0.01" min="1" max="{{ total_due }}" value="{{ total_due }}" required
+                           class="block w-full pl-8 pr-3 py-3 border border-gray-200 dark:border-gray-800 rounded-xl bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white font-bold focus:ring-primary focus:border-primary sm:text-sm">
+                </div>
+                <p class="text-[10px] text-gray-400 mt-1">Enter any amount up to ₹{{ total_due|floatformat:0 }}.</p>
+            </div>
+            
+            <div>
+                <label for="payment_mode" class="block text-xs font-black uppercase tracking-wider text-gray-400 mb-2">Payment Mode</label>
+                <select name="payment_mode" id="payment_mode" required
+                        class="block w-full px-3 py-3 border border-gray-200 dark:border-gray-800 rounded-xl bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white font-semibold focus:ring-primary focus:border-primary sm:text-sm">
+                    <option value="Online" selected>UPI / Online</option>
+                    <option value="Cash">Cash</option>
+                    <option value="Cheque">Cheque / DD</option>
+                    <option value="Bank-Transfer">NEFT / RTGS</option>
+                </select>
+            </div>
+            
+            <div>
+                <label for="remarks" class="block text-xs font-black uppercase tracking-wider text-gray-400 mb-2">Remarks (Optional)</label>
+                <textarea name="remarks" id="remarks" rows="2" placeholder="e.g. Semester Fee deposit"
+                          class="block w-full px-3 py-2 border border-gray-200 dark:border-gray-800 rounded-xl bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white text-sm focus:ring-primary focus:border-primary"></textarea>
+            </div>
+            
+            <!-- Modal Actions -->
+            <div class="pt-4 flex items-center justify-end gap-3 border-t border-gray-200 dark:border-gray-800">
+                <button type="button" onclick="closePaymentModal()"
+                        class="px-4 py-2.5 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 font-bold text-xs uppercase tracking-wider rounded-xl transition-colors">
+                    Cancel
+                </button>
+                <button type="submit"
+                        class="px-5 py-2.5 bg-primary hover:bg-primaryDark text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow-md transition-colors flex items-center gap-2">
+                    <i class="fa-solid fa-circle-check"></i> Submit Payment
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openPaymentModal() {
+        const modal = document.getElementById('payment-modal');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+    function closePaymentModal() {
+        const modal = document.getElementById('payment-modal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+    // Close modal when clicking outside of it
+    window.onclick = function(event) {
+        const modal = document.getElementById('payment-modal');
+        if (event.target === modal) {
+            closePaymentModal();
+        }
+    }
+</script>
+{% endblock %}

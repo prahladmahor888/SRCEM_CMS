@@ -1,0 +1,163 @@
+{% extends 'base/base.html' %}
+
+{% block title %}ERP Admin Dashboard - SRCEM{% endblock %}
+
+{# ── Suppress public-facing blocks ── #}
+{% block ticker %}{% endblock %}
+{% block navbar %}{% endblock %}
+{% block floating_contact %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block content %}
+<div class="flex-1 flex flex-col min-w-0 bg-gray-50 dark:bg-darkBg transition-all duration-300 h-full overflow-hidden">
+    
+    <!-- Dashboard Header -->
+    {% include 'base/header_dashboard.html' %}
+
+    <!-- Scrollable Content -->
+    <div class="flex-1 overflow-y-auto py-6 px-4 sm:px-8 lg:px-12 no-scrollbar">
+        <div class="max-w-[1600px] mx-auto">
+            <!-- Welcome Header Card -->
+            <div class="bg-white dark:bg-darkCard p-6 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm mb-8 flex flex-col md:flex-row md:items-center justify-between gap-6 transition-all hover:shadow-md">
+                <div>
+                    <h1 class="text-3xl font-extrabold text-gray-800 dark:text-white">Admin Dashboard</h1>
+                    <p class="text-gray-500 dark:text-gray-400 mt-1">Institutional Overview & Real-time Analytics</p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="px-4 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm font-bold text-gray-600 dark:text-gray-300">
+                        <i class="fa-solid fa-calendar-day mr-2 text-primary"></i> 17 April, 2026
+                    </span>
+                    <button class="bg-primary hover:bg-primaryDark text-white px-4 py-2 rounded-lg font-bold shadow-lg shadow-primary/20 transition-all flex items-center">
+                        <i class="fa-solid fa-cloud-arrow-down mr-2"></i> Report
+                    </button>
+                </div>
+            </div>
+
+    <!-- Quick Stats Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <!-- Stat Card 1 -->
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-xl transition-all group">
+            <div class="flex items-start justify-between">
+                <div>
+                    <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Total Students</p>
+                    <h3 class="text-3xl font-black mt-1 text-gray-800 dark:text-white">{{ total_students }}</h3>
+                    <p class="text-xs text-success font-bold mt-2"><i class="fa-solid fa-arrow-trend-up mr-1"></i> +4.2% from last month</p>
+                </div>
+                <div class="p-3 bg-blue-50 dark:bg-blue-900/20 text-primary rounded-xl group-hover:scale-110 transition-transform">
+                    <i class="fa-solid fa-user-graduate text-2xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stat Card 2 -->
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-xl transition-all group">
+            <div class="flex items-start justify-between">
+                <div>
+                    <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Total Faculty</p>
+                    <h3 class="text-3xl font-black mt-1 text-gray-800 dark:text-white">{{ total_faculty }}</h3>
+                    <p class="text-xs text-info font-bold mt-2"><i class="fa-solid fa-check mr-1"></i> All departments active</p>
+                </div>
+                <div class="p-3 bg-cyan-50 dark:bg-cyan-900/20 text-info rounded-xl group-hover:scale-110 transition-transform">
+                    <i class="fa-solid fa-chalkboard-user text-2xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stat Card 3 -->
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-xl transition-all group">
+            <div class="flex items-start justify-between">
+                <div>
+                    <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Fees Collected</p>
+                    <h3 class="text-3xl font-black mt-1 text-gray-800 dark:text-white">{{ fees_collected }}</h3>
+                    <p class="text-xs text-warning font-bold mt-2"><i class="fa-solid fa-clock mr-1"></i> ₹2.1M pending</p>
+                </div>
+                <div class="p-3 bg-amber-50 dark:bg-amber-900/20 text-warning rounded-xl group-hover:scale-110 transition-transform">
+                    <i class="fa-solid fa-wallet text-2xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stat Card 4 -->
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-xl transition-all group">
+            <div class="flex items-start justify-between">
+                <div>
+                    <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Avg Attendance</p>
+                    <h3 class="text-3xl font-black mt-1 text-gray-800 dark:text-white">{{ attendance_avg }}</h3>
+                    <p class="text-xs text-success font-bold mt-2"><i class="fa-solid fa-caret-up mr-1"></i> Targets met</p>
+                </div>
+                <div class="p-3 bg-green-50 dark:bg-green-900/20 text-success rounded-xl group-hover:scale-110 transition-transform">
+                    <i class="fa-solid fa-calendar-check text-2xl"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Recent Activities Table -->
+        <div class="lg:col-span-2 bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
+            <div class="p-6 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
+                <h3 class="font-bold text-gray-800 dark:text-white flex items-center gap-2">
+                    <i class="fa-solid fa-bolt text-warning"></i> Recent System Activity
+                </h3>
+                <a href="#" class="text-xs font-bold text-primary hover:underline">View All</a>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead class="bg-gray-50/50 dark:bg-gray-900/20 text-xs font-bold text-gray-400 uppercase">
+                        <tr>
+                            <th class="px-6 py-4">User</th>
+                            <th class="px-6 py-4">Action</th>
+                            <th class="px-6 py-4">Time</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
+                        {% for activity in recent_activities %}
+                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
+                            <td class="px-6 py-4 font-bold text-sm text-gray-700 dark:text-gray-300">{{ activity.user }}</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">{{ activity.action }}</td>
+                            <td class="px-6 py-4 text-xs font-medium text-gray-400 italic">{{ activity.time }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Quick Links / Status -->
+        <div class="space-y-6">
+            <div class="bg-primary rounded-2xl p-6 text-white shadow-xl shadow-primary/30 relative overflow-hidden">
+                <i class="fa-solid fa-graduation-cap absolute -right-4 -bottom-4 text-8xl opacity-10 rotate-12"></i>
+                <h4 class="text-xl font-bold mb-2">Academic Audit</h4>
+                <p class="text-sm text-blue-100 mb-6">Internal quality audit for the semester is scheduled for next Monday. Ensure all marks are uploaded.</p>
+                <button class="w-full py-2.5 bg-white text-primary rounded-lg font-bold hover:bg-blue-50 transition-colors">
+                    Check Compliance
+                </button>
+            </div>
+
+            <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6 shadow-sm">
+                <h4 class="font-bold text-gray-800 dark:text-white mb-4">Department Load</h4>
+                <div class="space-y-4">
+                    <div>
+                        <div class="flex items-center justify-between text-xs font-bold mb-1">
+                            <span>Computer Science</span>
+                            <span>92%</span>
+                        </div>
+                        <div class="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-1.5">
+                            <div class="bg-primary h-1.5 rounded-full" style="width: 92%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex items-center justify-between text-xs font-bold mb-1">
+                            <span>Civil Engineering</span>
+                            <span>78%</span>
+                        </div>
+                        <div class="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-1.5">
+                            <div class="bg-secondary h-1.5 rounded-full" style="width: 78%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

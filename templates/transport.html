@@ -1,0 +1,253 @@
+{% extends 'base/public_base.html' %}
+{% load static %}
+
+{% block title %}Transport & Connectivity - SRCEM{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hero-overlay {
+        background: linear-gradient(rgba(15, 23, 42, 0.9), rgba(30, 58, 138, 0.75));
+    }
+    
+    /* Auto Slider Animations */
+    .transport-slide {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        background-size: cover;
+        background-position: center;
+        opacity: 0;
+        transition: opacity 1.5s ease-in-out, transform 1.5s ease-in-out;
+        z-index: -1;
+        transform: scale(1.1);
+    }
+    .transport-slide.active {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    /* Hover animation for route cards */
+    .route-card:hover { transform: translateY(-5px); }
+    
+    .img-zoom:hover img { transform: scale(1.1); }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Compact Hero Section with Auto-Slider -->
+<section class="relative py-16 lg:py-24 flex items-center justify-center text-center overflow-hidden min-h-[55vh] mt-[-1px]">
+    
+    <!-- Hero Background Slider (Automatic) -->
+    <div id="transportSlider">
+        <div class="transport-slide active" style="background-image: url('https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');"></div>
+        <div class="transport-slide" style="background-image: url('https://images.unsplash.com/photo-1494515843206-f3117d3f51b7?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');"></div>
+        <div class="transport-slide" style="background-image: url('https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');"></div>
+        <div class="transport-slide" style="background-image: url('https://images.unsplash.com/photo-1570125909232-eb263c188f7e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');"></div>
+    </div>
+
+    <div class="absolute inset-0 hero-overlay z-0"></div>
+    
+    <div class="max-w-5xl mx-auto px-4 relative z-10">
+        <div class="animate-bounce mb-6">
+            <span class="inline-flex items-center gap-2 px-3 py-1 bg-white/10 border border-white/20 rounded-full text-[10px] font-black uppercase tracking-widest backdrop-blur-md text-white">
+                <i class="fa-solid fa-shield-check text-green-400"></i> Regional Connectivity Expert
+            </span>
+        </div>
+        
+        <h1 class="text-5xl md:text-7xl font-black text-white leading-[0.95] mb-6 tracking-tighter uppercase">
+            Secure <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-300 to-blue-500">Transit.</span>
+        </h1>
+        <p class="text-base md:text-lg text-blue-100 mb-10 max-w-xl mx-auto leading-relaxed font-medium opacity-90">
+            Premium bus services connecting Gwalior, Morena, and Dholpur with unmatched safety standards.
+        </p>
+        
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="#routes" class="bg-white text-primaryDark px-8 py-3.5 rounded-sm font-black shadow-2xl hover:bg-blue-50 transition-all uppercase tracking-widest text-xs flex items-center justify-center gap-2">
+                Explore Routes
+            </a>
+            <button class="bg-transparent border-2 border-white/50 backdrop-blur-md text-white px-8 py-3.5 rounded-sm font-bold hover:bg-white hover:text-primaryDark transition-all uppercase tracking-widest text-xs">
+               <i class="fa-solid fa-file-pdf mr-1"></i> Fee Chart
+            </button>
+        </div>
+    </div>
+</section>
+
+<!-- Visual Stats Counter -->
+<section class="py-12 bg-white dark:bg-gray-950 border-b border-gray-100 dark:border-gray-800 text-center transition-colors duration-300">
+    <div class="max-w-7xl mx-auto px-4 grid grid-cols-2 lg:grid-cols-4 gap-8">
+        <div class="border-r border-gray-100 dark:border-gray-800 last:border-0">
+            <h4 class="text-3xl font-black text-primary dark:text-blue-400 leading-none">40+</h4>
+            <p class="text-[9px] font-black text-gray-500 uppercase tracking-widest mt-2">Deluxe Fleet</p>
+        </div>
+        <div class="border-r border-gray-100 dark:border-gray-800 last:border-0">
+            <h4 class="text-3xl font-black text-primary dark:text-blue-400 leading-none">15+</h4>
+            <p class="text-[9px] font-black text-gray-500 uppercase tracking-widest mt-2">Coverage Areas</p>
+        </div>
+        <div class="border-r border-gray-100 dark:border-gray-800 last:border-0">
+            <h4 class="text-3xl font-black text-primary dark:text-blue-400 leading-none">100%</h4>
+            <p class="text-[9px] font-black text-gray-500 uppercase tracking-widest mt-2">GPS Monitoring</p>
+        </div>
+        <div>
+            <h4 class="text-3xl font-black text-primary dark:text-blue-400 leading-none">80KM</h4>
+            <p class="text-[9px] font-black text-gray-500 uppercase tracking-widest mt-2">Service Reach</p>
+        </div>
+    </div>
+</section>
+
+<!-- Route Network & Logistics Gallery -->
+<section id="routes" class="py-20 bg-gray-50 dark:bg-gray-900/30 transition-colors duration-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+            <span class="text-secondary font-black tracking-widest uppercase text-xs mb-2 block">Our Logistics Hub</span>
+            <h2 class="text-3xl lg:text-5xl font-black text-gray-900 dark:text-white tracking-tighter uppercase">Transit <span class="text-primary dark:text-blue-500">Network.</span></h2>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+            <!-- Route Text Blocks -->
+            <div class="lg:col-span-5 space-y-6">
+                <div class="bg-white dark:bg-gray-800 p-6 rounded-sm shadow-sm border-l-4 border-primary">
+                    <div class="flex items-center gap-3 mb-4">
+                        <i class="fa-solid fa-city text-primary text-xl"></i>
+                        <h4 class="font-black text-gray-900 dark:text-white uppercase tracking-tight">Gwalior Urban Network</h4>
+                    </div>
+                    <ul class="grid grid-cols-2 gap-y-2 gap-x-4 text-xs font-bold text-gray-500 dark:text-gray-400">
+                        <li class="flex items-center gap-2"><i class="fa-solid fa-caret-right text-primary"></i> Hazira Line</li>
+                        <li class="flex items-center gap-2"><i class="fa-solid fa-caret-right text-primary"></i> Lashkar Circle</li>
+                        <li class="flex items-center gap-2"><i class="fa-solid fa-caret-right text-primary"></i> Thatipur Area</li>
+                        <li class="flex items-center gap-2"><i class="fa-solid fa-caret-right text-primary"></i> Morar Connect</li>
+                    </ul>
+                </div>
+                <div class="bg-white dark:bg-gray-800 p-6 rounded-sm shadow-sm border-l-4 border-secondary">
+                    <div class="flex items-center gap-3 mb-4">
+                        <i class="fa-solid fa-road text-secondary text-xl"></i>
+                        <h4 class="font-black text-gray-900 dark:text-white uppercase tracking-tight">Inter-State Routes</h4>
+                    </div>
+                    <ul class="grid grid-cols-2 gap-y-2 gap-x-4 text-xs font-bold text-gray-500 dark:text-gray-400">
+                        <li class="flex items-center gap-2"><i class="fa-solid fa-caret-right text-secondary"></i> Morena Exp.</li>
+                        <li class="flex items-center gap-2"><i class="fa-solid fa-caret-right text-secondary"></i> Dholpur Line</li>
+                        <li class="flex items-center gap-2"><i class="fa-solid fa-caret-right text-secondary"></i> Banmore Tech</li>
+                        <li class="flex items-center gap-2"><i class="fa-solid fa-caret-right text-secondary"></i> Rairu Depot</li>
+                    </ul>
+                </div>
+                <button class="w-full bg-primary hover:bg-primaryDark text-white py-3 rounded-sm font-black text-[10px] uppercase tracking-widest shadow-xl transition-all">Download Full Route Directory</button>
+            </div>
+
+            <!-- Rich Image Gallery Grid -->
+            <div class="lg:col-span-7 grid grid-cols-2 gap-4">
+                <div class="relative overflow-hidden rounded-sm group img-zoom">
+                    <img src="https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="[Bus Exterior]" class="w-full h-full object-cover transition-transform duration-700">
+                    <div class="absolute bottom-3 left-3 bg-white/20 backdrop-blur-md px-2 py-1 text-[8px] font-black text-white uppercase rounded-sm border border-white/20">Our Fleet</div>
+                </div>
+                <div class="relative overflow-hidden rounded-sm group img-zoom">
+                    <img src="https://images.unsplash.com/photo-1570125909232-eb263c188f7e?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="[Bus Interior]" class="w-full h-full object-cover transition-transform duration-700">
+                    <div class="absolute bottom-3 left-3 bg-white/20 backdrop-blur-md px-2 py-1 text-[8px] font-black text-white uppercase rounded-sm border border-white/20">Deluxe Comfort</div>
+                </div>
+                <div class="relative overflow-hidden rounded-sm group img-zoom h-40">
+                    <img src="https://images.unsplash.com/photo-1494515843206-f3117d3f51b7?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="[GPS Screen]" class="w-full h-full object-cover transition-transform duration-700">
+                    <div class="absolute bottom-3 left-3 bg-white/20 backdrop-blur-md px-2 py-1 text-[8px] font-black text-white uppercase rounded-sm border border-white/20">Control Room</div>
+                </div>
+                <div class="relative overflow-hidden rounded-sm group img-zoom h-40">
+                    <img src="https://images.unsplash.com/photo-1525926476841-ab3f019f8603?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="[Campus Parking]" class="w-full h-full object-cover transition-transform duration-700">
+                    <div class="absolute bottom-3 left-3 bg-white/20 backdrop-blur-md px-2 py-1 text-[8px] font-black text-white uppercase rounded-sm border border-white/20">Organized Parking</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- NEW SECTION: Fleet Excellence & Maintenance Standards -->
+<section id="fleet-standards" class="py-20 bg-primaryDark relative overflow-hidden transition-colors duration-300">
+    <div class="absolute inset-0 opacity-10" style="background-image: url('https://www.transparenttextures.com/patterns/cubes.png');"></div>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            
+            <div class="text-white text-center lg:text-left">
+                <span class="text-blue-300 font-black text-[10px] uppercase tracking-[0.3em] mb-4 block">Safety & Quality Assurance</span>
+                <h2 class="text-4xl md:text-6xl font-black mb-8 leading-tight tracking-tighter uppercase">Premier <br><span class="text-blue-400">Fleet Standards.</span></h2>
+                <p class="text-lg text-blue-100 mb-10 leading-relaxed font-light">
+                    Our transport system operates on a zero-compromise safety policy. Every vehicle in our fleet undergoes a rigorous 6-point fitness inspection every month. We take pride in our dedicated maintenance bay and background-verified transit staff who ensure your commute is smooth and secure.
+                </p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div class="flex items-center gap-4 bg-white/5 p-4 rounded-sm border border-white/10">
+                        <i class="fa-solid fa-gauge-high text-blue-400 text-2xl"></i>
+                        <div>
+                            <h5 class="font-bold text-sm uppercase">Speed Capped</h5>
+                            <p class="text-[10px] text-blue-200">Set at 50km/h max limit.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4 bg-white/5 p-4 rounded-sm border border-white/10">
+                        <i class="fa-solid fa-leaf text-green-400 text-2xl"></i>
+                        <div>
+                            <h5 class="font-bold text-sm uppercase">Eco-Certified</h5>
+                            <p class="text-[10px] text-blue-200">Low emission technology.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- visual Grid with High-Res Infrastructure Images -->
+            <div class="grid grid-cols-2 gap-4">
+                <div class="space-y-4">
+                    <img src="https://images.unsplash.com/photo-1506521781263-d8422e82f27a?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="[Image of Bus Garage]" class="rounded-sm shadow-2xl h-56 w-full object-cover border border-white/10 transform hover:scale-105 transition-transform duration-500">
+                    <img src="https://images.unsplash.com/photo-1581092160562-40aa08e78837?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="[Image of Safety Check]" class="rounded-sm shadow-2xl h-40 w-full object-cover border border-white/10 transform hover:scale-105 transition-transform duration-500">
+                </div>
+                <div class="space-y-4 pt-8">
+                    <img src="https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="" class="rounded-sm shadow-2xl h-40 w-full object-cover border border-white/10 transform hover:scale-105 transition-transform duration-500">
+                    <img src="https://images.unsplash.com/photo-1562620644-888803ad3012?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="" class="rounded-sm shadow-2xl h-56 w-full object-cover border border-white/10 transform hover:scale-105 transition-transform duration-500">
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- Onboarding Process Steps -->
+<section class="py-20 bg-white dark:bg-gray-950 transition-colors duration-300">
+    <div class="max-w-4xl mx-auto px-4">
+        <div class="bg-gray-50 dark:bg-gray-900 p-8 lg:p-12 rounded-sm shadow-xl border border-gray-100 dark:border-gray-800">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-black text-gray-900 dark:text-white uppercase tracking-tighter">Onboarding Process</h2>
+                <div class="h-1.5 w-12 bg-secondary mx-auto mt-4"></div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+                <div class="text-center">
+                    <div class="w-12 h-12 bg-primary text-white flex items-center justify-center font-black rounded-sm mx-auto mb-4 text-sm shadow-lg">1</div>
+                    <h4 class="font-bold text-gray-800 dark:text-gray-200 text-xs uppercase mb-2">Request</h4>
+                    <p class="text-[11px] text-gray-500 leading-relaxed">Fill the online transport registration form on portal.</p>
+                </div>
+                <div class="text-center">
+                    <div class="w-12 h-12 bg-primary text-white flex items-center justify-center font-black rounded-sm mx-auto mb-4 text-sm shadow-lg">2</div>
+                    <h4 class="font-bold text-gray-800 dark:text-gray-200 text-xs uppercase mb-2">Payment</h4>
+                    <p class="text-[11px] text-gray-500 leading-relaxed">Pay annual transport fees via student ERP dashboard.</p>
+                </div>
+                <div class="text-center">
+                    <div class="w-12 h-12 bg-primary text-white flex items-center justify-center font-black rounded-sm mx-auto mb-4 text-sm shadow-lg">3</div>
+                    <h4 class="font-bold text-gray-800 dark:text-gray-200 text-xs uppercase mb-2">Activation</h4>
+                    <p class="text-[11px] text-gray-500 leading-relaxed">Collect digital pass and seat allotment within 24 hrs.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // --- Auto-Slider for Hero Section ---
+    const slides = document.querySelectorAll('.transport-slide');
+    let currentSlide = 0;
+
+    function nextSlide() {
+        if(slides.length === 0) return;
+        slides[currentSlide].classList.remove('active');
+        currentSlide = (currentSlide + 1) % slides.length;
+        slides[currentSlide].classList.add('active');
+    }
+
+    if(slides.length > 0) {
+        setInterval(nextSlide, 5000); 
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,111 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Update Syllabus - {{ object.allotment.subject.subject_name }}{% endblock %}
+
+{% block navbar %}{% endblock %}
+{% block ticker %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block content %}
+<div class="flex-1 flex flex-col min-w-0 bg-gray-50 dark:bg-darkBg transition-all duration-300 h-full overflow-hidden">
+    {% include 'base/header_dashboard.html' %}
+
+    <div class="flex-1 overflow-y-auto p-4 sm:p-8 no-scrollbar bg-gray-50 dark:bg-darkBg pb-40">
+        <div class="max-w-4xl mx-auto">
+            
+            <form method="POST" class="space-y-8">
+                {% csrf_token %}
+                
+                <!-- Back Button & Header -->
+                <div class="flex flex-col gap-4">
+                    <a href="{% url 'my_syllabus_progress' %}" class="flex items-center gap-2 text-xs font-black text-gray-400 uppercase tracking-widest hover:text-primary transition-colors w-fit">
+                        <i class="fa-solid fa-arrow-left"></i> Back to My Subjects
+                    </a>
+                    <div class="bg-white dark:bg-darkSurface p-8 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm">
+                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                            <div>
+                                <span class="bg-primary/10 text-primary text-[10px] font-black px-2 py-1 rounded uppercase tracking-[0.2em] mb-2 inline-block">Syllabus Audit</span>
+                                <h1 class="text-3xl font-black text-gray-900 dark:text-white uppercase tracking-tight">{{ object.allotment.subject.subject_name }}</h1>
+                                <p class="text-gray-500 font-medium text-sm mt-1">{{ object.allotment.subject.subject_code }} • Units: 1 to 5</p>
+                            </div>
+                            <div class="text-center md:text-right">
+                                <span class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Current Coverage</span>
+                                <span class="text-4xl font-black text-primary">{{ object.percentage }}%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Topic Checklist -->
+                <div class="bg-white dark:bg-darkSurface rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden">
+                    <div class="p-6 border-b border-gray-50 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/30">
+                        <h3 class="text-xs font-black text-gray-900 dark:text-white uppercase tracking-widest flex items-center gap-3">
+                            <i class="fa-solid fa-list-check text-primary"></i> Curriculum Breakdown
+                        </h3>
+                    </div>
+                    
+                    <div class="p-8 space-y-10">
+                        {% regroup topics by unit_number as unit_list %}
+                        {% for unit in unit_list %}
+                        <div class="space-y-4">
+                            <div class="flex items-center gap-4">
+                                <span class="w-10 h-10 rounded-xl bg-gray-900 text-white flex items-center justify-center font-black text-sm">UNIT {{ unit.grouper }}</span>
+                                <div class="h-px bg-gray-100 dark:bg-gray-800 flex-1"></div>
+                            </div>
+                            
+                            <div class="grid gap-3">
+                                {% for topic in unit.list %}
+                                <label class="flex items-start gap-4 p-4 rounded-2xl border border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900/40 cursor-pointer transition-all group">
+                                    <div class="mt-1 relative flex items-center">
+                                        <input type="checkbox" name="topics" value="{{ topic.pk }}" 
+                                               class="peer absolute opacity-0 w-6 h-6 cursor-pointer"
+                                               {% if topic in completed_topics %}checked{% endif %}>
+                                        <div class="w-6 h-6 border-2 border-gray-200 dark:border-gray-700 rounded-lg peer-checked:bg-primary peer-checked:border-primary transition-all flex items-center justify-center">
+                                            <i class="fa-solid fa-check text-white text-[10px] opacity-0 peer-checked:opacity-100 transition-opacity"></i>
+                                        </div>
+                                    </div>
+                                    <div class="flex-1">
+                                        <h4 class="text-sm font-bold text-gray-800 dark:text-gray-200 group-hover:text-primary transition-colors">{{ topic.title }}</h4>
+                                        {% if topic.description %}
+                                        <p class="text-xs text-gray-500 mt-1 font-medium">{{ topic.description }}</p>
+                                        {% endif %}
+                                    </div>
+                                </label>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="text-center py-12">
+                            <i class="fa-solid fa-triangle-exclamation text-warning text-3xl mb-4"></i>
+                            <h3 class="text-lg font-black text-gray-900 dark:text-white uppercase">No Topics Defined</h3>
+                            <p class="text-gray-500 text-sm mt-2">The syllabus for this subject hasn't been broken down into topics yet.</p>
+                            <a href="{% url 'subject_topic_create' %}?subject={{ object.allotment.subject.pk }}&coverage={{ object.pk }}" 
+                               class="mt-6 inline-block bg-primary text-white px-8 py-3 rounded-xl font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20 hover:scale-105 transition-all">
+                                Define Syllabus Now
+                            </a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Notes Section -->
+                <div class="bg-white dark:bg-darkSurface rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm p-8">
+                    <h3 class="text-xs font-black text-gray-900 dark:text-white uppercase tracking-widest mb-4">Coverage Remarks</h3>
+                    <textarea name="topics_covered" rows="4" 
+                              class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl p-4 text-sm font-medium focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all dark:text-white"
+                              placeholder="Any specific notes about the current teaching phase...">{{ object.topics_covered|default:"" }}</textarea>
+                </div>
+
+                <!-- Sticky Footer Action -->
+                <div class="fixed bottom-0 left-0 lg:left-64 right-0 bg-white/80 dark:bg-darkSurface/80 backdrop-blur-md border-t border-gray-100 dark:border-gray-800 p-6 flex justify-center z-40">
+                    <button type="submit" class="w-full max-w-lg bg-gray-900 dark:bg-blue-600 hover:bg-black dark:hover:bg-blue-700 text-white py-4 rounded-2xl font-black text-xs uppercase tracking-[0.3em] shadow-2xl transition-all hover:scale-[1.02] active:scale-[0.98]">
+                        Save Syllabus Progress
+                    </button>
+                </div>
+                
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

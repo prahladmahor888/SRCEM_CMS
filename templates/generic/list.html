@@ -1,0 +1,489 @@
+{% extends 'base/base.html' %}
+{% load erp_tags %}
+
+{% block title %}{{ module_name }} Registry - SRCEM ERP{% endblock %}
+
+{# ── Suppress public-facing blocks that don't belong in the admin ERP ── #}
+{% block ticker %}{% endblock %}
+{% block navbar %}{% endblock %}
+{% block floating_contact %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Fill the screen - override any body padding set by base */
+    body { overflow: hidden !important; }
+
+    /* Table Container for Horizontal Scroll */
+    .table-container { 
+        overflow-x: auto; 
+        -webkit-overflow-scrolling: touch; 
+    }
+    .table-container::-webkit-scrollbar { height: 6px; }
+    .table-container::-webkit-scrollbar-track { background: transparent; }
+    .table-container::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    .dark .table-container::-webkit-scrollbar-thumb { background: #475569; }
+
+    /* Floating Toolbar */
+    #actionToolbar {
+        transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease;
+    }
+
+    /* Filter Drawer */
+    #filterDrawer {
+        transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Row Interaction */
+    .data-row { transition: all 0.2s ease; cursor: pointer; }
+    .row-selected {
+        background-color: rgba(30, 64, 175, 0.05) !important;
+        border-left: 3px solid #1e40af !important;
+    }
+    .dark .row-selected {
+        background-color: rgba(59, 130, 246, 0.05) !important;
+        border-left-color: #3b82f6 !important;
+    }
+
+    /* Custom Checkbox */
+    .custom-checkbox {
+        appearance: none; -webkit-appearance: none;
+        width: 1.1rem; height: 1.1rem;
+        border: 2px solid #e2e8f0; border-radius: 0.35rem;
+        cursor: pointer; transition: all 0.2s;
+        background: transparent;
+    }
+    .dark .custom-checkbox { border-color: #334155; }
+    .custom-checkbox:checked {
+        background-color: #1e40af; border-color: #1e40af;
+        background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z'/%3e%3c/svg%3e");
+        background-size: contain; background-position: center; background-repeat: no-repeat;
+    }
+
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+
+    /* Confirm Modal */
+    #confirmModal { display: none; }
+    #confirmModal.show { display: flex; }
+</style>
+{% endblock %}
+
+{% block content %}
+{# The sidebar is already rendered by base.html via the 'sidebar' block #}
+{# We just need the main content area — base.html wraps it in md:pl-64 already #}
+
+<div class="flex-1 flex flex-col min-w-0 bg-gray-50 dark:bg-darkBg transition-all duration-300 h-full overflow-hidden">
+    
+    <!-- Dashboard Header -->
+    {% include 'base/header_dashboard.html' %}
+
+    <!-- Filter Overlay -->
+    <div id="filterOverlay" class="fixed inset-0 bg-black/40 z-[60] hidden backdrop-blur-[2px]"></div>
+
+    <!-- Scrollable Body -->
+    <div class="flex-1 overflow-y-auto p-4 sm:p-8">
+        <div class="max-w-full mx-auto space-y-5">
+
+            <!-- Action Bar -->
+            <div class="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
+                <div class="relative flex-1 max-w-2xl group">
+                    <i class="fa-solid fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors"></i>
+                    <input type="text" id="mainSearch"
+                        class="w-full pl-12 pr-4 py-3 bg-white dark:bg-darkSurface border border-gray-200 dark:border-gray-800 rounded-xl text-sm font-medium focus:outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary dark:focus:border-blue-500 transition-all shadow-sm dark:text-gray-100 placeholder:text-gray-400"
+                        placeholder="Search across all {{ module_name }} records...">
+                </div>
+                <div class="flex items-center gap-3">
+                    <button id="openFiltersBtn" class="bg-white dark:bg-darkSurface text-gray-600 dark:text-gray-300 px-5 py-3 rounded-xl border border-gray-200 dark:border-gray-800 text-[10px] font-black uppercase tracking-widest hover:bg-gray-50 dark:hover:bg-gray-800 transition-all flex items-center gap-2 group shadow-sm">
+                        <i class="fa-solid fa-sliders group-hover:rotate-90 transition-transform duration-300"></i> Filters
+                    </button>
+                    {% if can_add %}
+                    <a href="{{ create_url }}" class="bg-primary hover:bg-blue-700 text-white px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-xl shadow-primary/20 flex items-center gap-2 border border-primary">
+                        <i class="fa-solid fa-plus"></i> New {{ module_name }}
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Status Chips -->
+            <div class="flex flex-wrap items-center gap-2 py-1 overflow-x-auto no-scrollbar">
+                <button data-filter="all" class="filter-chip px-4 py-1.5 bg-primary text-white rounded-full text-[10px] font-black uppercase tracking-widest shadow-md transition-all">
+                    All ({{ paginator.count|default:object_list.count }})
+                </button>
+                <button data-filter="active" class="filter-chip px-4 py-1.5 bg-white dark:bg-darkSurface text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-gray-800 rounded-full text-[10px] font-black uppercase tracking-widest hover:border-primary transition-all">
+                    Active
+                </button>
+                <button data-filter="inactive" class="filter-chip px-4 py-1.5 bg-white dark:bg-darkSurface text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-gray-800 rounded-full text-[10px] font-black uppercase tracking-widest hover:border-secondary transition-all">
+                    Inactive
+                </button>
+            </div>
+
+            <!-- CORE TABLE -->
+            <div class="bg-white dark:bg-darkSurface rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden mb-24">
+                <div class="table-container">
+                    <table class="w-full text-left border-collapse min-w-[1100px]">
+                        <thead>
+                            <tr class="bg-gray-50/50 dark:bg-gray-800/50 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 border-b border-gray-100 dark:border-gray-800">
+                                <th class="p-5 w-14 text-center">
+                                    <input type="checkbox" id="selectAll" class="custom-checkbox">
+                                </th>
+                                <th class="p-5 whitespace-nowrap">Entity Record</th>
+                                {% for header in headers|slice:"1:" %}
+                                    <th class="p-5 whitespace-nowrap">{{ header }}</th>
+                                {% endfor %}
+                                {% if can_edit %}
+                                <th class="p-5 text-right whitespace-nowrap">Operations</th>
+                                {% endif %}
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-50 dark:divide-gray-800/50" id="itemTableBody">
+                            {% for object in object_list %}
+                            <tr class="data-row hover:bg-gray-50/50 dark:hover:bg-gray-800/30 group"
+                                onclick="if(event.target.type !== 'checkbox' && !event.target.closest('a') && !event.target.closest('button')) window.location.href='{{ object.id }}/'">
+                                <td class="p-5 text-center">
+                                    <input type="checkbox" name="ids" value="{{ object.pk }}" class="record-check custom-checkbox" onclick="event.stopPropagation()">
+                                </td>
+                                <td class="p-5">
+                                    <div class="flex items-center gap-4 min-w-[300px]">
+                                        <div class="w-10 h-10 flex-shrink-0 rounded-xl bg-primary/10 text-primary dark:text-blue-400 flex items-center justify-center font-black text-xs uppercase shadow-inner border border-blue-50 dark:border-blue-900/30 overflow-hidden">
+                                            {% with val=object|get_attr:field_names.0|stringformat:"s" %}
+                                                {{ val|slice:":2"|default:"??" }}
+                                            {% endwith %}
+                                        </div>
+                                        <div class="min-w-0 flex-1">
+                                            <p class="font-bold text-gray-900 dark:text-white text-sm truncate">{{ object|get_attr:field_names.0 }}</p>
+                                            <p class="text-[10px] font-black text-primary dark:text-blue-500 uppercase tracking-widest mt-0.5">ID #{{ object.id }}</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                {% for field in field_names|slice:"1:" %}
+                                    <td class="p-5 whitespace-nowrap">
+                                        {% with value=object|get_attr:field %}
+                                            {% if field == 'is_active' or 'status' in field %}
+                                                <span class="inline-flex items-center gap-1.5 px-3 py-1 {% if value %}bg-green-50 dark:bg-green-900/20 text-success border-green-100 dark:border-green-800{% else %}bg-red-50 dark:bg-red-900/20 text-secondary border-red-100 dark:border-red-800{% endif %} text-[9px] font-black rounded-full border uppercase tracking-widest whitespace-nowrap shadow-sm">
+                                                    <span class="w-1.5 h-1.5 {% if value %}bg-success{% else %}bg-secondary{% endif %} rounded-full {% if value %}animate-pulse{% endif %}"></span>
+                                                    {% if value %}Active{% else %}Inactive{% endif %}
+                                                </span>
+                                            {% elif 'date' in field %}
+                                                <p class="text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-tight">{{ value|date:"d M Y"|default:"-" }}</p>
+                                            {% else %}
+                                                <p class="text-xs font-bold text-gray-700 dark:text-gray-300 tracking-tight">{{ value|default:"-" }}</p>
+                                            {% endif %}
+                                        {% endwith %}
+                                    </td>
+                                {% endfor %}
+                                {% if can_edit %}
+                                <td class="p-5 text-right whitespace-nowrap">
+                                    <div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <a href="{{ object.id }}/" onclick="event.stopPropagation()"
+                                           class="w-8 h-8 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-400 hover:text-primary dark:hover:text-blue-400 transition-all border border-gray-100 dark:border-gray-700 flex items-center justify-center" title="View">
+                                            <i class="fa-solid fa-eye text-xs"></i>
+                                        </a>
+                                        <a href="{{ object.id }}/edit/" onclick="event.stopPropagation()"
+                                           class="w-8 h-8 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-400 hover:text-primary dark:hover:text-blue-400 transition-all border border-gray-100 dark:border-gray-700 flex items-center justify-center" title="Edit">
+                                            <i class="fa-solid fa-pen-to-square text-xs"></i>
+                                        </a>
+                                        <a href="{{ object.id }}/delete/" onclick="event.stopPropagation()"
+                                           class="w-8 h-8 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-400 hover:text-secondary transition-all border border-gray-100 dark:border-gray-700 flex items-center justify-center" title="Delete">
+                                            <i class="fa-solid fa-trash-can text-xs"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                                {% endif %}
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="99" class="p-20 text-center">
+                                    <div class="flex flex-col items-center gap-4">
+                                        <div class="w-16 h-16 rounded-2xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                                            <i class="fa-solid fa-database text-2xl text-gray-300 dark:text-gray-600"></i>
+                                        </div>
+                                        <p class="text-sm font-black text-gray-400 uppercase tracking-widest">No {{ module_name }} Records Found</p>
+                                        <a href="{{ create_url }}" class="mt-2 px-6 py-2.5 bg-primary text-white text-[10px] font-black uppercase tracking-widest rounded-xl shadow-lg shadow-primary/20 hover:bg-blue-700 transition-all">
+                                            <i class="fa-solid fa-plus mr-2"></i> Add First {{ module_name }}
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                {% if is_paginated %}
+                <div class="px-6 py-4 border-t border-gray-100 dark:border-gray-800 flex flex-wrap items-center justify-between gap-4 bg-gray-50/50 dark:bg-gray-800/30">
+                    <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                        Showing {{ page_obj.start_index }}–{{ page_obj.end_index }} of {{ paginator.count }} records
+                    </p>
+                    <div class="flex items-center gap-2">
+                        {% if page_obj.has_previous %}
+                        <a href="?page={{ page_obj.previous_page_number }}" class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 dark:border-gray-700 text-gray-400 hover:text-primary hover:border-primary transition-all text-xs">
+                            <i class="fa-solid fa-chevron-left"></i>
+                        </a>
+                        {% endif %}
+                        <span class="px-4 py-1.5 bg-primary text-white text-[10px] font-black rounded-lg uppercase tracking-widest">
+                            {{ page_obj.number }} / {{ paginator.num_pages }}
+                        </span>
+                        {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}" class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 dark:border-gray-700 text-gray-400 hover:text-primary hover:border-primary transition-all text-xs">
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+        </div>{# end max-w-full #}
+    </div>{# end overflow-y-auto #}
+
+
+    <!-- ═══════════════════════════════════════
+         ADVANCED FILTER DRAWER (Right Side)
+    ════════════════════════════════════════ -->
+    <aside id="filterDrawer" class="fixed inset-y-0 right-0 z-[70] w-[320px] sm:w-[380px] bg-white dark:bg-darkSurface border-l border-gray-200 dark:border-gray-800 transform translate-x-full flex flex-col shadow-2xl">
+        <div class="h-16 flex items-center justify-between px-6 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/30 flex-shrink-0">
+            <h3 class="font-black text-xs uppercase tracking-widest text-gray-900 dark:text-white">Filters & Sorting</h3>
+            <button id="closeFiltersBtn" class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-secondary rounded-full transition-all">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+        </div>
+        <div class="flex-1 overflow-y-auto p-6 space-y-8 no-scrollbar">
+            <div>
+                <label class="block text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-4">Sort By</label>
+                <select id="sortSelect" class="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-xl text-xs font-bold text-gray-700 dark:text-gray-300 focus:outline-none focus:border-primary transition-all cursor-pointer">
+                    <option value="new">Newest First</option>
+                    <option value="old">Oldest First</option>
+                    <option value="az">Name (A–Z)</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-4">Status Filter</label>
+                <div class="grid grid-cols-2 gap-3">
+                    <button class="status-filter-btn px-3 py-2 bg-primary/10 text-primary border border-primary/20 rounded-lg text-xs font-bold transition-all" data-val="all">All</button>
+                    <button class="status-filter-btn px-3 py-2 bg-gray-50 dark:bg-gray-800 text-gray-500 border border-gray-200 dark:border-gray-700 rounded-lg text-xs font-bold transition-all" data-val="active">Active</button>
+                    <button class="status-filter-btn px-3 py-2 bg-gray-50 dark:bg-gray-800 text-gray-500 border border-gray-200 dark:border-gray-700 rounded-lg text-xs font-bold transition-all" data-val="inactive">Inactive</button>
+                </div>
+            </div>
+        </div>
+        <div class="p-6 bg-gray-50 dark:bg-gray-800/30 border-t border-gray-100 dark:border-gray-800 flex gap-3">
+            <button id="resetFiltersBtn" class="flex-1 px-4 py-3 bg-white dark:bg-darkSurface border border-gray-200 dark:border-gray-700 rounded-xl text-[10px] font-black uppercase tracking-widest text-gray-500 hover:bg-gray-50 transition-all">Reset</button>
+            <button id="applyFiltersBtn" class="flex-[2] px-4 py-3 bg-primary text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg hover:bg-blue-700 transition-all">Apply Filters</button>
+        </div>
+    </aside>
+
+
+    <!-- ═══════════════════════════════════════
+         FLOATING ACTION TOOLBAR
+    ════════════════════════════════════════ -->
+    <div id="actionToolbar" class="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 opacity-0 pointer-events-none translate-y-20">
+        <div class="bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.4)] border border-white/10 dark:border-gray-200 px-6 py-4 flex items-center gap-8 backdrop-blur-xl">
+            <div class="flex items-center gap-3 pr-6 border-r border-white/20 dark:border-gray-200">
+                <span id="selectCount" class="w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center font-black text-sm shadow-lg">0</span>
+                <span class="text-xs font-black uppercase tracking-widest opacity-70 hidden sm:block">Selected</span>
+            </div>
+            <div class="flex items-center gap-6 sm:gap-8">
+                <button id="toolbarDeleteBtn" class="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest hover:text-red-400 transition-colors group">
+                    <i class="fa-solid fa-trash-can opacity-60 group-hover:opacity-100"></i>
+                    <span class="hidden sm:inline">Delete</span>
+                </button>
+                <button id="toolbarExportBtn" class="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest hover:text-emerald-400 transition-colors group">
+                    <i class="fa-solid fa-download opacity-60 group-hover:opacity-100"></i>
+                    <span class="hidden sm:inline">Export CSV</span>
+                </button>
+                <button id="clearSelection" class="ml-4 text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-white dark:hover:text-black transition-colors underline underline-offset-4">
+                    Clear
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ═══════════════════════════════════════
+         CONFIRM DELETE MODAL
+    ════════════════════════════════════════ -->
+    <div id="confirmModal" class="fixed inset-0 z-[80] bg-black/60 backdrop-blur-sm items-center justify-center p-4">
+        <div id="modalCard" class="bg-white dark:bg-darkSurface rounded-3xl border border-gray-100 dark:border-gray-800 shadow-2xl p-8 max-w-md w-full scale-95 opacity-0 transition-all duration-200">
+            <div class="w-14 h-14 bg-red-50 dark:bg-red-900/20 rounded-2xl flex items-center justify-center mb-6 mx-auto">
+                <i class="fa-solid fa-triangle-exclamation text-secondary text-2xl"></i>
+            </div>
+            <h3 class="text-lg font-black text-gray-900 dark:text-white text-center mb-2 uppercase tracking-tight">Confirm Deletion</h3>
+            <p id="confirmMessage" class="text-sm text-gray-500 dark:text-gray-400 text-center mb-8 leading-relaxed"></p>
+            <div class="flex gap-3">
+                <button id="cancelActionBtn" class="flex-1 py-3 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 transition-all">Cancel</button>
+                <button id="confirmActionBtn" class="flex-[2] py-3 bg-secondary text-white text-[10px] font-black uppercase tracking-widest rounded-xl shadow-lg hover:bg-red-700 transition-all">Confirm Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden Bulk Form -->
+    <form id="bulkActionForm" method="post" style="display:none;">
+        {% csrf_token %}
+        <input type="hidden" name="action" id="bulkActionType">
+        <div id="bulkIdContainer"></div>
+    </form>
+
+</div>{# end flex flex-col h-screen #}
+{% endblock %}
+
+
+{% block extra_js %}
+<script>
+(function() {
+    // ── FILTER DRAWER ──
+    const filterDrawer = document.getElementById('filterDrawer');
+    const filterOverlay = document.getElementById('filterOverlay');
+
+    function openDrawer()  { filterDrawer.classList.remove('translate-x-full'); filterOverlay.classList.remove('hidden'); }
+    function closeDrawer() { filterDrawer.classList.add('translate-x-full');    filterOverlay.classList.add('hidden'); }
+
+    document.getElementById('openFiltersBtn')?.addEventListener('click', openDrawer);
+    document.getElementById('closeFiltersBtn')?.addEventListener('click', closeDrawer);
+    filterOverlay?.addEventListener('click', closeDrawer);
+    document.getElementById('applyFiltersBtn')?.addEventListener('click', closeDrawer);
+    document.getElementById('resetFiltersBtn')?.addEventListener('click', () => {
+        document.querySelectorAll('.data-row').forEach(r => r.style.display = '');
+        closeDrawer();
+    });
+
+    // ── STATUS CHIPS ──
+    document.querySelectorAll('.filter-chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+            document.querySelectorAll('.filter-chip').forEach(c => {
+                c.classList.remove('bg-primary', 'text-white', 'shadow-md');
+                c.classList.add('bg-white', 'dark:bg-darkSurface', 'text-gray-500', 'dark:text-gray-400');
+            });
+            chip.classList.remove('bg-white', 'dark:bg-darkSurface', 'text-gray-500', 'dark:text-gray-400');
+            chip.classList.add('bg-primary', 'text-white', 'shadow-md');
+        });
+    });
+
+    // ── FLOATING TOOLBAR ──
+    const toolbar     = document.getElementById('actionToolbar');
+    const selectAll   = document.getElementById('selectAll');
+    const countDisplay = document.getElementById('selectCount');
+    const checkboxes  = document.querySelectorAll('.record-check');
+
+    function updateToolbar() {
+        const count = document.querySelectorAll('.record-check:checked').length;
+        if (countDisplay) countDisplay.innerText = count;
+
+        if (count > 0) {
+            toolbar?.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-20');
+            toolbar?.classList.add('opacity-100', 'translate-y-0');
+        } else {
+            toolbar?.classList.add('opacity-0', 'pointer-events-none', 'translate-y-20');
+            toolbar?.classList.remove('opacity-100', 'translate-y-0');
+        }
+
+        checkboxes.forEach(cb => {
+            cb.closest('.data-row')?.classList.toggle('row-selected', cb.checked);
+        });
+    }
+
+    selectAll?.addEventListener('change', () => {
+        checkboxes.forEach(cb => {
+            if (cb.closest('.data-row')?.style.display !== 'none') cb.checked = selectAll.checked;
+        });
+        updateToolbar();
+    });
+
+    checkboxes.forEach(cb => cb.addEventListener('change', updateToolbar));
+
+    document.getElementById('clearSelection')?.addEventListener('click', () => {
+        checkboxes.forEach(cb => cb.checked = false);
+        if (selectAll) selectAll.checked = false;
+        updateToolbar();
+    });
+
+    // ── BULK ACTION MODAL ──
+    const confirmModal  = document.getElementById('confirmModal');
+    const modalCard     = document.getElementById('modalCard');
+    const confirmMsg    = document.getElementById('confirmMessage');
+    let pendingAction = null, pendingIds = [];
+
+    function showModal(ids) {
+        pendingIds = ids; pendingAction = 'delete';
+        if (confirmMsg) confirmMsg.innerText = `Are you sure you want to permanently delete ${ids.length} selected record(s)? This action cannot be undone.`;
+        confirmModal.classList.add('show');
+        setTimeout(() => { modalCard?.classList.remove('scale-95', 'opacity-0'); modalCard?.classList.add('scale-100', 'opacity-100'); }, 10);
+    }
+
+    function hideModal() {
+        modalCard?.classList.add('scale-95', 'opacity-0');
+        modalCard?.classList.remove('scale-100', 'opacity-100');
+        setTimeout(() => { confirmModal.classList.remove('show'); pendingAction = null; pendingIds = []; }, 200);
+    }
+
+    function submitBulkForm(type, ids) {
+        document.getElementById('bulkActionType').value = type;
+        const c = document.getElementById('bulkIdContainer');
+        c.innerHTML = '';
+        ids.forEach(id => {
+            const inp = document.createElement('input');
+            inp.type = 'hidden'; inp.name = 'ids'; inp.value = id;
+            c.appendChild(inp);
+        });
+        document.getElementById('bulkActionForm').submit();
+    }
+
+    function performBulkAction(type) {
+        const ids = [...document.querySelectorAll('.record-check:checked')].map(cb => cb.value);
+        if (!ids.length) return;
+        if (type === 'delete') { showModal(ids); return; }
+        submitBulkForm(type, ids);
+    }
+
+    document.getElementById('confirmActionBtn')?.addEventListener('click', () => {
+        if (pendingAction && pendingIds.length) submitBulkForm(pendingAction, pendingIds);
+    });
+    document.getElementById('cancelActionBtn')?.addEventListener('click', hideModal);
+    document.getElementById('toolbarDeleteBtn')?.addEventListener('click', () => performBulkAction('delete'));
+    document.getElementById('toolbarExportBtn')?.addEventListener('click', () => performBulkAction('export'));
+
+    // ── SEARCH ──
+    document.getElementById('mainSearch')?.addEventListener('input', function() {
+        const term = this.value.toLowerCase();
+        document.querySelectorAll('.data-row').forEach(row => {
+            row.style.display = row.innerText.toLowerCase().includes(term) ? '' : 'none';
+        });
+        updateToolbar();
+    });
+
+    // ── TABLE DRAG-TO-SCROLL ──
+    const scroller = document.querySelector('.table-container');
+    if (scroller) {
+        let isDown = false, startX, scrollStart, dragged = false;
+        scroller.style.cursor = 'grab';
+
+        scroller.addEventListener('mousedown', e => {
+            if (e.button !== 0) return;
+            isDown = true; dragged = false;
+            scroller.style.cursor = 'grabbing';
+            startX = e.pageX - scroller.offsetLeft;
+            scrollStart = scroller.scrollLeft;
+        });
+        document.addEventListener('mouseup', () => { isDown = false; scroller.style.cursor = 'grab'; });
+        scroller.addEventListener('mousemove', e => {
+            if (!isDown) return;
+            e.preventDefault();
+            const dx = e.pageX - scroller.offsetLeft - startX;
+            if (Math.abs(dx) > 4) dragged = true;
+            scroller.scrollLeft = scrollStart - dx;
+        });
+        // Block row navigation when dragging
+        scroller.addEventListener('click', e => {
+            if (dragged) { e.stopPropagation(); e.preventDefault(); dragged = false; }
+        }, true);
+
+        // Horizontal wheel scroll
+        scroller.addEventListener('wheel', e => {
+            if (Math.abs(e.deltaX) < Math.abs(e.deltaY)) {
+                scroller.scrollLeft += e.deltaY;
+                e.preventDefault();
+            }
+        }, { passive: false });
+    }
+})();
+</script>
+{% endblock %}

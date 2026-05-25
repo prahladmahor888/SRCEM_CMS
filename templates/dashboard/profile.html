@@ -1,0 +1,366 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}My Profile | SRCEM ERP{% endblock %}
+
+{% block extra_css %}
+<style>
+    .tab-btn { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    .tab-active {
+        color: #1e40af;
+        position: relative;
+    }
+    .tab-active::after {
+        content: '';
+        position: absolute;
+        bottom: -1px;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background-color: #1e40af;
+        border-radius: 20px 20px 0 0;
+    }
+    .dark .tab-active { color: #60a5fa; }
+    .dark .tab-active::after { background-color: #316cf4; }
+
+    .data-label { @apply text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1; }
+    .data-value { @apply text-sm font-bold text-gray-800 dark:text-gray-200 leading-snug; }
+    
+    .profile-glow {
+        box-shadow: 0 0 40px -10px rgba(30, 64, 175, 0.3);
+    }
+</style>
+{% endblock %}
+{% block ticker %}{% endblock %}
+{% block navbar %}{% endblock %}
+{% block footer %}{% endblock %}
+{% block floating_contact %}{% endblock %}
+
+{% block content %}
+<div class="flex-1 flex flex-col min-w-0 bg-gray-50 dark:bg-darkBg transition-all duration-300 h-full overflow-hidden">
+    
+
+    {% include 'base/header_dashboard.html' %}
+    
+    <!-- Messages -->
+    {% if messages %}
+    <div class="px-4 sm:px-8 mt-4">
+        {% for message in messages %}
+            <div class="p-4 mb-4 rounded-xl {% if message.tags == 'success' %}bg-green-50 text-success border border-green-100{% else %}bg-red-50 text-red-600 border border-red-100{% endif %} flex items-center gap-3 animate-fade-in-down">
+                <i class="fa-solid {% if message.tags == 'success' %}fa-circle-check{% else %}fa-circle-exclamation{% endif %}"></i>
+                <p class="text-xs font-bold uppercase tracking-widest">{{ message }}</p>
+            </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    <!-- Profile Workspace -->
+    <div class="flex-1 overflow-y-auto p-4 sm:p-8 pb-48 no-scrollbar">
+        <form id="profileUpdateForm" method="POST" enctype="multipart/form-data" class="max-w-6xl mx-auto space-y-8">
+            {% csrf_token %}
+            
+            <!-- TOP HERO CARD -->
+            <div class="bg-white dark:bg-darkSurface rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-6 sm:p-10 flex flex-col md:flex-row items-center gap-8 relative overflow-hidden">
+                <div class="absolute top-0 right-0 p-10 opacity-[0.03] dark:opacity-[0.05] pointer-events-none">
+                    <i class="fa-solid fa-user-shield text-[180px]"></i>
+                </div>
+
+                <div class="relative shrink-0 group">
+                    {% if user.profile_image %}
+                        <img id="profileImagePreview" src="{{ user.profile_image.url }}" alt="Profile" class="w-32 h-32 sm:w-40 sm:h-40 rounded-3xl object-cover border-4 border-white dark:border-gray-800 shadow-sm transition-all duration-500 group-hover:scale-105">
+                    {% else %}
+                        <div id="profileImagePlaceholder" class="w-32 h-32 sm:w-40 sm:h-40 rounded-3xl bg-primary/10 text-primary dark:text-blue-400 flex items-center justify-center font-black text-4xl uppercase border-4 border-white dark:border-gray-800 shadow-sm">
+                            {{ user.first_name|slice:":1" }}{{ user.last_name|slice:":1" }}
+                        </div>
+                    {% endif %}
+                    {% if user.role == 'ADMIN' %}
+                    <label class="absolute -bottom-2 -right-2 w-10 h-10 bg-primary text-white rounded-xl flex items-center justify-center shadow-xl cursor-pointer hover:bg-primaryLight transition-all border-4 border-white dark:border-darkSurface">
+                        <i class="fa-solid fa-camera text-sm"></i>
+                        <input type="file" name="profile_image" class="hidden" id="imageInput" onchange="previewImage(this)">
+                    </label>
+                    {% endif %}
+                </div>
+
+                <div class="text-center md:text-left flex-1 space-y-3 z-10">
+                    <div class="flex flex-wrap justify-center md:justify-start items-center gap-3">
+                        <h2 class="text-3xl sm:text-4xl font-black text-gray-900 dark:text-white uppercase tracking-tight">{{ user.get_full_name }}</h2>
+                        <span class="px-3 py-1 bg-green-50 dark:bg-green-900/20 text-success text-[10px] font-black rounded-full border border-green-100 dark:border-green-800 uppercase tracking-widest shadow-sm">Verified Profile</span>
+                    </div>
+                    <p class="text-primary dark:text-blue-400 font-extrabold text-sm sm:text-lg uppercase tracking-widest">
+                        {{ role_display }} • 
+                        {% if user.role == 'STUDENT' %}
+                            {{ profile.branch.branch_name|default:"General" }}
+                        {% elif user.role == 'FACULTY' or user.role == 'HOD' %}
+                            {{ profile.department.dept_name|default:"Faculty" }}
+                        {% else %}
+                            Institutional Staff
+                        {% endif %}
+                    </p>
+                    
+                    <div class="flex flex-wrap justify-center md:justify-start gap-4 pt-4">
+                        <div class="bg-gray-50 dark:bg-gray-800/50 px-4 py-2 rounded-xl border border-gray-100 dark:border-gray-700 flex items-center gap-3">
+                            <i class="fa-solid fa-fingerprint text-primary dark:text-blue-400"></i>
+                            <div class="text-left">
+                                <p class="text-[9px] font-black text-gray-400 uppercase leading-none">System ID</p>
+                                <p class="text-xs font-black dark:text-gray-200 mt-1">{{ user.login_id }}</p>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 dark:bg-gray-800/50 px-4 py-2 rounded-xl border border-gray-100 dark:border-gray-700 flex items-center gap-3">
+                            <i class="fa-solid fa-award text-success"></i>
+                            <div class="text-left">
+                                <p class="text-[9px] font-black text-gray-400 uppercase leading-none">College</p>
+                                <p class="text-xs font-black dark:text-gray-200 mt-1">{{ user.college.name|truncatechars:20 }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TABS NAVIGATION -->
+            <div class="flex border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-darkSurface mt-8 px-6 rounded-t-2xl shadow-sm">
+                <button type="button" class="px-6 py-4 text-[10px] font-black uppercase tracking-[0.2em] tab-btn tab-active" onclick="switchTab('overview', this)">Overview</button>
+                <button type="button" class="px-6 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 dark:text-gray-500 tab-btn" onclick="switchTab('security', this)">Security & Privacy</button>
+                <button type="button" class="px-6 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 dark:text-gray-500 tab-btn" onclick="switchTab('logs', this)">Activity Logs</button>
+            </div>
+
+            <!-- TAB CONTENT: OVERVIEW -->
+            <div id="overview-tab" class="tab-pane space-y-6">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    <div class="lg:col-span-8 space-y-6">
+                        <div class="bg-white dark:bg-darkSurface rounded-b-2xl rounded-tr-2xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden">
+                            <div class="p-4 sm:p-5 border-b border-gray-50 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50 flex items-center gap-3">
+                                <i class="fa-solid fa-address-card text-primary dark:text-blue-400"></i>
+                                <h3 class="font-black text-[11px] uppercase tracking-widest text-gray-900 dark:text-white">Personal & Institutional Records</h3>
+                            </div>
+                            <div class="p-6 sm:p-8">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-y-8 gap-x-10">
+                                    <div>
+                                        <p class="data-label">Identity ID</p>
+                                        <p class="data-value">
+                                            {% if user.role == 'STUDENT' %}
+                                                {{ profile.roll_number|default:user.login_id }}
+                                            {% else %}
+                                                {{ profile.employee_id|default:user.login_id }}
+                                            {% endif %}
+                                        </p>
+                                    </div>
+                                    <div><p class="data-label">Full Name</p><p class="data-value">{{ user.get_full_name }}</p></div>
+                                    <div><p class="data-label">Date of Birth</p><p class="data-value">{{ profile.date_of_birth|default:"Not Provided" }}</p></div>
+                                    
+                                    {% if user.role == 'STUDENT' %}
+                                        <div><p class="data-label">Branch/Program</p><p class="data-value">{{ profile.branch.branch_name|default:"Not Assigned" }}</p></div>
+                                        <div><p class="data-label">Semester</p><p class="data-value">{{ profile.semester|default:"-" }}</p></div>
+                                        <div><p class="data-label">Batch Year</p><p class="data-value">{{ profile.batch_year|default:"Not Set" }}</p></div>
+                                    {% elif user.role == 'FACULTY' or user.role == 'HOD' %}
+                                        <div><p class="data-label">Department</p><p class="data-value">{{ profile.department.dept_name }}</p></div>
+                                        <div><p class="data-label">Designation</p><p class="data-value">{{ profile.designation }}</p></div>
+                                        <div><p class="data-label">Joining Date</p><p class="data-value">{{ profile.joining_date|default:"-" }}</p></div>
+                                    {% endif %}
+
+                                    <div class="sm:col-span-2">
+                                        <p class="data-label">Email Address</p>
+                                        <input type="email" name="email" value="{{ user.email }}" class="w-full bg-transparent border-none p-0 text-sm font-bold text-primary dark:text-blue-400 outline-none focus:ring-0">
+                                    </div>
+                                    <div>
+                                        <p class="data-label">Mobile Number</p>
+                                        <input type="text" name="phone" value="{{ user.phone }}" class="w-full bg-transparent border-none p-0 text-sm font-bold text-gray-800 dark:text-gray-200 outline-none focus:ring-0">
+                                    </div>
+                                </div>
+                                
+                                <div class="mt-10 pt-8 border-t border-gray-100 dark:border-gray-800">
+                                    <p class="data-label">Current Institutional Address</p>
+                                    <p class="data-value text-gray-500 italic font-medium leading-relaxed">
+                                        {{ user.college.address|default:"SRCEM Campus, Palwal, Haryana" }}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="lg:col-span-4 space-y-6">
+                        <div class="bg-white dark:bg-darkSurface rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-6">
+                            <h3 class="font-black text-[10px] uppercase tracking-widest text-gray-400 mb-6">Assigned ERP Permissions</h3>
+                            <div class="space-y-3">
+                                {% for role in user.roles.all %}
+                                    <div class="flex items-center gap-3 p-3 bg-primary/5 dark:bg-blue-900/10 rounded-xl border border-primary/10 dark:border-blue-800/30">
+                                        <div class="w-8 h-8 bg-primary text-white rounded-lg flex items-center justify-center text-xs"><i class="fa-solid fa-shield-check"></i></div>
+                                        <p class="text-xs font-bold text-gray-800 dark:text-gray-300 uppercase">{{ role.role_name }}</p>
+                                    </div>
+                                {% empty %}
+                                    <p class="text-[10px] text-gray-400 font-bold uppercase italic">No direct roles assigned</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        <div class="bg-primary dark:bg-blue-800 p-8 rounded-2xl text-white shadow-2xl relative overflow-hidden group">
+                            <i class="fa-solid fa-shield-halved absolute -right-6 -bottom-6 text-9xl opacity-10 group-hover:rotate-12 transition-transform duration-500"></i>
+                            <h4 class="font-black text-sm uppercase tracking-widest mb-3 leading-none">Self-Service Portal</h4>
+                            <p class="text-[11px] text-blue-100 leading-relaxed font-medium">You can update your Email and Phone number directly. For other academic data changes, contact the administration.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB CONTENT: SECURITY -->
+            <div id="security-tab" class="tab-pane hidden space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-6xl mx-auto">
+                    <!-- Password Update -->
+                    <div class="bg-white dark:bg-darkSurface rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-6 sm:p-8 space-y-6">
+                        <div class="flex items-center gap-4 mb-2">
+                            <div class="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+                                <i class="fa-solid fa-key"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-black text-[11px] uppercase tracking-widest text-gray-900 dark:text-white">Credentials</h3>
+                                <p class="text-[10px] text-gray-400 font-bold uppercase">Update account password</p>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <p class="data-label">New Password</p>
+                                <div class="relative">
+                                    <input type="password" name="new_password" id="new_password" placeholder="••••••••" class="w-full bg-gray-50 dark:bg-gray-900 border-none rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 outline-none transition-all pr-12">
+                                    <button type="button" onclick="togglePassword('new_password', this)" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-primary transition-colors">
+                                        <i class="fa-solid fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div>
+                                <p class="data-label">Confirm New Password</p>
+                                <div class="relative">
+                                    <input type="password" name="confirm_password" id="confirm_password" placeholder="••••••••" class="w-full bg-gray-50 dark:bg-gray-900 border-none rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 outline-none transition-all pr-12">
+                                    <button type="button" onclick="togglePassword('confirm_password', this)" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-primary transition-colors">
+                                        <i class="fa-solid fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 2FA Toggle -->
+                    <div class="bg-white dark:bg-darkSurface rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-6 sm:p-8 space-y-6">
+                        <div class="flex items-center gap-4 mb-2">
+                            <div class="w-10 h-10 rounded-xl bg-orange-100 text-orange-600 flex items-center justify-center">
+                                <i class="fa-solid fa-shield-halved"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-black text-[11px] uppercase tracking-widest text-gray-900 dark:text-white">Enhanced Security</h3>
+                                <p class="text-[10px] text-gray-400 font-bold uppercase">Multi-factor Authentication</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between p-5 bg-gray-50 dark:bg-gray-900/50 rounded-2xl border border-gray-100 dark:border-gray-800">
+                            <div>
+                                <p class="text-sm font-bold text-gray-900 dark:text-white leading-none">Two-Step Verification</p>
+                                <p class="text-[10px] text-gray-500 mt-2 font-medium">Add an extra layer of security to your account.</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" name="two_step_enabled" class="sr-only peer" {% if user.two_step_enabled %}checked{% endif %}>
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary"></div>
+                            </label>
+                        </div>
+
+                        <div class="p-4 rounded-xl bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/30">
+                            <p class="text-[10px] text-primary dark:text-blue-400 font-bold leading-relaxed">
+                                <i class="fa-solid fa-circle-info mr-1"></i> Two-step verification requires an authenticator app or email verification during login.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB CONTENT: ACTIVITY LOGS -->
+            <div id="logs-tab" class="tab-pane hidden max-w-6xl mx-auto">
+                <div class="bg-white dark:bg-darkSurface rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden">
+                    <div class="p-6 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-gray-50/50 dark:bg-gray-900/50">
+                        <h3 class="font-black text-[11px] uppercase tracking-widest text-gray-400">Account Security Timeline</h3>
+                        <i class="fa-solid fa-history text-gray-300"></i>
+                    </div>
+                    <div class="p-0">
+                        <ul class="divide-y divide-gray-50 dark:divide-gray-800">
+                            {% for log in recent_logs %}
+                            <li class="p-6 flex gap-4 hover:bg-gray-50 dark:hover:bg-gray-900/30 transition-colors">
+                                <div class="w-10 h-10 rounded-full bg-{{ log.color }}-50 dark:bg-{{ log.color }}-900/30 text-{{ log.color }}-600 dark:text-{{ log.color }}-400 flex items-center justify-center shrink-0 border border-{{ log.color }}-100 dark:border-{{ log.color }}-800/30 shadow-inner">
+                                    <i class="fa-solid {{ log.icon }}"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-bold text-gray-900 dark:text-gray-100">{{ log.action }}</p>
+                                    <p class="text-[10px] text-gray-400 mt-2 font-black uppercase tracking-widest">{{ log.time }}</p>
+                                </div>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            </div>
+            
+            <!-- Spacer to prevent content from being hidden by the sticky footer -->
+            <div class="h-[50px]"></div>
+            
+            <!-- STICKY ACTION FOOTER -->
+            <div class="fixed bottom-0 right-0 left-0 lg:left-64 bg-white/80 dark:bg-darkSurface/80 backdrop-blur-md border-t border-gray-100 dark:border-gray-800 p-4 z-40 flex justify-center sm:justify-end items-center px-4 sm:px-8">
+                <div class="flex items-center gap-4 w-full max-w-6xl lg:mx-auto">
+                    <div class="hidden sm:block">
+                        <p class="text-[10px] font-black uppercase text-gray-400 tracking-widest">Self-Service Update</p>
+                        <p class="text-[10px] text-gray-500 font-medium">Any changes made will take effect immediately.</p>
+                    </div>
+                    <div class="ml-auto flex gap-3">
+                        <button type="reset" class="px-6 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 text-[10px] font-black uppercase tracking-widest text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all">Discard</button>
+                        <button type="submit" class="px-10 py-2.5 rounded-xl bg-primary text-white text-[10px] font-black uppercase tracking-[0.2em] shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all">Save Changes</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+    </div>
+</div>
+
+<script>
+    function switchTab(tabId, btn) {
+        document.querySelectorAll('.tab-pane').forEach(p => p.classList.add('hidden'));
+        document.getElementById(tabId + '-tab').classList.remove('hidden');
+        
+        document.querySelectorAll('.tab-btn').forEach(b => {
+            b.classList.remove('tab-active');
+            b.classList.add('text-gray-400', 'dark:text-gray-500');
+        });
+        btn.classList.add('tab-active');
+        btn.classList.remove('text-gray-400', 'dark:text-gray-500');
+    }
+
+    function previewImage(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                const imgPreview = document.getElementById('profileImagePreview');
+                if (imgPreview) {
+                    imgPreview.src = e.target.result;
+                } else {
+                    const placeholder = document.getElementById('profileImagePlaceholder');
+                    const newImg = document.createElement('img');
+                    newImg.id = "profileImagePreview";
+                    newImg.src = e.target.result;
+                    newImg.className = "w-32 h-32 sm:w-40 sm:h-40 rounded-3xl object-cover border-4 border-white dark:border-gray-800 shadow-sm transition-all duration-500 group-hover:scale-105";
+                    placeholder.parentNode.replaceChild(newImg, placeholder);
+                }
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    function togglePassword(inputId, btn) {
+        const input = document.getElementById(inputId);
+        const icon = btn.querySelector('i');
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
+    }
+</script>
+{% endblock %}

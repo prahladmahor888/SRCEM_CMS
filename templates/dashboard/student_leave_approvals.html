@@ -1,0 +1,451 @@
+{% extends 'base/dashboard_base.html' %}
+{% load static %}
+
+{% block title %}Student Leave Approvals - SRCEM ERP{% endblock %}
+
+{% block dashboard_content %}
+<div class="space-y-8 pb-12">
+
+    <!-- Page Intro & Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+            <div class="flex items-center gap-2 mb-2">
+                <a href="{% url 'dashboard' %}" class="text-xs font-bold text-gray-500 hover:text-primary transition-colors flex items-center gap-1">
+                    <i class="fa-solid fa-arrow-left"></i> Dashboard
+                </a>
+                <span class="text-gray-300 dark:text-gray-700 text-xs">/</span>
+                <span class="text-xs font-bold text-primary dark:text-blue-400">Leave Approvals</span>
+            </div>
+            <h2 class="text-3xl font-black text-gray-900 dark:text-white flex items-center gap-3 tracking-tight">
+                <i class="fa-solid fa-check-to-slot text-primary dark:text-blue-400"></i> Student Leave Approvals
+            </h2>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Review and manage leave applications submitted by your assigned mentees/students.</p>
+        </div>
+        <div>
+            <button class="bg-white dark:bg-darkSidebar text-gray-700 dark:text-gray-300 font-bold text-xs px-5 py-3 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm hover:bg-gray-50 dark:hover:bg-gray-800/80 transition-all flex items-center gap-2">
+                <i class="fa-solid fa-file-contract text-primary"></i> Leave Policy Guidelines
+            </button>
+        </div>
+    </div>
+
+    <!-- Quick Stats Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        
+        <!-- Pending Card -->
+        <div class="bg-white dark:bg-darkSidebar p-6 rounded-2xl shadow-sm border border-gray-200/80 dark:border-gray-800/80 border-l-4 border-l-warning hover:shadow-md transition-all duration-300">
+            <div class="flex items-center gap-4 mb-3">
+                <div class="w-10 h-10 rounded-xl bg-orange-50 dark:bg-orange-950/20 text-warning flex items-center justify-center text-md border border-orange-100 dark:border-orange-900/30">
+                    <i class="fa-solid fa-hourglass-half"></i>
+                </div>
+                <div>
+                    <p class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Pending Requests</p>
+                    <h3 class="text-2xl font-black text-gray-900 dark:text-white mt-0.5">{{ stats.pending|stringformat:"02d" }}</h3>
+                </div>
+            </div>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-2 flex items-center gap-1">
+                <i class="fa-solid fa-triangle-exclamation text-warning"></i> Action required by you
+            </p>
+        </div>
+
+        <!-- Approved Card -->
+        <div class="bg-white dark:bg-darkSidebar p-6 rounded-2xl shadow-sm border border-gray-200/80 dark:border-gray-800/80 border-l-4 border-l-success hover:shadow-md transition-all duration-300">
+            <div class="flex items-center gap-4 mb-3">
+                <div class="w-10 h-10 rounded-xl bg-green-50 dark:bg-green-950/20 text-success flex items-center justify-center text-md border border-green-100 dark:border-green-900/30">
+                    <i class="fa-solid fa-check-double"></i>
+                </div>
+                <div>
+                    <p class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Approved Leaves</p>
+                    <h3 class="text-2xl font-black text-gray-900 dark:text-white mt-0.5">{{ stats.approved|stringformat:"02d" }}</h3>
+                </div>
+            </div>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-2 flex items-center gap-1">
+                <i class="fa-solid fa-circle-check text-success"></i> Authorized applications
+            </p>
+        </div>
+
+        <!-- Rejected Card -->
+        <div class="bg-white dark:bg-darkSidebar p-6 rounded-2xl shadow-sm border border-gray-200/80 dark:border-gray-800/80 border-l-4 border-l-secondary hover:shadow-md transition-all duration-300">
+            <div class="flex items-center gap-4 mb-3">
+                <div class="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-950/20 text-secondary flex items-center justify-center text-md border border-red-100 dark:border-red-900/30">
+                    <i class="fa-solid fa-ban"></i>
+                </div>
+                <div>
+                    <p class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Rejected Leaves</p>
+                    <h3 class="text-2xl font-black text-gray-900 dark:text-white mt-0.5">{{ stats.rejected|stringformat:"02d" }}</h3>
+                </div>
+            </div>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-2 flex items-center gap-1">
+                <i class="fa-solid fa-circle-xmark text-secondary"></i> Invalid reasons/docs
+            </p>
+        </div>
+
+        <!-- On Leave Today Card -->
+        <div class="bg-white dark:bg-darkSidebar p-6 rounded-2xl shadow-sm border border-gray-200/80 dark:border-gray-800/80 border-l-4 border-l-info hover:shadow-md transition-all duration-300">
+            <div class="flex items-center gap-4 mb-3">
+                <div class="w-10 h-10 rounded-xl bg-sky-50 dark:bg-sky-950/20 text-info flex items-center justify-center text-md border border-sky-100 dark:border-sky-900/30">
+                    <i class="fa-solid fa-user-minus"></i>
+                </div>
+                <div>
+                    <p class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">On Leave Today</p>
+                    <h3 class="text-2xl font-black text-gray-900 dark:text-white mt-0.5">{{ stats.on_leave_today|stringformat:"02d" }}</h3>
+                </div>
+            </div>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-2 flex items-center gap-1">
+                <i class="fa-solid fa-calendar-day text-info"></i> Absent mentees today
+            </p>
+        </div>
+    </div>
+
+    <!-- Main Workspace -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+        
+        <!-- Left Column: Leave Applications List -->
+        <div class="lg:col-span-2 space-y-6">
+            <div class="bg-white dark:bg-darkSidebar rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800 overflow-hidden flex flex-col">
+                
+                <!-- Card Header with Filters -->
+                <div class="p-6 border-b border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/20 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <h3 class="font-bold text-gray-900 dark:text-white flex items-center gap-2 text-md">
+                        <i class="fa-solid fa-inbox text-primary"></i> Application Inbox
+                    </h3>
+                    
+                    <form method="GET" class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+                        <div class="relative w-full sm:w-64">
+                            <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                            <input type="text" name="search" value="{{ request.GET.search }}" class="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl text-xs font-semibold text-gray-900 dark:text-white focus:outline-none focus:border-primary transition-all shadow-sm" placeholder="Search by student name...">
+                        </div>
+                        <select name="status" onchange="this.form.submit()" class="w-full sm:w-auto px-4 py-2.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl text-xs font-bold text-gray-700 dark:text-gray-300 focus:outline-none focus:border-primary transition-all cursor-pointer shadow-sm">
+                            <option value="all" {% if current_status == 'all' %}selected{% endif %}>All Applications</option>
+                            <option value="Pending" {% if current_status == 'Pending' %}selected{% endif %}>Pending Action</option>
+                            <option value="Approved" {% if current_status == 'Approved' %}selected{% endif %}>Approved</option>
+                            <option value="Rejected" {% if current_status == 'Rejected' %}selected{% endif %}>Rejected</option>
+                        </select>
+                    </form>
+                </div>
+
+                <!-- Applications Table Container -->
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse min-w-[700px]">
+                        <thead>
+                            <tr class="bg-gray-50/20 dark:bg-gray-900/10 text-[10px] uppercase font-black tracking-widest text-gray-400 dark:text-gray-500 border-b border-gray-200 dark:border-gray-800">
+                                <th class="p-5">Student Details</th>
+                                <th class="p-5">Leave Info & Reason</th>
+                                <th class="p-5 text-center">Attachment</th>
+                                <th class="p-5 text-center">Status</th>
+                                <th class="p-5 text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-sm divide-y divide-gray-100 dark:divide-gray-800/80">
+                            {% for leave in leaves %}
+                            <tr class="hover:bg-gray-50/50 dark:hover:bg-gray-900/10 transition-all duration-200 {% if leave.status == 'Pending' %}bg-orange-50/5 dark:bg-orange-950/5{% endif %}">
+                                <td class="p-5">
+                                    <span class="font-bold text-gray-800 dark:text-gray-200 block text-base">{{ leave.student.user.get_full_name }}</span>
+                                    <span class="text-[10px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-widest block mt-0.5">
+                                        {{ leave.student.roll_number|default:leave.student.enrollment_number }} &middot; {{ leave.student.semester }}th Sem
+                                    </span>
+                                </td>
+                                <td class="p-5 max-w-[280px]">
+                                    <div class="flex items-center gap-2.5 mb-1.5">
+                                        <span class="inline-block px-2.5 py-0.5 bg-blue-50 dark:bg-blue-950/20 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-900/30 text-[9px] font-black rounded-lg uppercase tracking-widest">
+                                            {{ leave.leave_type }}
+                                        </span>
+                                        <span class="text-xs font-black text-gray-800 dark:text-gray-300">
+                                            {{ leave.duration_days }} Day{{ leave.duration_days|pluralize }}
+                                        </span>
+                                    </div>
+                                    <span class="text-xs text-gray-600 dark:text-gray-400 block font-medium">
+                                        {{ leave.start_date|date:"d M Y" }} {% if leave.duration_days > 1 %}to {{ leave.end_date|date:"d M Y" }}{% endif %}
+                                    </span>
+                                    <span class="text-xs text-gray-400 italic block mt-1 line-clamp-1" title="{{ leave.reason }}">
+                                        "{{ leave.reason }}"
+                                    </span>
+                                </td>
+                                <td class="p-5 text-center">
+                                    {% if leave.attachment %}
+                                    <a href="{{ leave.attachment.url }}" target="_blank" class="inline-flex flex-col items-center justify-center gap-1.5 text-primary hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors mx-auto group">
+                                        <i class="fa-solid fa-file-pdf text-xl group-hover:scale-110 transition-transform"></i>
+                                        <span class="text-[10px] font-black uppercase tracking-wider">View Doc</span>
+                                    </a>
+                                    {% else %}
+                                    <span class="text-gray-300 dark:text-gray-700 text-xs italic font-medium">No Doc</span>
+                                    {% endif %}
+                                </td>
+                                <td class="p-5 text-center" id="status-cell-{{ leave.id }}">
+                                    <span class="inline-block px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border
+                                        {% if leave.status == 'Pending' %}
+                                            bg-orange-50 text-orange-600 border-orange-100 dark:bg-orange-950/20 dark:text-orange-400 dark:border-orange-900/30
+                                        {% elif leave.status == 'Approved' %}
+                                            bg-green-50 text-green-600 border-green-100 dark:bg-green-950/20 dark:text-green-400 dark:border-green-900/30
+                                        {% else %}
+                                            bg-red-50 text-red-600 border-red-100 dark:bg-red-950/20 dark:text-red-400 dark:border-red-900/30
+                                        {% endif %}">
+                                        {{ leave.status }}
+                                    </span>
+                                </td>
+                                <td class="p-5 text-center">
+                                    {% if leave.status == 'Pending' %}
+                                    <div class="flex gap-2 justify-center" id="action-btns-{{ leave.id }}">
+                                        <button onclick="takeAction({{ leave.id }}, 'approve')" class="bg-success hover:bg-green-700 text-white text-[10px] font-black px-4 py-2 rounded-xl transition-all uppercase tracking-widest shadow-md shadow-success/10 hover:-translate-y-0.5 border border-success">
+                                            Approve
+                                        </button>
+                                        <button onclick="takeAction({{ leave.id }}, 'reject')" class="bg-white dark:bg-gray-800 text-secondary border border-gray-200 dark:border-gray-700 hover:border-secondary/40 hover:bg-red-50 dark:hover:bg-red-950/10 text-[10px] font-black px-4 py-2 rounded-xl transition-all uppercase tracking-widest shadow-sm hover:-translate-y-0.5">
+                                            Reject
+                                        </button>
+                                    </div>
+                                    {% else %}
+                                    <span class="text-xs font-bold text-gray-400 dark:text-gray-600 flex items-center justify-center gap-1">
+                                        <i class="fa-solid fa-check-circle text-green-500/80"></i> Handled
+                                    </span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="p-16 text-center text-gray-400 dark:text-gray-600 italic font-medium">
+                                    <i class="fa-solid fa-envelope-open text-3xl mb-3 block text-gray-300 dark:text-gray-700"></i>
+                                    No leave applications found in this filter.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Mentorship Info & Guidelines -->
+        <div class="space-y-6">
+            
+            <!-- Mentorship Stats Card -->
+            <div class="bg-white dark:bg-darkSidebar rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800 overflow-hidden">
+                <div class="p-5 border-b border-gray-200 dark:border-gray-800 bg-primary text-white relative">
+                    <!-- Abstract Shape Decorator -->
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -mr-8 -mt-8 blur-xl"></div>
+                    <h3 class="text-base font-bold flex items-center gap-2 relative z-10">
+                        <i class="fa-solid fa-id-card-clip"></i> Mentorship Info
+                    </h3>
+                </div>
+                <div class="p-6 space-y-5">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-950/30 border border-blue-100 dark:border-blue-900/30 flex items-center justify-center text-primary dark:text-blue-400 text-lg font-black">
+                            {{ request.user.first_name|first }}{{ request.user.last_name|first }}
+                        </div>
+                        <div>
+                            <p class="text-base font-bold text-gray-900 dark:text-white">{{ request.user.get_full_name }}</p>
+                            <p class="text-[9px] text-gray-400 dark:text-gray-500 uppercase font-black tracking-widest mt-0.5">Mentees Mentor</p>
+                        </div>
+                    </div>
+                    <div class="pt-4 border-t border-gray-100 dark:border-gray-800/80 space-y-4">
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="text-gray-500 font-medium">Assigned Mentees</span>
+                            <span class="font-bold text-gray-800 dark:text-gray-200 bg-gray-50 dark:bg-gray-900 px-3 py-1 rounded-lg border border-gray-100 dark:border-gray-800">
+                                {{ request.user.faculty_profile.mentees.count }} Students
+                            </span>
+                        </div>
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="text-gray-500 font-medium">Actioned Applications</span>
+                            <span class="font-bold text-gray-800 dark:text-gray-200 bg-gray-50 dark:bg-gray-900 px-3 py-1 rounded-lg border border-gray-100 dark:border-gray-800">
+                                {{ stats.approved|add:stats.rejected }} Records
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mentor Guidelines -->
+            <div class="bg-blue-50/50 dark:bg-blue-950/5 rounded-2xl shadow-sm border border-blue-100/70 dark:border-blue-900/20">
+                <div class="p-5 border-b border-blue-100 dark:border-blue-900/20">
+                    <h3 class="text-base font-bold text-primary dark:text-blue-400 flex items-center gap-2">
+                        <i class="fa-solid fa-circle-info"></i> Critical Guidelines
+                    </h3>
+                </div>
+                <div class="p-6">
+                    <ul class="space-y-4 text-xs text-gray-600 dark:text-gray-400">
+                        <li class="flex items-start gap-3">
+                            <i class="fa-solid fa-circle-check text-primary dark:text-blue-400 mt-0.5 text-sm"></i>
+                            <span>Verify and double check medical certificates for sick leaves extending past 2 days.</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <i class="fa-solid fa-circle-check text-primary dark:text-blue-400 mt-0.5 text-sm"></i>
+                            <span>Assess student's active semester attendance statistics before granting personal leaves.</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <i class="fa-solid fa-circle-check text-primary dark:text-blue-400 mt-0.5 text-sm"></i>
+                            <span>Counsel students with repeating patterns of leave requests.</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Premium Action Confirmation Modal -->
+<div id="actionModal" class="fixed inset-0 bg-black/60 backdrop-blur-[4px] z-50 hidden flex items-center justify-center opacity-0 transition-opacity duration-300">
+    <div class="bg-white dark:bg-darkSidebar rounded-2xl p-6 max-w-sm w-full mx-4 shadow-2xl border border-gray-100 dark:border-gray-800 scale-90 opacity-0 transform transition-all duration-300" id="modalCard">
+        <div class="w-12 h-12 rounded-full flex items-center justify-center text-xl mx-auto mb-4" id="modalIcon">
+            <i class="fa-solid fa-question"></i>
+        </div>
+        <h4 class="text-lg font-black text-gray-900 dark:text-white text-center mb-2" id="modalTitle">Confirm Action</h4>
+        <p class="text-xs text-gray-500 dark:text-gray-400 text-center mb-5 leading-relaxed" id="modalDescription">Are you sure you want to proceed?</p>
+        
+        <!-- Mentor Remarks Input -->
+        <div class="mb-5">
+            <label class="block text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2">Remarks / Note (Optional)</label>
+            <textarea id="modalRemarks" rows="2" class="w-full px-3 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl text-xs text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-primary transition-all resize-none shadow-inner" placeholder="Provide reason or feedback..."></textarea>
+        </div>
+
+        <div class="flex gap-3">
+            <button onclick="closeActionModal()" class="flex-1 py-2.5 bg-gray-100 dark:bg-gray-800 hover:bg-gray-250 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs font-bold rounded-xl transition-all border border-gray-200/50 dark:border-gray-700/50 shadow-sm">
+                Cancel
+            </button>
+            <button id="modalConfirmBtn" class="flex-1 py-2.5 text-white text-xs font-bold rounded-xl transition-all shadow-md">
+                Confirm
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Custom Toast Notification -->
+<div id="toastNotification" class="fixed bottom-6 right-6 z-[100] transform translate-y-16 opacity-0 pointer-events-none transition-all duration-300 bg-white dark:bg-darkSidebar border border-gray-150 dark:border-gray-800 rounded-2xl p-4 shadow-2xl flex items-center gap-3.5 max-w-sm">
+    <div class="w-8 h-8 rounded-full flex items-center justify-center text-sm" id="toastIcon">
+        <i class="fa-solid fa-circle-check"></i>
+    </div>
+    <div>
+        <p class="text-xs font-black text-gray-900 dark:text-white uppercase tracking-wider" id="toastTitle">Notification</p>
+        <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5" id="toastMessage">Action performed successfully.</p>
+    </div>
+</div>
+
+<script>
+let pendingAction = null;
+
+function takeAction(leaveId, action) {
+    pendingAction = { leaveId, action };
+    
+    const modal = document.getElementById('actionModal');
+    const card = document.getElementById('modalCard');
+    const title = document.getElementById('modalTitle');
+    const desc = document.getElementById('modalDescription');
+    const icon = document.getElementById('modalIcon');
+    const confirmBtn = document.getElementById('modalConfirmBtn');
+    
+    // Clear remarks
+    document.getElementById('modalRemarks').value = '';
+    
+    // Setup styles dynamically
+    if (action === 'approve') {
+        title.textContent = 'Approve Leave';
+        desc.textContent = 'Are you sure you want to approve this student\'s leave application?';
+        icon.className = 'w-12 h-12 rounded-full bg-green-50 dark:bg-green-950/20 text-success flex items-center justify-center text-xl mx-auto mb-4 border border-green-100 dark:border-green-900/20';
+        icon.innerHTML = '<i class="fa-solid fa-check"></i>';
+        confirmBtn.className = 'flex-1 py-2.5 bg-success hover:bg-green-700 text-white text-xs font-bold rounded-xl transition-all shadow-md shadow-success/15 border border-success';
+        confirmBtn.textContent = 'Approve';
+    } else {
+        title.textContent = 'Reject Leave';
+        desc.textContent = 'Are you sure you want to reject this student\'s leave application?';
+        icon.className = 'w-12 h-12 rounded-full bg-red-50 dark:bg-red-950/20 text-secondary flex items-center justify-center text-xl mx-auto mb-4 border border-red-100 dark:border-red-900/20';
+        icon.innerHTML = '<i class="fa-solid fa-ban"></i>';
+        confirmBtn.className = 'flex-1 py-2.5 bg-secondary hover:bg-red-700 text-white text-xs font-bold rounded-xl transition-all shadow-md shadow-secondary/15 border border-secondary';
+        confirmBtn.textContent = 'Reject';
+    }
+
+    // Show modal with animation
+    modal.classList.remove('hidden');
+    setTimeout(() => {
+        modal.classList.remove('opacity-0');
+        modal.classList.add('opacity-100');
+        card.classList.remove('scale-90', 'opacity-0');
+        card.classList.add('scale-100', 'opacity-100');
+    }, 10);
+}
+
+function closeActionModal() {
+    const modal = document.getElementById('actionModal');
+    const card = document.getElementById('modalCard');
+    
+    modal.classList.remove('opacity-100');
+    modal.classList.add('opacity-0');
+    card.classList.remove('scale-100', 'opacity-100');
+    card.classList.add('scale-90', 'opacity-0');
+    
+    setTimeout(() => {
+        modal.classList.add('hidden');
+        pendingAction = null;
+    }, 300);
+}
+
+document.getElementById('modalConfirmBtn').addEventListener('click', () => {
+    if (!pendingAction) return;
+    
+    const { leaveId, action } = pendingAction;
+    const remarks = document.getElementById('modalRemarks').value || 'Handled via mentor dashboard';
+    
+    closeActionModal();
+
+    const url = "{% url 'leave_action' pk=0 action='PLACEHOLDER' %}".replace('0', leaveId).replace('PLACEHOLDER', action);
+
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ remarks: remarks })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            // Update UI dynamically
+            const statusCell = document.getElementById(`status-cell-${leaveId}`);
+            const actionCell = document.getElementById(`action-btns-${leaveId}`);
+            
+            const badgeColor = action === 'approve' 
+                ? 'bg-green-50 text-green-600 border-green-100 dark:bg-green-950/20 dark:text-green-400 dark:border-green-900/30' 
+                : 'bg-red-50 text-red-600 border-red-100 dark:bg-red-950/20 dark:text-red-400 dark:border-red-900/30';
+            
+            statusCell.innerHTML = `<span class="inline-block px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border ${badgeColor}">${data.new_status}</span>`;
+            if (actionCell) {
+                actionCell.parentElement.innerHTML = `<span class="text-xs font-bold text-gray-400 dark:text-gray-600 flex items-center justify-center gap-1"><i class="fa-solid fa-check-circle text-green-500/80"></i> Handled</span>`;
+            }
+            
+            showToast('Success', data.message || 'Leave status updated successfully.', 'success');
+            
+            // Reload after a small delay to update stats cards
+            setTimeout(() => window.location.reload(), 1200);
+        } else {
+            showToast('Action Failed', data.message || 'An error occurred.', 'error');
+        }
+    })
+    .catch(err => {
+        showToast('Error', 'Connection error. Please try again.', 'error');
+    });
+});
+
+function showToast(title, message, type) {
+    const toast = document.getElementById('toastNotification');
+    const toastTitle = document.getElementById('toastTitle');
+    const toastMsg = document.getElementById('toastMessage');
+    const toastIcon = document.getElementById('toastIcon');
+    
+    toastTitle.textContent = title;
+    toastMsg.textContent = message;
+    
+    if (type === 'success') {
+        toastIcon.className = 'w-8 h-8 rounded-full flex items-center justify-center text-sm bg-green-50 dark:bg-green-950/20 text-success border border-green-100 dark:border-green-900/20';
+        toastIcon.innerHTML = '<i class="fa-solid fa-circle-check"></i>';
+    } else {
+        toastIcon.className = 'w-8 h-8 rounded-full flex items-center justify-center text-sm bg-red-50 dark:bg-red-950/20 text-secondary border border-red-100 dark:border-red-900/20';
+        toastIcon.innerHTML = '<i class="fa-solid fa-circle-xmark"></i>';
+    }
+    
+    toast.classList.remove('translate-y-16', 'opacity-0', 'pointer-events-none');
+    toast.classList.add('translate-y-0', 'opacity-100');
+    
+    setTimeout(() => {
+        toast.classList.remove('translate-y-0', 'opacity-100');
+        toast.classList.add('translate-y-16', 'opacity-0', 'pointer-events-none');
+    }, 3000);
+}
+</script>
+{% endblock %}

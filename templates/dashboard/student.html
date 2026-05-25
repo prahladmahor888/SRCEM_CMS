@@ -1,0 +1,247 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Student Dashboard - SRCEM Portal{% endblock %}
+
+{% block content %}
+<div class="p-6 sm:p-8 space-y-8">
+    
+    <!-- Welcome Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div>
+            <h1 class="text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">Student <span class="text-primary dark:text-blue-400">Portal</span></h1>
+            <p class="text-gray-500 dark:text-gray-400 mt-1 font-medium">Welcome back, <span class="text-gray-900 dark:text-gray-200 font-bold">{{ user.get_full_name|default:user.username }}</span>. Here's your academic summary.</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <div class="bg-white dark:bg-gray-800 px-4 py-2 rounded-sm border border-gray-200 dark:border-gray-700 shadow-sm flex items-center gap-3">
+                <div class="w-2 h-2 rounded-full bg-success animate-pulse"></div>
+                <span class="text-xs font-bold text-gray-600 dark:text-gray-400 uppercase tracking-widest">Active Session: 2026-27</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        
+        <!-- Attendance Card -->
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-sm border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-all group relative overflow-hidden">
+            <div class="absolute -right-4 -top-4 text-primary/5 dark:text-blue-400/5 text-8xl transition-transform group-hover:scale-110">
+                <i class="fa-solid fa-clipboard-user"></i>
+            </div>
+            <div class="relative z-10">
+                <p class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1">Overall Attendance</p>
+                <div class="flex items-end gap-2">
+                    <h3 class="text-3xl font-black text-gray-900 dark:text-white">{{ attendance_percentage }}%</h3>
+                    <span class="text-success text-xs font-bold mb-1 flex items-center gap-1"><i class="fa-solid fa-caret-up"></i> 2.1%</span>
+                </div>
+                <!-- Mini Progress Bar -->
+                <div class="w-full bg-gray-100 dark:bg-gray-700 h-1.5 mt-4 rounded-full overflow-hidden">
+                    <div class="bg-primary dark:bg-blue-500 h-full transition-all duration-1000 ease-out" style="width: {{ attendance_percentage }}%"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CGPA/Marks Card -->
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-sm border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-all group relative overflow-hidden">
+            <div class="absolute -right-4 -top-4 text-secondary/5 text-8xl transition-transform group-hover:scale-110">
+                <i class="fa-solid fa-graduation-cap"></i>
+            </div>
+            <div class="relative z-10">
+                <p class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1">Current CGPA</p>
+                <div class="flex items-end gap-2">
+                    <h3 class="text-3xl font-black text-gray-900 dark:text-white">{{ cgpa }}</h3>
+                    <span class="text-gray-400 text-xs font-bold mb-1 italic">/ 10.0</span>
+                </div>
+                <p class="text-[10px] text-gray-500 dark:text-gray-400 mt-4 font-bold flex items-center gap-1">
+                    <i class="fa-solid fa-circle-info text-blue-400"></i> Semester 5 Results Released
+                </p>
+            </div>
+        </div>
+
+        <!-- Fees Card -->
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-sm border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-all group relative overflow-hidden">
+            <div class="absolute -right-4 -top-4 text-warning/5 text-8xl transition-transform group-hover:scale-110">
+                <i class="fa-solid fa-wallet"></i>
+            </div>
+            <div class="relative z-10">
+                <p class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1">Due Amount</p>
+                <div class="flex items-end gap-2">
+                    <h3 class="text-3xl font-black text-secondary">{{ pending_fees }}</h3>
+                </div>
+                <button class="text-[10px] text-primary dark:text-blue-400 mt-4 font-bold uppercase tracking-widest hover:underline flex items-center gap-1">
+                    Pay Online Now <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Notice Alert -->
+        <div class="bg-primary dark:bg-blue-600 p-6 rounded-sm shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all group relative overflow-hidden">
+            <div class="absolute -right-4 -top-4 text-white/10 text-8xl transition-transform group-hover:scale-110">
+                <i class="fa-solid fa-bullhorn rotate-12"></i>
+            </div>
+            <div class="relative z-10 text-white">
+                <p class="text-[10px] font-black text-white/60 uppercase tracking-widest mb-1">Latest Update</p>
+                <h3 class="text-lg font-bold leading-tight line-clamp-2">Semester Exams scheduled from May 12, 2026.</h3>
+                <a href="#" class="inline-block mt-4 text-[10px] font-bold bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-sm transition-colors uppercase tracking-widest">View Details</a>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <!-- Left: Timetable & Academic Progress -->
+        <div class="lg:col-span-2 space-y-8">
+            
+            <!-- Quick Actions Grid -->
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-sm border border-gray-200 dark:border-gray-700 shadow-sm">
+                <h2 class="text-sm font-black text-gray-900 dark:text-white uppercase tracking-wider mb-6 flex items-center gap-2">
+                    <i class="fa-solid fa-bolt text-warning"></i> Quick Actions
+                </h2>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                    <a href="#" class="flex flex-col items-center justify-center p-4 rounded-sm bg-gray-50 dark:bg-gray-900 border border-transparent hover:border-primary/20 hover:bg-white dark:hover:bg-gray-800 transition-all text-center group">
+                        <i class="fa-solid fa-calendar-check text-2xl text-primary dark:text-blue-400 mb-3 transition-transform group-hover:scale-110"></i>
+                        <span class="text-xs font-bold text-gray-700 dark:text-gray-300">View Timetable</span>
+                    </a>
+                    <a href="#" class="flex flex-col items-center justify-center p-4 rounded-sm bg-gray-50 dark:bg-gray-900 border border-transparent hover:border-success/20 hover:bg-white dark:hover:bg-gray-800 transition-all text-center group">
+                        <i class="fa-solid fa-book-open text-2xl text-success mb-3 transition-transform group-hover:scale-110"></i>
+                        <span class="text-xs font-bold text-gray-700 dark:text-gray-300">Study Material</span>
+                    </a>
+                    <a href="#" class="flex flex-col items-center justify-center p-4 rounded-sm bg-gray-50 dark:bg-gray-900 border border-transparent hover:border-secondary/20 hover:bg-white dark:hover:bg-gray-800 transition-all text-center group">
+                        <i class="fa-solid fa-file-invoice text-2xl text-secondary mb-3 transition-transform group-hover:scale-110"></i>
+                        <span class="text-xs font-bold text-gray-700 dark:text-gray-300">Fee Receipts</span>
+                    </a>
+                    <a href="#" class="flex flex-col items-center justify-center p-4 rounded-sm bg-gray-50 dark:bg-gray-900 border border-transparent hover:border-warning/20 hover:bg-white dark:hover:bg-gray-800 transition-all text-center group">
+                        <i class="fa-solid fa-envelope-open-text text-2xl text-warning mb-3 transition-transform group-hover:scale-110"></i>
+                        <span class="text-xs font-bold text-gray-700 dark:text-gray-300">Apply Leave</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Upcoming Classes -->
+            <div class="bg-white dark:bg-gray-800 rounded-sm border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
+                <div class="p-6 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
+                    <h2 class="text-sm font-black text-gray-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
+                        <i class="fa-solid fa-clock text-primary"></i> Today's Schedule
+                    </h2>
+                    <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Friday, 17 Apr</span>
+                </div>
+                <div class="p-0">
+                    <!-- Class Row -->
+                    <div class="flex items-center gap-6 p-6 border-b border-gray-50 dark:border-gray-700/50 hover:bg-gray-50 dark:hover:bg-gray-700/20 transition-colors">
+                        <div class="w-20 text-center">
+                            <span class="block text-xs font-black text-primary dark:text-blue-400 uppercase">10:00 AM</span>
+                            <span class="text-[10px] font-bold text-gray-400 italic">60 Mins</span>
+                        </div>
+                        <div class="w-1 h-12 bg-primary dark:bg-blue-600 rounded-full"></div>
+                        <div class="flex-1">
+                            <h4 class="text-sm font-bold text-gray-900 dark:text-white">Applied Physics</h4>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">Dr. S.K. Sharma • Room B-102</p>
+                        </div>
+                        <div class="hidden sm:block">
+                            <span class="px-2.5 py-1 bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 text-[10px] font-bold rounded-sm uppercase border border-green-100 dark:border-green-800/30">Completed</span>
+                        </div>
+                    </div>
+                    <!-- Class Row (Ongoing) -->
+                    <div class="flex items-center gap-6 p-6 border-b border-gray-50 dark:border-gray-700/50 bg-primary/5 dark:bg-blue-900/10">
+                        <div class="w-20 text-center">
+                            <span class="block text-xs font-black text-primary dark:text-blue-400 uppercase">11:15 AM</span>
+                            <span class="text-[10px] font-bold text-primary animate-pulse">Ongoing</span>
+                        </div>
+                        <div class="w-1 h-12 bg-primary dark:bg-blue-600 rounded-full scale-y-110"></div>
+                        <div class="flex-1">
+                            <h4 class="text-sm font-bold text-gray-900 dark:text-white">{{ next_class }}</h4>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">Prof. Rajesh Gupta • Lab Block</p>
+                        </div>
+                        <div>
+                            <span class="px-2.5 py-1 bg-primary text-white text-[10px] font-bold rounded-sm uppercase animate-pulse">Join Lab</span>
+                        </div>
+                    </div>
+                    <!-- Class Row -->
+                    <div class="flex items-center gap-6 p-6 hover:bg-gray-50 dark:hover:bg-gray-700/20 transition-colors">
+                        <div class="w-20 text-center">
+                            <span class="block text-xs font-black text-gray-400 uppercase">01:30 PM</span>
+                            <span class="text-[10px] font-bold text-gray-400 italic">90 Mins</span>
+                        </div>
+                        <div class="w-1 h-12 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
+                        <div class="flex-1">
+                            <h4 class="text-sm font-bold text-gray-900 dark:text-white">Database Management Systems</h4>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">Dr. Anjali Verma • Seminar Hall</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Right: Notifications & Deadlines -->
+        <div class="space-y-8">
+            
+            <!-- Exam Countdown -->
+            <div class="bg-gray-900 dark:bg-black p-6 rounded-sm border border-gray-800 shadow-xl relative overflow-hidden">
+                <div class="absolute -right-6 -bottom-6 text-white/5 text-9xl">
+                    <i class="fa-solid fa-hourglass-half"></i>
+                </div>
+                <div class="relative z-10">
+                    <h3 class="text-white text-sm font-bold uppercase tracking-widest mb-4">Exam Countdown</h3>
+                    <div class="flex gap-3 mb-6">
+                        <div class="flex-1 bg-white/10 p-3 rounded-sm text-center">
+                            <span class="block text-xl font-black text-white">25</span>
+                            <span class="text-[8px] text-white/60 font-black uppercase">Days</span>
+                        </div>
+                        <div class="flex-1 bg-white/10 p-3 rounded-sm text-center">
+                            <span class="block text-xl font-black text-white">14</span>
+                            <span class="text-[8px] text-white/60 font-black uppercase">Hours</span>
+                        </div>
+                        <div class="flex-1 bg-white/10 p-3 rounded-sm text-center">
+                            <span class="block text-xl font-black text-white">42</span>
+                            <span class="text-[8px] text-white/60 font-black uppercase">Mins</span>
+                        </div>
+                    </div>
+                    <p class="text-[10px] text-gray-400 font-bold italic">Until: End Semester Examination 2026</p>
+                </div>
+            </div>
+
+            <!-- Recent Notifications -->
+            <div class="bg-white dark:bg-gray-800 rounded-sm border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
+                <div class="p-6 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between bg-gray-50/50 dark:bg-gray-900/20">
+                    <h2 class="text-sm font-black text-gray-900 dark:text-white uppercase tracking-wider">Updates</h2>
+                    <button class="text-[10px] font-bold text-primary dark:text-blue-400 uppercase hover:underline">Clear All</button>
+                </div>
+                <div class="divide-y divide-gray-50 dark:divide-gray-700/50">
+                    <div class="p-4 hover:bg-gray-50 dark:hover:bg-gray-700/20 transition-all cursor-pointer">
+                        <div class="flex gap-4">
+                            <div class="w-10 h-10 rounded-sm bg-blue-50 dark:bg-blue-900/30 text-primary dark:text-blue-400 flex items-center justify-center shrink-0 border border-blue-100 dark:border-blue-900/30">
+                                <i class="fa-solid fa-file-circle-check"></i>
+                            </div>
+                            <div>
+                                <h5 class="text-xs font-bold text-gray-900 dark:text-white leading-snug">New Study Material Uploaded</h5>
+                                <p class="text-[10px] text-gray-500 mt-1">Numerical Methods - Ch 4 & 5</p>
+                                <span class="text-[8px] text-gray-400 mt-2 block font-bold uppercase tracking-tighter">2 Hours Ago</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-4 hover:bg-gray-50 dark:hover:bg-gray-700/20 transition-all cursor-pointer">
+                        <div class="flex gap-4">
+                            <div class="w-10 h-10 rounded-sm bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 border border-amber-100 dark:border-amber-900/30">
+                                <i class="fa-solid fa-credit-card"></i>
+                            </div>
+                            <div>
+                                <h5 class="text-xs font-bold text-gray-900 dark:text-white leading-snug">Fee Installment Reminder</h5>
+                                <p class="text-[10px] text-gray-500 mt-1">Next installment due by 20th Apr</p>
+                                <span class="text-[8px] text-gray-400 mt-2 block font-bold uppercase tracking-tighter">Yesterday</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-4 hover:bg-gray-50 dark:hover:bg-gray-700/20 transition-all cursor-pointer text-center">
+                        <a href="{% url 'notice_board' %}" class="text-[10px] font-black text-gray-500 hover:text-primary transition-colors uppercase tracking-widest">See All Notifications</a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

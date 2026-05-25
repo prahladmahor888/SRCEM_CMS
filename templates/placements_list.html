@@ -1,0 +1,153 @@
+{% extends 'base/public_base.html' %}
+{% load static %}
+
+{% block title %}Placement Achievers - SRCEM Portal{% endblock %}
+
+{% block content %}
+<!-- Header Banner Section -->
+<section class="relative py-16 bg-primaryDark overflow-hidden mt-[-1px]">
+    <div class="absolute inset-0 opacity-10">
+        <div class="absolute inset-0" style="background-image: radial-gradient(circle at 2px 2px, white 1px, transparent 0); background-size: 40px 40px;"></div>
+    </div>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+        <span class="bg-secondary text-white px-3 py-1 rounded-sm text-[10px] font-bold uppercase tracking-widest mb-3 inline-block shadow-lg">Alumni & Placement Network</span>
+        <h1 class="text-3xl md:text-5xl font-extrabold text-white mb-4">Our Placed Achievers</h1>
+        <p class="text-blue-100 text-base max-w-xl mx-auto">
+            Celebrating the success of SRCEM students who have secured roles in leading multi-nationals and top tech startups.
+        </p>
+    </div>
+</section>
+
+<!-- Filter & Search Section -->
+<section class="py-8 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 transition-colors duration-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <form method="GET" action="{% url 'placements_list' %}" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+            <!-- Search Keyword Input -->
+            <div class="space-y-1">
+                <label for="q" class="text-xs font-bold text-gray-505 dark:text-gray-400 uppercase tracking-wider">Search Student / Company</label>
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
+                        <i class="fa-solid fa-magnifying-glass text-sm"></i>
+                    </span>
+                    <input type="text" name="q" id="q" value="{{ query|default:'' }}" placeholder="e.g. Amazon, Rohit..." class="w-full pl-9 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-sm bg-white dark:bg-gray-750 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary">
+                </div>
+            </div>
+
+            <!-- Branch Dropdown -->
+            <div class="space-y-1">
+                <label for="branch" class="text-xs font-bold text-gray-505 dark:text-gray-400 uppercase tracking-wider">Filter by Branch</label>
+                <select name="branch" id="branch" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-sm bg-white dark:bg-gray-750 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary">
+                    <option value="">All Branches</option>
+                    {% for b in branches %}
+                    <option value="{{ b }}" {% if selected_branch == b %}selected{% endif %}>{{ b }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Placed Year Dropdown -->
+            <div class="space-y-1">
+                <label for="year" class="text-xs font-bold text-gray-505 dark:text-gray-400 uppercase tracking-wider">Placement Year</label>
+                <select name="year" id="year" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-sm bg-white dark:bg-gray-750 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary">
+                    <option value="">All Years</option>
+                    {% for y in years %}
+                    <option value="{{ y }}" {% if selected_year == y|stringformat:"i" %}selected{% endif %}>{{ y }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex gap-2">
+                <button type="submit" class="flex-1 bg-primary hover:bg-primaryDark text-white font-bold py-2 px-4 rounded-sm text-sm transition shadow-sm hover:shadow-md flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-filter"></i> Apply Filters
+                </button>
+                {% if query or selected_branch or selected_year %}
+                <a href="{% url 'placements_list' %}" class="bg-gray-200 dark:bg-gray-750 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 font-bold py-2 px-4 rounded-sm text-sm transition flex items-center justify-center shadow-sm" title="Reset filters">
+                    <i class="fa-solid fa-rotate-left"></i>
+                </a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+</section>
+
+<!-- Achievers Grid Section -->
+<section class="py-16 bg-white dark:bg-gray-900 transition-colors duration-300 min-h-[400px]">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {% for achiever in achievers %}
+            <div class="bg-white dark:bg-gray-800 rounded-sm shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden group">
+                <div class="relative h-64 overflow-hidden">
+                    <img src="{% if achiever.get_image_url %}{{ achiever.get_image_url }}{% else %}https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80{% endif %}" alt="{{ achiever.student_name }}" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
+                    <div class="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/80 p-4">
+                        {% if achiever.is_highest %}
+                        <span class="bg-yellow-500 text-gray-900 text-[9px] font-bold px-2 py-0.5 rounded-sm uppercase">Highest Package</span>
+                        {% endif %}
+                        <h3 class="text-white font-bold text-lg">{{ achiever.student_name }}</h3>
+                    </div>
+                </div>
+                <div class="p-4">
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="text-xs text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider">Placed In:</span>
+                        <span class="text-primary dark:text-blue-400 font-black">{{ achiever.company_name }}</span>
+                    </div>
+                    <div class="flex justify-between items-center text-sm font-bold">
+                        <span class="text-gray-900 dark:text-white">{{ achiever.package }}</span>
+                        <span class="text-[10px] text-gray-500 uppercase">{{ achiever.branch }}</span>
+                    </div>
+                    <div class="mt-2 pt-2 border-t border-gray-100 dark:border-gray-700 flex justify-between text-[10px] text-gray-400 font-bold uppercase">
+                        <span>Batch {{ achiever.placed_year }}</span>
+                        <span class="text-green-500">Verified</span>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <!-- Empty State -->
+            <div class="col-span-full py-16 text-center">
+                <div class="w-20 h-20 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4 border border-gray-200 dark:border-gray-750">
+                    <i class="fa-solid fa-users-slash text-3xl text-gray-400"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">No Achievers Found</h3>
+                <p class="text-gray-500 dark:text-gray-400 text-sm max-w-sm mx-auto mb-6">
+                    We couldn't find any placed students matching your search criteria. Try modifying your search query or reset the filters.
+                </p>
+                <a href="{% url 'placements_list' %}" class="inline-block bg-primary hover:bg-primaryDark text-white font-bold px-6 py-2 rounded-sm text-sm transition shadow-sm">
+                    Reset All Filters
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination Controls -->
+        {% if is_paginated %}
+        <div class="mt-12 flex justify-between items-center border-t border-gray-200 dark:border-gray-700 pt-6">
+            <div class="text-sm text-gray-505 dark:text-gray-400 font-medium">
+                Showing page <span class="font-bold text-gray-900 dark:text-white">{{ page_obj.number }}</span> of <span class="font-bold text-gray-900 dark:text-white">{{ paginator.num_pages }}</span>
+            </div>
+            <div class="flex gap-2">
+                {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if selected_branch %}&branch={{ selected_branch }}{% endif %}{% if selected_year %}&year={{ selected_year }}{% endif %}" class="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 px-4 py-2 text-sm rounded-sm font-bold hover:bg-gray-50 dark:hover:bg-gray-750 transition flex items-center gap-1 shadow-sm">
+                    <i class="fa-solid fa-chevron-left text-xs"></i> Previous
+                </a>
+                {% else %}
+                <span class="bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-400 px-4 py-2 text-sm rounded-sm font-bold cursor-not-allowed flex items-center gap-1">
+                    <i class="fa-solid fa-chevron-left text-xs"></i> Previous
+                </span>
+                {% endif %}
+
+                {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if selected_branch %}&branch={{ selected_branch }}{% endif %}{% if selected_year %}&year={{ selected_year }}{% endif %}" class="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 px-4 py-2 text-sm rounded-sm font-bold hover:bg-gray-50 dark:hover:bg-gray-750 transition flex items-center gap-1 shadow-sm">
+                    Next <i class="fa-solid fa-chevron-right text-xs"></i>
+                </a>
+                {% else %}
+                <span class="bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-400 px-4 py-2 text-sm rounded-sm font-bold cursor-not-allowed flex items-center gap-1">
+                    Next <i class="fa-solid fa-chevron-right text-xs"></i>
+                </span>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,342 @@
+{% extends 'base/dashboard_base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .nav-link { @apply flex items-center gap-3 px-3 py-2.5 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl font-medium transition-all group; }
+    .nav-link-active { @apply flex items-center gap-3 px-3 py-2.5 bg-blue-50 text-primary dark:bg-blue-900/20 dark:text-blue-400 rounded-xl font-bold border-l-4 border-primary shadow-sm; }
+    .channel-tab-active { @apply border-b-4 border-primary text-primary dark:text-blue-400 bg-blue-50/50 dark:bg-blue-900/10; }
+    .fade-in { animation: fadeIn 0.3s ease-in-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+    .audience-btn-active { @apply border-primary bg-primary/5 dark:bg-blue-900/20; }
+</style>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="space-y-8 pb-10">
+    <!-- Breadcrumbs & Title -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+            <nav class="flex items-center gap-2 text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2">
+                <a href="#" class="hover:text-primary transition-colors">Admission</a>
+                <i class="fa-solid fa-chevron-right text-[7px] opacity-50"></i>
+                <span class="text-gray-600 dark:text-gray-300 font-bold">Bulk Outreach</span>
+            </nav>
+            <h2 class="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white uppercase tracking-tight">Campaign Manager</h2>
+        </div>
+        <div class="flex gap-2">
+            <button class="bg-white dark:bg-darkSurface text-gray-600 dark:text-gray-300 px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 text-[10px] font-black uppercase tracking-widest hover:bg-gray-50 transition-all shadow-sm">
+                <i class="fa-solid fa-folder-open mr-1.5"></i> Saved Templates
+            </button>
+        </div>
+    </div>
+
+    <form method="POST" id="outreachForm">
+        {% csrf_token %}
+        <!-- MAIN WORKSPACE GRID -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            <!-- LEFT COLUMN: MESSAGE COMPOSER -->
+            <div class="lg:col-span-8 space-y-8">
+                
+                <!-- CHANNEL SELECTION TABS -->
+                <div class="bg-white dark:bg-darkSurface rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden p-1 flex">
+                    <label id="emailTab" class="flex-1 py-4 text-[11px] font-black uppercase tracking-widest channel-tab-active flex items-center justify-center gap-3 transition-all cursor-pointer">
+                        <input type="radio" name="channel" value="Email" class="hidden" checked onchange="switchChannel('email')">
+                        <i class="fa-solid fa-envelope"></i> Email Blast
+                    </label>
+                    <label id="smsTab" class="flex-1 py-4 text-[11px] font-black uppercase tracking-widest text-gray-400 dark:text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800/50 flex items-center justify-center gap-3 transition-all border-x border-gray-50 dark:border-gray-800 cursor-pointer">
+                        <input type="radio" name="channel" value="SMS" class="hidden" onchange="switchChannel('sms')">
+                        <i class="fa-solid fa-comment-sms"></i> SMS Push
+                    </label>
+                    <label id="whatsappTab" class="flex-1 py-4 text-[11px] font-black uppercase tracking-widest text-gray-400 dark:text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800/50 flex items-center justify-center gap-3 transition-all cursor-pointer">
+                        <input type="radio" name="channel" value="WhatsApp" class="hidden" onchange="switchChannel('whatsapp')">
+                        <i class="fa-brands fa-whatsapp text-lg"></i> WhatsApp
+                    </label>
+                </div>
+
+                <!-- COMPOSER CARD -->
+                <div class="bg-white dark:bg-darkSurface rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden">
+                    <div class="p-5 border-b border-gray-50 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/40 flex flex-wrap gap-4 justify-between items-center">
+                        <h3 class="text-xs font-black text-gray-900 dark:text-white uppercase tracking-[0.2em] flex items-center gap-3">
+                            <i class="fa-solid fa-pen-nib text-primary"></i> <span id="composerHeader">Compose Email Campaign</span>
+                        </h3>
+                        <div class="flex items-center gap-2">
+                            <span class="text-[9px] font-bold text-gray-400 uppercase">Load Template:</span>
+                            <select id="templateSelector" onchange="applyTemplate()" class="text-[10px] font-bold bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 px-2 py-1 rounded-sm focus:outline-none cursor-pointer">
+                                <option value="">-- Select Template --</option>
+                                {% for t in templates %}
+                                <option value="{{ t.id }}" data-body="{{ t.body }}" data-subject="{{ t.subject }}">{{ t.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="p-6 sm:p-8 space-y-6 fade-in">
+                        <!-- Email Subject -->
+                        <div id="subjectContainer">
+                            <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Campaign Subject *</label>
+                            <input type="text" name="subject" id="messageSubject" class="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl text-sm font-bold focus:ring-2 focus:ring-primary/20 outline-none transition-all dark:text-white" placeholder="e.g. SRCEM Admissions 2026: Apply Before Deadline!">
+                        </div>
+
+                        <!-- Variable Placeholders -->
+                        <div class="flex flex-wrap gap-2">
+                            <span class="text-[9px] font-black text-gray-400 uppercase py-1">Placeholders:</span>
+                            <button type="button" onclick="insertVar('#NAME')" class="px-2.5 py-1 bg-gray-100 dark:bg-gray-800 text-primary dark:text-blue-400 text-[10px] font-bold rounded-full hover:bg-primary hover:text-white transition-colors">#NAME</button>
+                            <button type="button" onclick="insertVar('#COURSE')" class="px-2.5 py-1 bg-gray-100 dark:bg-gray-800 text-primary dark:text-blue-400 text-[10px] font-bold rounded-full hover:bg-primary hover:text-white transition-colors">#COURSE</button>
+                            <button type="button" onclick="insertVar('#APP_ID')" class="px-2.5 py-1 bg-gray-100 dark:bg-gray-800 text-primary dark:text-blue-400 text-[10px] font-bold rounded-full hover:bg-primary hover:text-white transition-colors">#APP_ID</button>
+                        </div>
+
+                        <!-- Message Area -->
+                        <div>
+                            <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Message Content *</label>
+                            <textarea name="body" id="messageTextArea" rows="8" class="w-full px-4 py-4 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl text-sm font-medium focus:ring-2 focus:ring-primary/20 outline-none transition-all dark:text-white resize-none" placeholder="Dear #NAME, 
+
+Type your message here..."></textarea>
+                            <div class="flex justify-between mt-2">
+                                <p class="text-[10px] text-gray-400 font-bold">Estimated Size: <span class="text-primary font-black text-xs">Dynamic</span></p>
+                                <p id="formatLabel" class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Supports HTML</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- BROADCAST HISTORY -->
+                <div class="bg-white dark:bg-darkSurface rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden">
+                    <div class="p-5 border-b border-gray-50 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/40 flex justify-between items-center">
+                        <h3 class="text-xs font-black text-gray-900 dark:text-white uppercase tracking-[0.2em] flex items-center gap-3">
+                            <i class="fa-solid fa-history text-primary"></i> Recent Campaign History
+                        </h3>
+                    </div>
+                    <div class="p-0 overflow-x-auto no-scrollbar">
+                        <table class="w-full text-left border-collapse min-w-[600px]">
+                            <thead>
+                                <tr class="bg-gray-50/50 dark:bg-gray-900/50 text-[9px] font-black uppercase tracking-widest text-gray-400 border-b border-gray-100 dark:border-gray-800">
+                                    <th class="p-4">Sent Date</th>
+                                    <th class="p-4">Target Group</th>
+                                    <th class="p-4">Type</th>
+                                    <th class="p-4 text-center">Reach</th>
+                                    <th class="p-4 text-center">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-50 dark:divide-gray-800/50 text-xs font-bold">
+                                {% for log in recent_logs %}
+                                <tr class="hover:bg-gray-50 dark:hover:bg-blue-900/5 transition-colors">
+                                    <td class="p-4">
+                                        <p class="text-gray-900 dark:text-white leading-none uppercase">{{ log.sent_at|date:"d M Y" }}</p>
+                                        <p class="text-[9px] text-gray-400 mt-1 uppercase font-black">{{ log.sent_at|date:"h:i A" }}</p>
+                                    </td>
+                                    <td class="p-4">
+                                        <p class="text-gray-800 dark:text-gray-300">{{ log.recipient_name }}</p>
+                                        <p class="text-[9px] text-gray-500 font-black uppercase mt-1 tracking-tighter text-blue-500">{{ log.recipient_contact }}</p>
+                                    </td>
+                                    <td class="p-4">
+                                        <span class="inline-flex items-center gap-1.5 px-2 py-0.5 bg-blue-50 dark:bg-blue-900/30 text-primary dark:text-blue-400 rounded-full border border-blue-100 dark:border-blue-800 text-[9px] uppercase font-black tracking-widest">
+                                            <i class="fa-solid {% if log.channel == 'Email' %}fa-envelope{% elif log.channel == 'SMS' %}fa-comment-sms{% else %}fa-brands fa-whatsapp{% endif %}"></i> {{ log.channel }}
+                                        </span>
+                                    </td>
+                                    <td class="p-4 text-center">
+                                        <span class="text-gray-900 dark:text-white">1 Recipient</span>
+                                    </td>
+                                    <td class="p-4 text-center">
+                                        <span class="inline-flex items-center gap-1.5 px-2 py-0.5 bg-green-50 dark:bg-green-900/30 text-success rounded-full border border-green-100 dark:border-green-800 text-[9px] uppercase font-black tracking-widest"><i class="fa-solid fa-check"></i> {{ log.status }}</span>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr><td colspan="5" class="p-10 text-center text-gray-400 uppercase text-[9px] font-black tracking-widest">No history found</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT COLUMN: AUDIENCE & SETTINGS -->
+            <div class="lg:col-span-4 space-y-8">
+                
+                <!-- AUDIENCE SELECTOR -->
+                <div class="bg-white dark:bg-darkSurface rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-6 space-y-6">
+                    <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-users"></i> 1. Target Audience
+                    </h3>
+                    
+                    <div class="grid grid-cols-2 gap-2">
+                        <label id="audienceEnquiry" class="relative flex flex-col items-center justify-center p-3 rounded-xl border-2 audience-btn-active cursor-pointer transition-all">
+                            <input type="radio" name="audience" value="enquiry" checked class="hidden" onchange="switchAudience('enquiry')">
+                            <i class="fa-solid fa-bullseye text-lg mb-2"></i>
+                            <span class="text-[9px] font-black uppercase text-center">Leads</span>
+                        </label>
+                        <label id="audienceStudent" class="relative flex flex-col items-center justify-center p-3 rounded-xl border-2 border-transparent bg-gray-50 dark:bg-gray-900 cursor-pointer transition-all">
+                            <input type="radio" name="audience" value="student" class="hidden" onchange="switchAudience('student')">
+                            <i class="fa-solid fa-graduation-cap text-lg mb-2"></i>
+                            <span class="text-[9px] font-black uppercase text-center">Students</span>
+                        </label>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div id="statusFilterGroup">
+                            <label class="block text-[9px] font-black text-gray-500 uppercase mb-2 text-glow">Lead Status</label>
+                            <select name="status" onchange="updateRecipientCount()" class="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl text-xs font-bold focus:border-primary outline-none transition-all dark:text-white cursor-pointer">
+                                <option value="">All Statuses</option>
+                                {% for s in enquiry_statuses %}
+                                <option value="{{ s }}">{{ s }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-[9px] font-black text-gray-500 uppercase mb-2">Target Program</label>
+                            <select name="program" onchange="updateRecipientCount()" class="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl text-xs font-bold focus:border-primary outline-none transition-all dark:text-white cursor-pointer">
+                                <option value="">All Programs</option>
+                                {% for p in programs %}
+                                <option value="{{ p.id }}">{{ p.program_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="p-4 bg-primary/5 dark:bg-blue-900/20 rounded-2xl border border-primary/10 text-center">
+                        <p class="text-[10px] font-black text-primary dark:text-blue-400 uppercase tracking-widest">Est. Recipient Count</p>
+                        <h4 id="recipientCount" class="text-3xl font-black text-primary dark:text-blue-400 mt-1">--</h4>
+                    </div>
+                </div>
+
+                <!-- EXECUTION SETTINGS -->
+                <div class="bg-white dark:bg-darkSurface rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-6 space-y-6">
+                    <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-gears"></i> 2. Settings
+                    </h3>
+                    
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800">
+                            <div>
+                                <p class="text-[11px] font-bold text-gray-900 dark:text-white uppercase">Instant Send</p>
+                                <p class="text-[9px] text-gray-400 uppercase">Priority Queue</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer scale-90">
+                                <input type="checkbox" class="sr-only peer" checked>
+                                <div class="w-10 h-5 bg-gray-200 dark:bg-gray-700 rounded-full peer-checked:bg-primary transition-all"></div>
+                                <div class="absolute left-[2px] top-[2px] bg-white border-gray-300 rounded-full h-4 w-4 transition-all peer-checked:translate-x-full"></div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-primary dark:bg-blue-800 p-8 rounded-2xl text-white shadow-2xl relative overflow-hidden group">
+                    <i class="fa-solid fa-circle-info absolute -right-6 -bottom-6 text-9xl opacity-10 group-hover:rotate-12 transition-transform duration-500"></i>
+                    <h4 class="font-black text-sm uppercase tracking-widest mb-3 leading-none text-glow">Pro Tip</h4>
+                    <p class="text-[11px] text-blue-100 leading-relaxed font-medium italic">WhatsApp messages with admission deadlines are seen by 92% of students within 15 minutes.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- STICKY FOOTER -->
+        <div class="h-20 sm:h-24"></div> <!-- Spacer -->
+        <footer class="fixed bottom-0 right-0 left-0 lg:left-64 bg-white dark:bg-darkSidebar border-t border-gray-100 dark:border-gray-800 p-5 sm:px-10 flex flex-col sm:flex-row items-center justify-between gap-4 z-40 shadow-[0_-10px_30px_rgba(0,0,0,0.03)]">
+            <div class="flex items-center gap-3">
+                <span class="w-2.5 h-2.5 bg-success rounded-full animate-pulse shadow-[0_0_8px_rgba(16,163,74,0.5)]"></span>
+                <p class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Gateway: <span class="text-gray-900 dark:text-gray-200 uppercase">Connected</span></p>
+            </div>
+            <div class="flex items-center gap-3 w-full sm:w-auto">
+                <button type="button" class="flex-1 sm:flex-none px-6 py-2.5 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-gray-100 transition-all">Preview Samples</button>
+                <button type="submit" class="flex-1 sm:flex-none px-12 py-3 bg-primary hover:bg-primaryDark text-white text-[10px] font-black uppercase tracking-widest rounded-xl shadow-2xl transition-all active:scale-95 border-b-4 border-primaryDark">Start Broadcast Launch</button>
+            </div>
+        </footer>
+    </form>
+</div>
+
+<!-- Scripts Section -->
+<script>
+function updateRecipientCount() {
+    const form = document.getElementById('outreachForm');
+    const formData = new FormData(form);
+    const params = new URLSearchParams(formData).toString();
+    
+    document.getElementById('recipientCount').innerText = '...';
+    
+    fetch(`?action=get_count&${params}`)
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('recipientCount').innerText = data.count;
+        });
+}
+
+function applyTemplate() {
+    const selector = document.getElementById('templateSelector');
+    const option = selector.options[selector.selectedIndex];
+    if (option.value) {
+        document.getElementById('messageTextArea').value = option.dataset.body;
+        document.getElementById('messageSubject').value = option.dataset.subject || '';
+    }
+}
+
+function insertVar(val) {
+    const textarea = document.getElementById('messageTextArea');
+    textarea.value += val;
+    textarea.focus();
+}
+
+function switchChannel(channel) {
+    const tabs = {
+        email: document.getElementById('emailTab'),
+        sms: document.getElementById('smsTab'),
+        whatsapp: document.getElementById('whatsappTab')
+    };
+    
+    const header = document.getElementById('composerHeader');
+    const subjectField = document.getElementById('subjectContainer');
+    const formatLabel = document.getElementById('formatLabel');
+    const textArea = document.getElementById('messageTextArea');
+
+    Object.values(tabs).forEach(tab => {
+        tab.classList.remove('channel-tab-active');
+        tab.classList.add('text-gray-400', 'dark:text-gray-500');
+    });
+
+    tabs[channel].classList.add('channel-tab-active');
+    tabs[channel].classList.remove('text-gray-400', 'dark:text-gray-500');
+
+    if(channel === 'email') {
+        header.innerText = "Compose Email Campaign";
+        subjectField.classList.remove('hidden');
+        formatLabel.innerText = "Supports HTML Formatting";
+        textArea.placeholder = "Dear #NAME, \n\nType your professional email content here...";
+    } else if(channel === 'sms') {
+        header.innerText = "Compose SMS Push";
+        subjectField.classList.add('hidden');
+        formatLabel.innerText = "Plain Text Only (Max 160 Chars)";
+        textArea.placeholder = "SRCEM Alerts: Hi #NAME, your documentation for #COURSE is pending. Pls submit by tomorrow.";
+    } else if(channel === 'whatsapp') {
+        header.innerText = "Compose WhatsApp Broadcast";
+        subjectField.classList.add('hidden');
+        formatLabel.innerText = "Supports Media & Links";
+        textArea.placeholder = "Hello #NAME! 👋 \n\nGreetings from SRCEM. We have a special update regarding your application...";
+    }
+}
+
+function switchAudience(type) {
+    const enqBtn = document.getElementById('audienceEnquiry');
+    const stdBtn = document.getElementById('audienceStudent');
+    const statusGroup = document.getElementById('statusFilterGroup');
+
+    if (type === 'student') {
+        stdBtn.classList.add('audience-btn-active');
+        stdBtn.classList.remove('border-transparent', 'bg-gray-50', 'dark:bg-gray-900');
+        enqBtn.classList.remove('audience-btn-active');
+        enqBtn.classList.add('border-transparent', 'bg-gray-50', 'dark:bg-gray-900');
+        statusGroup.classList.add('hidden');
+    } else {
+        enqBtn.classList.add('audience-btn-active');
+        enqBtn.classList.remove('border-transparent', 'bg-gray-50', 'dark:bg-gray-900');
+        stdBtn.classList.remove('audience-btn-active');
+        stdBtn.classList.add('border-transparent', 'bg-gray-50', 'dark:bg-gray-900');
+        statusGroup.classList.remove('hidden');
+    }
+    updateRecipientCount();
+}
+
+// Initial load
+document.addEventListener('DOMContentLoaded', updateRecipientCount);
+</script>
+{% endblock %}

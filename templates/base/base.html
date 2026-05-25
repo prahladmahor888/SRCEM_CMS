@@ -1,0 +1,217 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}SRCEM - Portal{% endblock %}</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <link rel="stylesheet" href="{% static 'css/output.css' %}">
+    <!-- <script src="https://cdn.tailwindcss.com"></script> -->
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        primary: '#1e40af',
+                        primaryDark: '#172554', 
+                        secondary: '#dc2626',
+                        success: '#10b981',
+                        warning: '#f59e0b',
+                        darkBg: '#0b0f19', 
+                        darkSurface: '#111827', 
+                        darkCard: '#1f2937', 
+                        darkBorder: '#1f2937',
+                        darkSidebar: '#0f172a'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 2px; }
+        .dark ::-webkit-scrollbar-thumb { background: #475569; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        html { scroll-behavior: smooth; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Premium Navigation Styles */
+        .nav-link { 
+            display: flex;
+            align-items: center;
+            gap: 0.75rem; 
+            padding: 0.625rem 0.75rem;
+            color: #6b7280;
+            border-radius: 0.75rem;
+            font-weight: 500;
+            transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+            border-left: 4px solid transparent;
+            width: 100%;
+        }
+        .dark .nav-link { color: #9ca3af; }
+        .nav-link:hover { background-color: rgba(30, 64, 175, 0.05); color: #1e40af; }
+        .dark .nav-link:hover { background-color: rgba(59, 130, 246, 0.1); color: #60a5fa; }
+
+        .nav-link-active { 
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.625rem 0.75rem;
+            background-color: rgba(30, 64, 175, 0.1);
+            color: #1e40af;
+            border-radius: 0.75rem;
+            font-weight: 700;
+            border-left: 4px solid #1e40af;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            width: 100%;
+        }
+        .dark .nav-link-active { 
+            background-color: rgba(30, 64, 175, 0.25);
+            color: #60a5fa;
+            border-left-color: #60a5fa;
+        }
+        
+        .sidebar-section-title {
+            font-size: 10px;
+            font-weight: 900;
+            color: #9ca3af;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.75rem;
+            padding-left: 0.75rem;
+            margin-top: 1.5rem;
+        }
+
+        @keyframes progress-deplete { from { width: 100%; } to { width: 0%; } }
+        .notification-timer { animation: progress-deplete 2s linear forwards; }
+
+        {% block extra_css %}{% endblock %}
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-darkBg text-gray-800 dark:text-gray-100 font-sans antialiased min-h-screen transition-colors duration-300">
+
+    <!-- Sidebar Overlay (Mobile) -->
+    <div id="sidebarOverlay" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 hidden transition-opacity duration-300 md:hidden"></div>
+
+    <!-- Sidebar Block -->
+    {% block sidebar %}
+        {% include 'base/sidebar.html' %}
+    {% endblock %}
+    
+    <!-- Content Wrapper -->
+    <div id="contentWrapper" class="flex flex-col min-h-screen {% block sidebar_gap %}md:pl-64{% endblock %} transition-all duration-300">
+        
+        <!-- Navbar/Header Block -->
+        {% block navbar %}
+            {% include 'base/navbar.html' %}
+        {% endblock %}
+
+        <!-- Main Content -->
+        <main class="flex-1 flex flex-col relative">
+            <!-- Messages -->
+            {% if messages %}
+            <div class="fixed top-24 right-6 z-[100] flex flex-col gap-4">
+                {% for message in messages %}
+                <div class="flash-notification min-w-[320px] rounded-2xl shadow-xl border p-4 flex items-center gap-4 transition-all duration-500
+                    {% if message.tags == 'error' %}bg-red-500 text-white border-red-400{% elif message.tags == 'success' %}bg-emerald-500 text-white border-emerald-400{% else %}bg-white dark:bg-darkCard dark:border-gray-800{% endif %}">
+                    <i class="fa-solid {% if message.tags == 'error' %}fa-circle-xmark{% elif message.tags == 'success' %}fa-circle-check{% else %}fa-bell{% endif %} text-xl"></i>
+                    <p class="text-sm font-bold">{{ message }}</p>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            {% block content %}{% endblock %}
+        </main>
+
+        <!-- Footer -->
+        {% block footer %}
+        <footer class="py-6 border-t border-gray-200 dark:border-gray-800 text-center text-sm text-gray-500">
+            &copy; 2026 SRCEM Campus Management System.
+        </footer>
+        {% endblock %}
+    </div>
+
+    <!-- Global JS -->
+    <script>
+        // Theme Management
+        function applyTheme() {
+            if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+            updateThemeIcons();
+        }
+
+        function updateThemeIcons() {
+            const isDark = document.documentElement.classList.contains('dark');
+            const icons = document.querySelectorAll('#themeIcon, #themeIconPortal');
+            icons.forEach(icon => {
+                icon.classList.remove('fa-moon', 'fa-sun');
+                icon.classList.add(isDark ? 'fa-sun' : 'fa-moon');
+            });
+        }
+
+        function toggleTheme() {
+            document.documentElement.classList.toggle('dark');
+            localStorage.theme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+            updateThemeIcons();
+        }
+
+        // Sidebar Management
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            if(sidebar && overlay) {
+                sidebar.classList.toggle('-translate-x-full');
+                overlay.classList.toggle('hidden');
+                document.body.classList.toggle('overflow-hidden');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            applyTheme();
+            
+            // Listeners for theme toggle
+            document.querySelectorAll('#themeToggleBtn, #themeToggleBtnPortal').forEach(btn => {
+                btn.addEventListener('click', toggleTheme);
+            });
+
+            // Listeners for sidebar toggle
+            document.querySelectorAll('#mobileMenuBtn, #openSidebarBtn, #closeSidebarBtn, #sidebarOverlay').forEach(el => {
+                el.addEventListener('click', toggleSidebar);
+            });
+
+            // Auto-hide messages
+            setTimeout(() => {
+                document.querySelectorAll('.flash-notification').forEach(el => {
+                    el.style.opacity = '0';
+                    setTimeout(() => el.remove(), 500);
+                });
+            }, 3000);
+        });
+    </script>
+    
+    {% if user.is_authenticated %}
+    <form id="logout-form" action="{% url 'logout' %}" method="post" style="display: none;">{% csrf_token %}</form>
+    {% endif %}
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

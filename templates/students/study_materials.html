@@ -1,0 +1,220 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Study Materials - SRCEM ERP{% endblock %}
+
+{# ── Suppress public-facing blocks ── #}
+{% block ticker %}{% endblock %}
+{% block navbar %}{% endblock %}
+{% block floating_contact %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .glass-card {
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .dark .glass-card {
+        background: rgba(31, 41, 55, 0.8);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="flex-1 flex flex-col min-w-0 bg-gray-50 dark:bg-darkBg transition-all duration-300 h-full overflow-hidden">
+    
+    <!-- Dashboard Header -->
+    {% include 'base/header_dashboard.html' %}
+
+    <div class="flex-1 overflow-y-auto p-4 sm:p-6 no-scrollbar">
+        <!-- Main Study Materials Container -->
+        <div class="max-w-7xl mx-auto space-y-6">
+
+            <!-- Page Intro -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-2xl font-extrabold text-gray-900 dark:text-white">Study Materials & Resources</h2>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Access lecture notes, assignments, and video tutorials uploaded by faculty.</p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button class="bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 font-bold text-sm px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center gap-2">
+                        <i class="fa-regular fa-bookmark"></i> Saved
+                    </button>
+                    <button class="bg-primary hover:bg-primaryDark text-white font-bold text-sm px-4 py-2 rounded-xl shadow-sm transition-colors flex items-center gap-2">
+                        <i class="fa-solid fa-download"></i> Full Syllabus
+                    </button>
+                </div>
+            </div>
+
+            <!-- Search and Filters Bar -->
+            <form method="GET" class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-4">
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+                    <!-- Search Input -->
+                    <div class="md:col-span-5 relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fa-solid fa-magnifying-glass text-gray-400"></i>
+                        </div>
+                        <input type="text" name="search" value="{{ request.GET.search }}" class="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl text-sm text-gray-900 dark:text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors" placeholder="Search by topic, unit or file name...">
+                    </div>
+
+                    <!-- Subject Filter -->
+                    <div class="md:col-span-3">
+                        <select name="subject" class="w-full px-3 py-2.5 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl text-sm font-medium text-gray-700 dark:text-gray-300 focus:outline-none focus:border-primary transition-colors cursor-pointer">
+                            <option value="all">All Subjects</option>
+                            {% for sub in curriculum_subjects %}
+                            <option value="{{ sub.id }}" {% if request.GET.subject == sub.id|stringformat:"i" %}selected{% endif %}>{{ sub.subject_name }} ({{ sub.subject_code }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Material Type Filter -->
+                    <div class="md:col-span-3">
+                        <select name="type" class="w-full px-3 py-2.5 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl text-sm font-medium text-gray-700 dark:text-gray-300 focus:outline-none focus:border-primary transition-colors cursor-pointer">
+                            <option value="all">All Types</option>
+                            {% for val, label in material_types %}
+                            <option value="{{ val }}" {% if request.GET.type == val %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Filter Button -->
+                    <div class="md:col-span-1 flex justify-end">
+                        <button type="submit" class="w-full md:w-auto bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 font-bold transition-colors flex items-center justify-center">
+                            <i class="fa-solid fa-filter"></i>
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+            <!-- Active Filters Indicator -->
+            {% if request.GET.search or request.GET.subject or request.GET.type %}
+            <div class="flex items-center gap-2 text-sm">
+                <span class="text-gray-500 dark:text-gray-400 font-medium">Showing results for:</span>
+                {% if request.GET.search %}
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-blue-50 dark:bg-blue-900/30 text-primary dark:text-blue-400 border border-blue-200 dark:border-blue-800/50 rounded-lg text-xs font-bold">
+                    "{{ request.GET.search }}" <a href="?{% if request.GET.subject %}subject={{ request.GET.subject }}{% endif %}{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}" class="fa-solid fa-xmark cursor-pointer hover:text-red-500"></a>
+                </span>
+                {% endif %}
+                {% if request.GET.subject and request.GET.subject != 'all' %}
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-blue-50 dark:bg-blue-900/30 text-primary dark:text-blue-400 border border-blue-200 dark:border-blue-800/50 rounded-lg text-xs font-bold">
+                    Subject ID: {{ request.GET.subject }} <a href="?{% if request.GET.search %}search={{ request.GET.search }}{% endif %}{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}" class="fa-solid fa-xmark cursor-pointer hover:text-red-500"></a>
+                </span>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            <!-- Materials Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {% for material in object_list %}
+                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 flex flex-col hover:border-primary dark:hover:border-primary transition-all duration-300 group hover:-translate-y-1">
+                    <div class="p-5 flex-1">
+                        <div class="flex justify-between items-start mb-3">
+                            <div class="w-10 h-10 flex items-center justify-center text-lg rounded-xl
+                                {% if material.material_type == 'notes' %}bg-red-50 dark:bg-red-900/20 text-secondary border border-red-100 dark:border-red-800/30
+                                {% elif material.material_type == 'video' %}bg-blue-50 dark:bg-blue-900/20 text-primary dark:text-blue-400 border border-blue-100 dark:border-blue-800/30
+                                {% elif material.material_type == 'assignments' %}bg-orange-50 dark:bg-orange-900/20 text-warning border border-orange-100 dark:border-orange-800/30
+                                {% else %}bg-purple-50 dark:bg-purple-900/20 text-purple-600 border border-purple-100 dark:border-purple-800/30{% endif %}">
+                                <i class="fa-solid 
+                                    {% if material.material_type == 'notes' %}fa-file-pdf
+                                    {% elif material.material_type == 'video' %}fa-circle-play
+                                    {% elif material.material_type == 'assignments' %}fa-file-pen
+                                    {% else %}fa-book-journal-whills{% endif %}"></i>
+                            </div>
+                            <span class="text-[10px] font-bold px-2 py-0.5 bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 rounded-md border border-gray-200 dark:border-gray-600 uppercase tracking-wider">
+                                {{ material.get_material_type_display }}
+                            </span>
+                        </div>
+                        
+                        <h3 class="text-base font-bold text-gray-900 dark:text-white mb-1 line-clamp-2 group-hover:text-primary dark:group-hover:text-blue-400 transition-colors">
+                            {{ material.title }}
+                        </h3>
+                        <p class="text-xs font-semibold text-primary dark:text-blue-400 mb-3">
+                            {{ material.subject.subject_code }} - {{ material.subject.subject_name }}
+                        </p>
+                        
+                        <div class="space-y-1.5 text-xs text-gray-500 dark:text-gray-400">
+                            <div class="flex items-center gap-2">
+                                <i class="fa-solid fa-user-pen w-3"></i> By {{ material.faculty.user.get_full_name|default:"Department Faculty" }}
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <i class="fa-regular fa-clock w-3"></i> Uploaded: {{ material.uploaded_at|date:"d M Y" }}
+                            </div>
+                            {% if material.material_type == 'video' %}
+                                <div class="flex items-center gap-2">
+                                    <i class="fa-solid fa-stopwatch w-3"></i> Duration: {{ material.duration|default:"N/A" }}
+                                </div>
+                            {% else %}
+                                <div class="flex items-center gap-2">
+                                    <i class="fa-solid fa-file-lines w-3"></i> Size: {{ material.file_size|default:"N/A" }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="border-t border-gray-100 dark:border-gray-700 p-3 bg-gray-50 dark:bg-gray-800/50 flex gap-2 rounded-b-2xl">
+                        {% if material.material_type == 'video' %}
+                            {% if material.video_url %}
+                            <a href="{{ material.video_url }}" target="_blank" class="w-full bg-primary hover:bg-primaryDark text-white font-bold text-xs py-2 rounded-xl transition-colors flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-play"></i> Watch Lecture
+                            </a>
+                            {% else %}
+                            <button disabled class="w-full bg-gray-300 dark:bg-gray-700 text-gray-500 cursor-not-allowed font-bold text-xs py-2 rounded-xl flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-play"></i> Video Unavailable
+                            </button>
+                            {% endif %}
+                        {% else %}
+                            {% if material.file %}
+                            <a href="{{ material.file.url }}" target="_blank" class="flex-1 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:text-primary dark:hover:text-blue-400 font-bold text-xs py-2 rounded-xl transition-colors text-center">
+                                <i class="fa-regular fa-eye"></i> View
+                            </a>
+                            <a href="{{ material.file.url }}" download class="flex-1 bg-primary hover:bg-primaryDark text-white font-bold text-xs py-2 rounded-xl transition-colors text-center">
+                                <i class="fa-solid fa-download"></i> Download
+                            </a>
+                            {% else %}
+                            <button disabled class="w-full bg-gray-300 dark:bg-gray-700 text-gray-500 cursor-not-allowed font-bold text-xs py-2 rounded-xl">
+                                File Unavailable
+                            </button>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-span-full py-12 flex flex-col items-center justify-center text-gray-500 dark:text-gray-400">
+                    <div class="w-20 h-20 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mb-4">
+                        <i class="fa-solid fa-folder-open text-4xl"></i>
+                    </div>
+                    <p class="font-bold text-lg">No study materials found</p>
+                    <p class="text-sm">Check back later or try adjusting your filters.</p>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Pagination -->
+            {% if is_paginated %}
+            <div class="flex justify-center mt-8">
+                <div class="flex gap-1">
+                    {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.subject %}&subject={{ request.GET.subject }}{% endif %}{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}" class="px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-xl text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">Prev</a>
+                    {% else %}
+                    <button class="px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-xl text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 cursor-not-allowed opacity-50" disabled>Prev</button>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+                    <a href="?page={{ num }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.subject %}&subject={{ request.GET.subject }}{% endif %}{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}" class="px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-xl {% if page_obj.number == num %}bg-primary text-white font-bold{% else %}text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700{% endif %} transition-colors">{{ num }}</a>
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.subject %}&subject={{ request.GET.subject }}{% endif %}{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}" class="px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-xl text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">Next</a>
+                    {% else %}
+                    <button class="px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-xl text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 cursor-not-allowed opacity-50" disabled>Next</button>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+{% endblock %}

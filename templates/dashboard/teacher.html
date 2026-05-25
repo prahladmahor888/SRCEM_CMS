@@ -1,0 +1,237 @@
+{% extends 'dashboard/faculty_dashboard_base.html' %}
+
+{% block title %}Faculty Command Centre - SRCEM Portal{% endblock %}
+
+{% block welcome_message %}
+    Aapki agli class 
+    {% if live_timeline %}
+        <span class="text-primary dark:text-white font-black underline decoration-primary/30 dark:decoration-blue-500 decoration-2 underline-offset-4">{{ live_timeline.0.subject }}</span> 
+        hai jo Room **{{ live_timeline.0.room }}** mein hogi.
+    {% else %}
+        kal hogi. Aaj ke shesh samay ka upyog assignments check karne mein karein.
+    {% endif %}
+{% endblock %}
+
+{% block metric_tiles %}
+    <div class="bg-white dark:bg-darkSurface p-6 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm flex items-center justify-between group custom-card">
+        <div>
+            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Classes Today</p>
+            <h3 class="text-2xl font-black text-gray-900 dark:text-white">{{ total_classes_today|default:"0"|stringformat:"02d" }}</h3>
+            <p class="text-[9px] text-primary dark:text-blue-400 font-bold mt-1 uppercase">{{ labs_count }} Labs • {{ theory_count }} Theory</p>
+        </div>
+        <div class="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-900/20 text-primary flex items-center justify-center text-xl group-hover:bg-primary group-hover:text-white transition-all"><i class="fa-solid fa-chalkboard-user"></i></div>
+    </div>
+
+    <div class="bg-white dark:bg-darkSurface p-6 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm flex items-center justify-between group custom-card border-b-4 border-b-secondary">
+        <div>
+            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Evaluation Task</p>
+            <h3 class="text-2xl font-black text-secondary">{{ evaluation_pending|default:"12" }}</h3>
+            <p class="text-[9px] text-gray-500 font-bold mt-1 uppercase">Assignments Pending</p>
+        </div>
+        <div class="w-12 h-12 rounded-xl bg-red-50 dark:bg-red-900/20 text-secondary flex items-center justify-center text-xl group-hover:bg-secondary group-hover:text-white transition-all"><i class="fa-solid fa-file-pen"></i></div>
+    </div>
+
+    <div class="bg-white dark:bg-darkSurface p-6 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm flex items-center justify-between group custom-card">
+        <div>
+            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">My Mentees</p>
+            <h3 class="text-2xl font-black text-gray-900 dark:text-white">{{ mentees_count|default:"30" }}</h3>
+            <p class="text-[9px] text-success font-bold mt-1 uppercase">3 Critical Stats</p>
+        </div>
+        <div class="w-12 h-12 rounded-xl bg-green-50 dark:bg-green-900/20 text-success flex items-center justify-center text-xl group-hover:scale-110 transition-transform"><i class="fa-solid fa-users-viewfinder"></i></div>
+    </div>
+
+    <div class="bg-white dark:bg-darkSurface p-6 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm flex items-center justify-between group custom-card">
+        <div>
+            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Leave Balance</p>
+            <h3 class="text-2xl font-black text-indigo-500">{{ leave_balance|default:"08"|stringformat:"02d" }}</h3>
+            <p class="text-[9px] text-gray-500 font-bold mt-1 uppercase tracking-tighter">Casual Leaves Left</p>
+        </div>
+        <div class="w-12 h-12 rounded-xl bg-indigo-50 dark:bg-indigo-900/20 text-indigo-500 flex items-center justify-center text-xl group-hover:scale-110 transition-transform"><i class="fa-solid fa-calendar-check"></i></div>
+    </div>
+{% endblock %}
+
+{% block dashboard_main_left %}
+    <!-- 1. LIVE SCHEDULE TIMELINE -->
+    <div class="bg-white dark:bg-darkSurface rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden p-0">
+        <div class="p-5 border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/40 flex justify-between items-center">
+            <h3 class="text-xs font-black text-gray-900 dark:text-white uppercase tracking-[0.25em] flex items-center gap-3">
+                <i class="fa-solid fa-clock-rotate-left text-primary"></i> Live Class Timeline
+            </h3>
+            <span class="text-[9px] font-black text-gray-400 uppercase tracking-widest bg-white dark:bg-gray-900 px-3 py-1 rounded-full border border-gray-100 dark:border-gray-800">Today</span>
+        </div>
+        <div class="p-0 overflow-x-auto no-scrollbar">
+            <table class="w-full text-left border-collapse min-w-[600px]">
+                <tbody class="divide-y divide-gray-50 dark:divide-gray-800/50">
+                    {% for item in live_timeline %}
+                    <tr class="{% if item.is_live %}bg-blue-50/50 dark:bg-blue-900/10{% endif %} relative">
+                        <td class="p-6 w-32 font-black text-primary dark:text-blue-400 text-center border-r border-primary/10 relative">
+                            {% if item.is_live %}<div class="live-indicator"></div>{% endif %}
+                            <span class="text-base">{{ item.start_time }}</span>
+                        </td>
+                        <td class="p-6 flex-1">
+                            <div class="flex items-center gap-3 mb-1.5">
+                                {% if item.is_live %}<span class="w-2.5 h-2.5 bg-primary rounded-full animate-ping"></span>{% endif %}
+                                <h4 class="font-black text-gray-900 dark:text-white uppercase tracking-tight text-base">{{ item.subject }} ({{ item.subject_code }})</h4>
+                            </div>
+                            <p class="text-[10px] text-gray-500 dark:text-gray-400 uppercase font-black tracking-widest">{{ item.type }} • Room {{ item.room }} • Batch {{ item.batch }}</p>
+                        </td>
+                        <td class="p-6 text-right">
+                            <button class="bg-primary hover:bg-primaryDark text-white text-[10px] font-black uppercase tracking-widest px-8 py-3 rounded-xl shadow-xl shadow-primary/30 transition-all">Mark Presence</button>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="3" class="p-10 text-center text-gray-400 text-xs font-bold uppercase tracking-widest">No classes scheduled for today</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 2. STUDENT PROJECT PROGRESS -->
+    <div class="bg-white dark:bg-darkSurface rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden p-0">
+        <div class="p-5 border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/40 flex justify-between items-center">
+            <h3 class="text-xs font-black text-gray-900 dark:text-white uppercase tracking-[0.25em] flex items-center gap-3">
+                <i class="fa-solid fa-bars-progress text-primary"></i> Student Project Progress
+            </h3>
+        </div>
+        <div class="p-0 overflow-x-auto">
+            <table class="w-full text-left border-collapse min-w-[600px]">
+                <thead>
+                    <tr class="bg-gray-50/50 dark:bg-gray-800/30 text-[9px] font-black uppercase tracking-widest text-gray-400 border-b border-gray-100 dark:border-gray-800">
+                        <th class="p-4">Group / Leader</th>
+                        <th class="p-4">Project Title</th>
+                        <th class="p-4">Progress Tracker</th>
+                        <th class="p-4 text-center">Review</th>
+                    </tr>
+                </thead>
+                <tbody class="text-sm divide-y divide-gray-50 dark:divide-gray-800">
+                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-900/20 transition-colors">
+                        <td class="p-4">
+                            <p class="font-bold text-gray-900 dark:text-gray-200">Group 01 (CS-A)</p>
+                            <p class="text-[9px] text-gray-500 uppercase">Aryan Kumar</p>
+                        </td>
+                        <td class="p-4 text-xs font-bold text-gray-700 dark:text-gray-300 uppercase">AI Attendance System</td>
+                        <td class="p-4">
+                            <div class="flex items-center gap-3">
+                                <div class="flex-1 bg-gray-100 dark:bg-gray-800 h-1.5 rounded-full overflow-hidden shadow-inner">
+                                    <div class="bg-primary h-full rounded-full" style="width: 75%"></div>
+                                </div>
+                                <span class="text-[10px] font-black text-primary">75%</span>
+                            </div>
+                        </td>
+                        <td class="p-4 text-center">
+                            <button class="text-gray-400 hover:text-primary transition-colors"><i class="fa-solid fa-file-pen"></i></button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 3. MY RECENT UPLOADS -->
+    <div class="bg-white dark:bg-darkSurface rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden p-0">
+        <div class="p-5 border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/40 flex justify-between items-center">
+            <h3 class="text-xs font-black text-gray-900 dark:text-white uppercase tracking-[0.25em] flex items-center gap-3">
+                <i class="fa-solid fa-cloud-arrow-up text-primary"></i> My Recent Uploads
+            </h3>
+            <button class="bg-primary text-white text-[9px] font-black uppercase px-3 py-1 rounded-lg">Upload New</button>
+        </div>
+        <div class="p-0">
+            <ul class="divide-y divide-gray-50 dark:divide-gray-800">
+                {% for upload in recent_uploads %}
+                <li class="p-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-800/20 transition-all group">
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 bg-red-50 dark:bg-red-900/20 text-secondary border border-red-100 dark:border-red-800/30 rounded-xl flex items-center justify-center text-lg"><i class="fa-solid fa-file-pdf"></i></div>
+                        <div>
+                            <p class="text-xs font-black text-gray-900 dark:text-gray-100 uppercase tracking-tighter">{{ upload.title }}</p>
+                            <p class="text-[9px] text-gray-500 font-bold mt-1 uppercase tracking-widest">{{ upload.code }} • {{ upload.size }} • {{ upload.time }}</p>
+                        </div>
+                    </div>
+                    <button class="text-gray-400 hover:text-primary p-2"><i class="fa-solid fa-download"></i></button>
+                </li>
+                {% empty %}
+                <li class="p-6 text-center text-gray-400 text-xs font-bold">No recent uploads</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+{% endblock %}
+
+{% block dashboard_main_right %}
+    <!-- 4. ACTION REQUIRED / CRITICAL TASKS -->
+    <div class="bg-white dark:bg-darkSurface rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden">
+        <div class="p-4 bg-red-50 dark:bg-red-950/20 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
+            <h3 class="font-black text-[10px] uppercase tracking-widest text-secondary flex items-center gap-2">
+                <i class="fa-solid fa-bell animate-bounce"></i> Action Required
+            </h3>
+            <span class="bg-secondary text-white text-[9px] px-2 py-0.5 rounded-full font-black tracking-widest uppercase">2 Pending</span>
+        </div>
+        <div class="p-5 space-y-5">
+            <div class="flex gap-4 group cursor-pointer border-b border-gray-50 dark:border-gray-800 pb-5 last:border-0 last:pb-0">
+                <div class="w-11 h-11 rounded-xl bg-blue-100 dark:bg-blue-900/30 text-primary flex items-center justify-center shrink-0 shadow-inner group-hover:scale-110 transition-transform"><i class="fa-solid fa-check-double"></i></div>
+                <div>
+                    <p class="text-xs font-black text-gray-900 dark:text-gray-100 leading-tight uppercase tracking-tight">Mentee Leave Requests</p>
+                    <p class="text-[10px] text-gray-400 mt-1 font-bold">3 PENDING APPROVALS FROM MENTEES</p>
+                    <p class="text-[9px] text-primary font-black uppercase mt-2 hover:underline">Review Now</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. MY ADVISEES ALERT -->
+    <div class="bg-white dark:bg-darkSurface rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden">
+        <div class="p-4 bg-orange-50 dark:bg-orange-950/20 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
+            <h3 class="font-black text-[10px] uppercase tracking-widest text-orange-600 flex items-center gap-2">
+                <i class="fa-solid fa-triangle-exclamation"></i> My Advisees Alert
+            </h3>
+        </div>
+        <div class="p-5 space-y-4">
+            <div class="flex items-center justify-between group cursor-pointer">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-red-100 dark:bg-red-900/30 text-secondary flex items-center justify-center font-bold text-xs">AM</div>
+                    <div>
+                        <p class="text-xs font-black text-gray-800 dark:text-gray-200">Ankit Mishra</p>
+                        <p class="text-[9px] text-secondary font-black uppercase tracking-tighter">Attendance: 55%</p>
+                    </div>
+                </div>
+                <button class="w-7 h-7 rounded-full bg-gray-50 dark:bg-gray-800 text-gray-400 hover:text-primary transition-colors flex items-center justify-center"><i class="fa-solid fa-comment-dots text-xs"></i></button>
+            </div>
+            <div class="flex items-center justify-between group cursor-pointer border-t border-gray-50 dark:border-gray-800 pt-3">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-orange-100 dark:bg-orange-900/30 text-warning flex items-center justify-center font-bold text-xs">SJ</div>
+                    <div>
+                        <p class="text-xs font-black text-gray-800 dark:text-gray-200">Sneha Jain</p>
+                        <p class="text-[9px] text-warning font-black uppercase tracking-tighter">Grade Alert: CS601 (D)</p>
+                    </div>
+                </div>
+                <button class="w-7 h-7 rounded-full bg-gray-50 dark:bg-gray-800 text-gray-400 hover:text-primary transition-colors flex items-center justify-center"><i class="fa-solid fa-comment-dots text-xs"></i></button>
+            </div>
+        </div>
+        <a href="#" class="block p-3 bg-gray-50 dark:bg-gray-900/50 text-[9px] font-black text-center text-primary dark:text-blue-400 border-t border-gray-100 dark:border-gray-800 uppercase tracking-widest hover:bg-white transition-all">View All Mentees</a>
+    </div>
+
+    <!-- 6. FAST ACCESS MANAGEMENT SUITE -->
+    <div class="bg-white dark:bg-darkSurface rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-6">
+        <h3 class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-6 leading-none">Management Suite</h3>
+        <div class="grid grid-cols-2 gap-4">
+            <button class="flex flex-col items-center justify-center p-5 bg-gray-50 dark:bg-gray-900 rounded-2xl border border-transparent hover:border-primary group transition-all">
+                <i class="fa-solid fa-clipboard-user text-primary text-2xl mb-2 group-hover:-translate-y-1 transition-transform"></i>
+                <span class="text-[9px] font-black uppercase text-gray-700 dark:text-gray-300">Attendance</span>
+            </button>
+            <button class="flex flex-col items-center justify-center p-5 bg-gray-50 dark:bg-gray-900 rounded-2xl border border-transparent hover:border-success group transition-all">
+                <i class="fa-solid fa-file-signature text-emerald-600 text-2xl mb-2 group-hover:-translate-y-1 transition-transform"></i>
+                <span class="text-[9px] font-black uppercase text-gray-700 dark:text-gray-300">Enter Marks</span>
+            </button>
+            <button class="flex flex-col items-center justify-center p-5 bg-gray-50 dark:bg-gray-900 rounded-2xl border border-transparent hover:border-secondary group transition-all">
+                <i class="fa-solid fa-bullhorn text-secondary text-2xl mb-2 group-hover:-translate-y-1 transition-transform"></i>
+                <span class="text-[9px] font-black uppercase text-gray-700 dark:text-gray-300">Broadcast</span>
+            </button>
+            <button class="flex flex-col items-center justify-center p-5 bg-gray-50 dark:bg-gray-900 rounded-2xl border border-transparent hover:border-primary group transition-all">
+                <i class="fa-solid fa-cloud-arrow-up text-primary text-2xl mb-2 group-hover:-translate-y-1 transition-transform"></i>
+                <span class="text-[9px] font-black uppercase text-gray-700 dark:text-gray-300">Materials</span>
+            </button>
+        </div>
+    </div>
+{% endblock %}

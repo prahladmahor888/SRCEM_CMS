@@ -1,0 +1,25 @@
+# Database files
+db.sqlite3
+*.sqlite3
+
+# Local scratch directory
+scratch/
+
+# User-uploaded media
+media/
+
+# Virtual environments
+.venv/
+venv/
+.env
+env/
+ENV/
+node_modules/
+# Python compiled files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+*.config.js
+*.json

@@ -1,0 +1,290 @@
+{% extends 'base/dashboard_base.html' %}
+{% load static %}
+
+{% block title %}SRCEM - Class Timetable{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Hide scrollbar for tabs but allow scrolling */
+    .hide-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+    .hide-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+    /* Simple stripes for break section */
+    .bg-stripes {
+        background: repeating-linear-gradient(
+            45deg,
+            rgba(229, 231, 235, 0.5),
+            rgba(229, 231, 235, 0.5) 10px,
+            rgba(243, 244, 246, 0.5) 10px,
+            rgba(243, 244, 246, 0.5) 20px
+        );
+    }
+    .dark .bg-stripes {
+        background: repeating-linear-gradient(
+            45deg,
+            rgba(31, 41, 55, 0.3),
+            rgba(31, 41, 55, 0.3) 10px,
+            rgba(15, 23, 42, 0.3) 10px,
+            rgba(15, 23, 42, 0.3) 20px
+        );
+    }
+</style>
+{% endblock %}
+
+{% block dashboard_content %}
+<!-- Main Timetable Container (Full width to match dashboard) -->
+<div class="w-full space-y-6 pb-20 mt-4">
+
+    <!-- Page Intro & Header -->
+    <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 bg-white dark:bg-darkSidebar p-6 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800 border-t-4 border-t-primary">
+        <div>
+            <span class="inline-block px-2.5 py-1 bg-blue-50 dark:bg-blue-900/30 text-primary dark:text-blue-400 border border-blue-200 dark:border-blue-800/50 rounded-lg text-xs font-bold uppercase tracking-wider mb-3">
+                Even Semester 2025-26
+            </span>
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white">Schedule & Timetable</h2>
+            <p class="text-sm font-semibold text-gray-500 dark:text-gray-400 mt-2 flex items-center gap-2">
+                <i class="fa-solid fa-graduation-cap"></i> {{ student.branch.branch_name }} - {{ student.semester }}th Semester | Section {{ student.section|default:"A" }}
+            </p>
+        </div>
+        <div>
+            <button onclick="window.print()" class="w-full sm:w-auto bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 font-bold text-sm px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 shadow-sm transition-colors flex items-center justify-center gap-2">
+                <i class="fa-solid fa-download"></i> Download PDF
+            </button>
+        </div>
+    </div>
+
+    <!-- View Toggle (Class vs Exam) -->
+    <div class="flex flex-col sm:flex-row gap-2 sm:gap-4 border-b border-gray-200 dark:border-gray-700 pb-4">
+        <button id="btnClassView" class="flex-1 sm:flex-none px-6 py-3 bg-primary text-white font-bold text-sm rounded-xl transition-colors shadow-sm">
+            <i class="fa-solid fa-chalkboard-user mr-2"></i> Regular Classes
+        </button>
+        <button id="btnExamView" class="flex-1 sm:flex-none px-6 py-3 bg-white dark:bg-darkSidebar text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-blue-400 font-bold text-sm rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm transition-colors">
+            <i class="fa-solid fa-file-pen mr-2"></i> Exam Schedule
+        </button>
+    </div>
+
+    <!-- =======================================
+         CLASS TIMETABLE VIEW (Combined Navigation & Content)
+    ======================================== -->
+    <div id="classScheduleView" class="bg-white dark:bg-darkSidebar rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800 overflow-hidden">
+        
+        <!-- Days Tabs Navigation (Top Section) -->
+        <div class="border-b border-gray-200 dark:border-gray-800">
+            <div class="flex overflow-x-auto hide-scrollbar text-sm font-bold text-gray-500 dark:text-gray-400">
+                {% for day in timetable_data %}
+                <button onclick="switchDay({{ day.val }}, '{{ day.name }}')" id="tab-{{ day.val }}" class="day-tab flex-shrink-0 px-6 py-4 transition-colors border-b-2 {% if day.is_today %}active text-primary dark:text-blue-400 border-primary dark:border-blue-400 bg-gray-50 dark:bg-gray-800/50{% else %}border-transparent hover:text-primary dark:hover:text-blue-400 hover:bg-gray-50 dark:hover:bg-gray-800/50{% endif %}">
+                    {{ day.name }}
+                </button>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Schedule Content (Bottom Section) -->
+        <div class="p-6 sm:p-8">
+            <div class="flex items-center justify-between mb-8 pb-4 border-b border-gray-100 dark:border-gray-700">
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white">Schedule for <span id="selectedDayText" class="text-primary dark:text-blue-400">Select a day</span></h3>
+                <span id="classCountTag" class="bg-green-100 text-green-700 border border-green-200 text-xs font-bold px-2 py-1 rounded-lg uppercase">Classes</span>
+            </div>
+
+            <!-- Vertical Timeline Structure -->
+            {% for day in timetable_data %}
+            <div id="panel-{{ day.val }}" class="day-panel {% if not day.is_today %}hidden{% endif %} relative pl-2 sm:pl-28 space-y-6" data-count="{{ day.sessions|length }}">
+                
+                <!-- Vertical Line (Desktop only) -->
+                <div class="hidden sm:block absolute left-20 top-2 bottom-6 w-px bg-gray-200 dark:bg-gray-700"></div>
+
+                {% for session in day.sessions %}
+                <div class="relative flex flex-col sm:flex-row gap-2 sm:gap-0 group">
+                    <!-- Timeline Time -->
+                    <div class="sm:absolute sm:left-0 sm:w-20 sm:-ml-32 sm:text-right text-xs font-extrabold text-gray-900 dark:text-white mt-1.5 flex flex-col items-end sm:block">
+                        <div class="flex items-center sm:justify-end gap-1">
+                            <span class="text-primary dark:text-blue-400">{{ session.start_time|time:"h:i A" }}</span>
+                        </div>
+                        <div class="text-[10px] text-gray-400 font-bold opacity-80 uppercase tracking-tighter">
+                             to {{ session.end_time|time:"h:i A" }}
+                        </div>
+                        <span class="sm:hidden text-gray-400 font-normal">| {{ session.session_type }}</span>
+                    </div>
+                    <!-- Timeline Dot -->
+                    <div class="hidden sm:block absolute left-20 -translate-x-1/2 w-3 h-3 rounded-full bg-gray-300 dark:bg-gray-600 border-2 border-white dark:border-gray-800 mt-1.5 group-hover:bg-primary transition-colors z-10"></div>
+                    
+                    <!-- Class Card -->
+                    <div class="sm:ml-8 flex-1 bg-gray-50 dark:bg-gray-900/50 rounded-2xl border border-gray-200 dark:border-gray-700 p-4 sm:p-5 hover:border-primary dark:hover:border-primary transition-colors">
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="inline-block px-2 py-0.5 {% if session.session_type == 'Lab' %}bg-purple-100 text-purple-700 border-purple-200{% else %}bg-blue-100 text-blue-700 border-blue-200{% endif %} border text-[10px] font-bold rounded-lg uppercase tracking-wider">{{ session.session_type }}</span>
+                            <span class="text-xs font-medium text-gray-500">{{ session.allotment.subject.subject_code }}</span>
+                        </div>
+                        <h4 class="text-lg font-bold text-gray-900 dark:text-white mb-3">{{ session.allotment.subject.subject_name }}</h4>
+                        
+                        <div class="flex flex-wrap gap-y-2 gap-x-6 text-sm text-gray-600 dark:text-gray-400">
+                            <div class="flex items-center gap-1.5 font-medium">
+                                <i class="fa-solid fa-user-tie text-gray-400"></i> {{ session.allotment.faculty.user.get_full_name }}
+                            </div>
+                            <div class="flex items-center gap-1.5 font-medium">
+                                <i class="fa-solid fa-location-dot text-gray-400"></i> Room {{ session.room_number|default:"TBA" }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <!-- Empty State -->
+                <div class="relative flex flex-col sm:flex-row gap-2 sm:gap-0 pt-4">
+                    <div class="sm:absolute sm:left-0 sm:w-16 sm:-ml-28 sm:text-right text-xs font-extrabold text-gray-400 mt-1.5">--:--</div>
+                    <div class="hidden sm:block absolute left-20 -translate-x-1/2 w-3 h-3 rounded-full bg-gray-100 dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 mt-1.5 z-10"></div>
+                    <div class="sm:ml-8 flex-1 bg-stripes p-8 border border-dashed border-gray-200 dark:border-gray-700 rounded-2xl text-center">
+                        <p class="text-xs font-black uppercase tracking-widest text-gray-400 dark:text-gray-500">No sessions scheduled for this day</p>
+                    </div>
+                </div>
+                {% endfor %}
+
+                <!-- End of Day -->
+                <div class="relative flex flex-col sm:flex-row gap-2 sm:gap-0 pt-2">
+                    <div class="sm:absolute sm:left-0 sm:w-16 sm:-ml-28 sm:text-right text-xs font-extrabold text-gray-400 mt-1.5 flex items-center sm:block gap-2">
+                        <span>END</span>
+                    </div>
+                    <div class="hidden sm:block absolute left-20 -translate-x-1/2 w-4 h-4 bg-white dark:bg-gray-800 border-4 border-gray-200 dark:border-gray-700 mt-1 z-10"></div>
+                    <div class="sm:ml-8 flex-1">
+                        <span class="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">Classes End for the Day</span>
+                    </div>
+                </div>
+
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- =======================================
+         EXAM TIMETABLE VIEW (Hidden by default)
+    ======================================== -->
+    <div id="examScheduleView" class="space-y-6 hidden">
+        <div class="bg-white dark:bg-darkSidebar rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800 p-0 overflow-hidden">
+            
+            <div class="p-4 sm:p-5 border-b border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-gray-50 dark:bg-gray-900/50">
+                <div>
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                        <i class="fa-solid fa-file-signature text-primary dark:text-blue-400"></i> Mid-Semester Examinations
+                    </h3>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Session 2025-26 (Even Semester)</p>
+                </div>
+                <span class="bg-red-100 text-red-700 border border-red-200 text-xs font-bold px-3 py-1.5 rounded-lg uppercase tracking-wider shadow-sm">Upcoming</span>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse min-w-[750px]">
+                    <thead>
+                        <tr class="bg-white dark:bg-gray-800 text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700">
+                            <th class="p-4 font-semibold">Date & Day</th>
+                            <th class="p-4 font-semibold">Time</th>
+                            <th class="p-4 font-semibold">Subject Code & Name</th>
+                            <th class="p-4 font-semibold text-center">Type</th>
+                            <th class="p-4 font-semibold">Venue</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-sm divide-y divide-gray-100 dark:divide-gray-700">
+                        {% for exam in exams %}
+                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                            <td class="p-4 whitespace-nowrap">
+                                <span class="font-bold text-gray-900 dark:text-white block">{{ exam.date|date:"d M Y" }}</span>
+                                <span class="text-xs text-gray-500 dark:text-gray-400">{{ exam.date|date:"l" }}</span>
+                            </td>
+                            <td class="p-4 font-medium text-primary dark:text-blue-400 whitespace-nowrap">{{ exam.start_time|time:"h:i A" }} - {{ exam.end_time|time:"h:i A" }}</td>
+                            <td class="p-4">
+                                <span class="font-bold text-gray-800 dark:text-gray-200 block">{{ exam.subject.subject_name }}</span>
+                                <span class="text-xs text-gray-500 dark:text-gray-400">{{ exam.subject.subject_code }}</span>
+                            </td>
+                            <td class="p-4 text-center">
+                                <span class="inline-block px-2 py-0.5 {% if exam.exam_type == 'Practical' %}bg-purple-100 text-purple-700 border-purple-200{% else %}bg-blue-100 text-blue-700 border-blue-200{% endif %} border text-[10px] font-bold rounded-lg uppercase tracking-wider">{{ exam.exam_type }}</span>
+                            </td>
+                            <td class="p-4 text-gray-600 dark:text-gray-400 font-medium">{{ exam.venue }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="p-10 text-center text-gray-500">No exams scheduled.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Action bar below exam table -->
+            <div class="p-4 sm:p-5 bg-gray-50 dark:bg-gray-900/50 border-t border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <p class="text-xs text-gray-500 dark:text-gray-400"><i class="fa-solid fa-circle-info text-primary mr-1"></i> Please report to the examination venue 30 minutes before the scheduled time.</p>
+                <button class="bg-primary hover:bg-primaryDark text-white font-bold text-xs px-4 py-2.5 rounded-xl transition-colors shadow-sm flex items-center justify-center gap-2 w-full sm:w-auto">
+                    <i class="fa-solid fa-download"></i> Download Admit Card
+                </button>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // --- Day Switch Logic ---
+    function switchDay(dayId, dayName) {
+        // Toggle Panels
+        document.querySelectorAll('.day-panel').forEach(p => p.classList.add('hidden'));
+        const panel = document.getElementById('panel-' + dayId);
+        if (panel) {
+            panel.classList.remove('hidden');
+            // Update class count tag
+            const count = panel.getAttribute('data-count');
+            document.getElementById('classCountTag').innerText = count + ' Classes';
+        }
+
+        // Toggle Tabs
+        document.querySelectorAll('.day-tab').forEach(t => {
+            t.classList.remove('active', 'text-primary', 'dark:text-blue-400', 'border-primary', 'dark:border-blue-400', 'bg-gray-50', 'dark:bg-gray-700/50');
+            t.classList.add('border-transparent');
+        });
+        
+        const activeTab = document.getElementById('tab-' + dayId);
+        if (activeTab) {
+            activeTab.classList.remove('border-transparent');
+            activeTab.classList.add('active', 'text-primary', 'dark:text-blue-400', 'border-primary', 'dark:border-blue-400', 'bg-gray-50', 'dark:bg-gray-700/50');
+        }
+
+        // Update Text
+        document.getElementById('selectedDayText').innerText = dayName;
+    }
+
+    // --- View Toggle Logic (Class vs Exam) ---
+    const btnClassView = document.getElementById('btnClassView');
+    const btnExamView = document.getElementById('btnExamView');
+    const classScheduleView = document.getElementById('classScheduleView');
+    const examScheduleView = document.getElementById('examScheduleView');
+
+    if (btnClassView && btnExamView) {
+        btnClassView.addEventListener('click', () => {
+            classScheduleView.classList.remove('hidden');
+            examScheduleView.classList.add('hidden');
+            
+            btnClassView.className = "flex-1 sm:flex-none px-6 py-3 bg-primary text-white font-bold text-sm rounded-xl transition-colors shadow-sm";
+            btnExamView.className = "flex-1 sm:flex-none px-6 py-3 bg-white dark:bg-darkSidebar text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-blue-400 font-bold text-sm rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm transition-colors";
+        });
+
+        btnExamView.addEventListener('click', () => {
+            examScheduleView.classList.remove('hidden');
+            classScheduleView.classList.add('hidden');
+            
+            btnExamView.className = "flex-1 sm:flex-none px-6 py-3 bg-primary text-white font-bold text-sm rounded-xl transition-colors shadow-sm";
+            btnClassView.className = "flex-1 sm:flex-none px-6 py-3 bg-white dark:bg-darkSidebar text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-blue-400 font-bold text-sm rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm transition-colors";
+        });
+    }
+
+    // Initialize
+    window.onload = function() {
+        const activeTab = document.querySelector('.day-tab.active');
+        if (activeTab) {
+            const dayId = activeTab.id.split('-')[1];
+            const dayName = activeTab.innerText.trim();
+            switchDay(dayId, dayName);
+        }
+    };
+</script>
+{% endblock %}

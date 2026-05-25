@@ -1,0 +1,583 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Project Manager - SRCEM ERP{% endblock %}
+
+{# ── Suppress public-facing blocks ── #}
+{% block ticker %}{% endblock %}
+{% block navbar %}{% endblock %}
+{% block floating_contact %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .custom-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    .custom-card:hover { transform: translateY(-4px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
+
+    .btn-gradient {
+        background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+        box-shadow: 0 4px 14px 0 rgba(99, 102, 241, 0.3);
+    }
+    .btn-gradient:hover {
+        background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
+        box-shadow: 0 6px 20px 0 rgba(99, 102, 241, 0.4);
+    }
+
+    @keyframes slideIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+    .animate-pop { animation: slideIn 0.2s ease-out forwards; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="flex-1 flex flex-col min-w-0 bg-gray-50 dark:bg-darkBg transition-all duration-300 h-full overflow-hidden">
+    
+    <!-- Dashboard Header -->
+    {% include 'base/header_dashboard.html' %}
+
+    <div class="flex-1 overflow-y-auto p-4 sm:p-8 no-scrollbar bg-gray-50 dark:bg-darkBg transition-colors">
+        <div class="max-w-7xl mx-auto space-y-8 pb-10">
+
+            {% if not project %}
+            <!-- State: No Project Allocated -->
+            <div class="bg-white dark:bg-darkSurface rounded-3xl border border-gray-100 dark:border-gray-800 shadow-xl p-8 sm:p-12 text-center max-w-2xl mx-auto space-y-6">
+                <div class="w-24 h-24 rounded-full bg-indigo-50 dark:bg-indigo-950/20 text-primary dark:text-blue-400 flex items-center justify-center text-4xl mx-auto">
+                    <i class="fa-solid fa-diagram-project"></i>
+                </div>
+                <div class="space-y-2">
+                    <h3 class="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tight">No Project Assigned</h3>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 max-w-md mx-auto leading-relaxed">
+                        Aapka portfolio abhi kisi dynamic project se connected nahi hai. Apne HOD ya Project Coordinator se sampark karein project allocation aur mentor updates ke liye.
+                    </p>
+                </div>
+                <div class="pt-4">
+                    <a href="{% url 'dashboard' %}" class="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white font-bold text-xs uppercase tracking-widest rounded-xl hover:bg-primaryDark transition-all">
+                        <i class="fa-solid fa-arrow-left"></i> Go to Dashboard
+                    </a>
+                </div>
+            </div>
+
+            {% else %}
+            <!-- Header Banner / Dashboard Actions -->
+            <div class="bg-white dark:bg-darkSurface rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm p-6 sm:p-8 flex flex-col md:flex-row gap-6 justify-between items-start md:items-center">
+                <div class="space-y-2">
+                    <div class="flex items-center gap-3">
+                        <span class="px-2.5 py-1 bg-indigo-50 dark:bg-indigo-900/30 text-primary dark:text-blue-400 border border-indigo-100 dark:border-indigo-800/50 rounded-lg text-[9px] font-black uppercase tracking-widest">
+                            Semester {{ project.semester }} - CS Project
+                        </span>
+                        {% if project.github_url %}
+                        <a href="{{ project.github_url }}" target="_blank" class="text-gray-400 hover:text-gray-900 dark:hover:text-white text-lg transition-colors" title="View Github Repository">
+                            <i class="fa-brands fa-github"></i>
+                        </a>
+                        {% endif %}
+                    </div>
+                    <h2 class="text-2xl font-black text-gray-900 dark:text-white leading-tight">{{ project.title }}</h2>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 font-medium">My Role: <span class="text-primary dark:text-blue-400 font-bold">{{ my_role }}</span></p>
+                </div>
+                <div class="flex flex-wrap gap-3 w-full md:w-auto">
+                    <button onclick="toggleLogModal(true)" class="flex-1 md:flex-initial py-3 px-5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-all flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-pen-to-square"></i> Submit Log
+                    </button>
+                    <button onclick="toggleUploadModal(true)" class="flex-1 md:flex-initial py-3 px-5 btn-gradient text-white text-[10px] font-black uppercase tracking-widest rounded-xl transition-all flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-cloud-arrow-up"></i> Upload Deliverable
+                    </button>
+                </div>
+            </div>
+
+            <!-- Key Metrics Grid -->
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+                <!-- Progress Percentage -->
+                <div class="bg-white dark:bg-darkSurface p-5 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm flex items-center justify-between group custom-card border-b-4 border-b-primary">
+                    <div>
+                        <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Project Progress</p>
+                        <h3 class="text-2xl font-black text-gray-900 dark:text-white">{{ project.progress }}%</h3>
+                        <div class="w-24 bg-gray-100 dark:bg-gray-800 h-1.5 rounded-full mt-2 overflow-hidden">
+                            <div class="bg-primary h-full" style="width: {{ project.progress }}%"></div>
+                        </div>
+                    </div>
+                    <div class="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-900/20 text-primary flex items-center justify-center text-xl"><i class="fa-solid fa-chart-line"></i></div>
+                </div>
+
+                <!-- Milestones Completed -->
+                <div class="bg-white dark:bg-darkSurface p-5 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm flex items-center justify-between group custom-card border-b-4 border-b-success">
+                    <div>
+                        <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Milestones</p>
+                        <h3 class="text-2xl font-black text-success">{{ project.milestones_completed }} <span class="text-xs text-gray-400">/ {{ project.milestones_total }}</span></h3>
+                        <p class="text-[9px] text-gray-500 font-bold mt-1 uppercase">Phase Targets Hit</p>
+                    </div>
+                    <div class="w-12 h-12 rounded-2xl bg-green-50 dark:bg-green-900/20 text-success flex items-center justify-center text-xl"><i class="fa-solid fa-circle-check"></i></div>
+                </div>
+
+                <!-- Presentation Countdown -->
+                <div class="bg-white dark:bg-darkSurface p-5 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm flex items-center justify-between group custom-card border-b-4 border-b-warning">
+                    <div>
+                        <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Final Presentation</p>
+                        <h3 class="text-xl font-black text-gray-900 dark:text-white" id="presentation-text">{{ project.presentation_date|date:"d M Y"|default:"TBD" }}</h3>
+                        <p class="text-[9px] text-gray-500 font-bold mt-1 uppercase" id="countdown-subtext">Review Schedule</p>
+                    </div>
+                    <div class="w-12 h-12 rounded-2xl bg-amber-50 dark:bg-amber-900/20 text-warning flex items-center justify-center text-xl"><i class="fa-solid fa-hourglass-half"></i></div>
+                </div>
+
+                <!-- Deliverables status -->
+                <div class="bg-white dark:bg-darkSurface p-5 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm flex items-center justify-between group custom-card border-b-4 border-b-rose-500">
+                    <div>
+                        <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Deliverables</p>
+                        <h3 class="text-2xl font-black text-gray-900 dark:text-white">{{ deliverables.count }}</h3>
+                        <p class="text-[9px] text-gray-500 font-bold mt-1 uppercase">Files Submitted</p>
+                    </div>
+                    <div class="w-12 h-12 rounded-2xl bg-rose-50 dark:bg-rose-900/20 text-rose-500 flex items-center justify-center text-xl"><i class="fa-solid fa-box-archive"></i></div>
+                </div>
+            </div>
+
+            <!-- Content Body: Two columns -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                
+                <!-- Left Main Column (col-span-2): Description, Weekly logs, Deliverables -->
+                <div class="lg:col-span-2 space-y-8">
+                    
+                    <!-- Synopsis / Details Card -->
+                    <div class="bg-white dark:bg-darkSurface rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm p-6 sm:p-8 space-y-5">
+                        <div>
+                            <h3 class="text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Project Abstract & Scope</h3>
+                            <h2 class="text-lg font-black text-gray-900 dark:text-white">Synopsis Details</h2>
+                        </div>
+                        <p class="text-xs text-gray-600 dark:text-gray-300 leading-relaxed font-medium">
+                            {{ project.description|default:"No description provided yet." }}
+                        </p>
+                        {% if project.synopsis %}
+                        <div class="bg-indigo-50/30 dark:bg-gray-850 p-4 rounded-xl border border-indigo-50/50 dark:border-gray-800">
+                            <h4 class="text-[10px] font-black text-primary dark:text-blue-400 uppercase tracking-widest mb-2">Key Highlight Features:</h4>
+                            <p class="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
+                                {{ project.synopsis }}
+                            </p>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Project Deliverables Table/List -->
+                    <div class="bg-white dark:bg-darkSurface rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden flex flex-col">
+                        <div class="p-6 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-gray-50/50 dark:bg-gray-900/20">
+                            <div>
+                                <h3 class="text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Documentation Locker</h3>
+                                <h2 class="text-lg font-black text-gray-900 dark:text-white">Project Deliverables</h2>
+                            </div>
+                            <button onclick="toggleUploadModal(true)" class="py-2.5 px-4 bg-primary hover:bg-primaryDark text-white text-[9px] font-black uppercase tracking-widest rounded-lg transition-all flex items-center gap-1.5">
+                                <i class="fa-solid fa-plus"></i> Upload New
+                            </button>
+                        </div>
+                        <div class="divide-y divide-gray-100 dark:divide-gray-800">
+                            {% for del in deliverables %}
+                            <div class="p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-gray-50 dark:hover:bg-gray-800/20 transition-all">
+                                <div class="flex items-start gap-4">
+                                    <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 text-lg
+                                        {% if del.category == 'Synopsis' %}bg-blue-50 dark:bg-blue-900/20 text-blue-500
+                                        {% elif del.category == 'SRS' %}bg-amber-50 dark:bg-amber-900/20 text-amber-500
+                                        {% elif del.category == 'Code' %}bg-emerald-50 dark:bg-emerald-900/20 text-emerald-500
+                                        {% else %}bg-gray-50 dark:bg-gray-800 text-gray-500{% endif %}">
+                                        {% if del.category == 'Code' %}
+                                        <i class="fa-solid fa-file-code"></i>
+                                        {% else %}
+                                        <i class="fa-solid fa-file-pdf"></i>
+                                        {% endif %}
+                                    </div>
+                                    <div class="space-y-1">
+                                        <div class="flex items-center gap-2 flex-wrap">
+                                            <span class="text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded
+                                                {% if del.category == 'Synopsis' %}bg-blue-100/50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400
+                                                {% elif del.category == 'SRS' %}bg-amber-100/50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400
+                                                {% elif del.category == 'Code' %}bg-emerald-100/50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400
+                                                {% else %}bg-gray-100 dark:bg-gray-800 text-gray-600{% endif %}">
+                                                {{ del.get_category_display }}
+                                            </span>
+                                            <span class="text-[9px] text-gray-400 font-bold uppercase">{{ del.uploaded_at|date:"d M Y, h:i A" }}</span>
+                                        </div>
+                                        <h4 class="font-bold text-sm text-gray-900 dark:text-white">{{ del.title }}</h4>
+                                        <p class="text-xs text-gray-500 dark:text-gray-400">Uploaded by: <span class="font-semibold">{{ del.student.user.get_full_name }}</span></p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-3 self-end sm:self-center">
+                                    {% if del.status == 'Approved' %}
+                                    <span class="px-2.5 py-1 bg-green-50 dark:bg-green-950 text-success border border-green-100 dark:border-green-900 rounded-lg text-[9px] font-black uppercase tracking-widest">
+                                        Approved
+                                    </span>
+                                    {% elif del.status == 'Rejected' %}
+                                    <span class="px-2.5 py-1 bg-red-50 dark:bg-red-950 text-secondary border border-red-100 dark:border-red-900 rounded-lg text-[9px] font-black uppercase tracking-widest">
+                                        Rejected
+                                    </span>
+                                    {% else %}
+                                    <span class="px-2.5 py-1 bg-amber-50 dark:bg-amber-900/30 text-warning border border-amber-100 dark:border-amber-800 rounded-lg text-[9px] font-black uppercase tracking-widest">
+                                        Pending Review
+                                    </span>
+                                    {% endif %}
+                                    
+                                    {% if del.file %}
+                                    <a href="{{ del.file.url }}" target="_blank" class="w-9 h-9 rounded-xl bg-gray-50 hover:bg-gray-100 dark:bg-gray-850 dark:hover:bg-gray-800 text-gray-500 hover:text-gray-900 dark:hover:text-white flex items-center justify-center border border-gray-250 dark:border-gray-700 transition-colors" title="Download File">
+                                        <i class="fa-solid fa-download"></i>
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% empty %}
+                            <div class="p-10 flex flex-col items-center justify-center text-center">
+                                <i class="fa-solid fa-file-invoice text-4xl text-gray-200 dark:text-gray-800 mb-3"></i>
+                                <h4 class="font-bold text-gray-500 text-xs uppercase tracking-wider">No Deliverables Uploaded Yet</h4>
+                                <p class="text-xs text-gray-400 mt-1">Upload your Synopsis, SRS, or Code files above.</p>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Weekly Accomplishment Log Timeline -->
+                    <div class="bg-white dark:bg-darkSurface rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm p-6 sm:p-8 space-y-6">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <h3 class="text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Weekly Check-in History</h3>
+                                <h2 class="text-lg font-black text-gray-900 dark:text-white">Accomplishment Log</h2>
+                            </div>
+                            <button onclick="toggleLogModal(true)" class="py-2.5 px-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 text-[9px] font-black uppercase tracking-widest rounded-lg transition-all flex items-center gap-1.5">
+                                <i class="fa-solid fa-plus"></i> Add Log
+                            </button>
+                        </div>
+                        
+                        <div class="relative border-l-2 border-gray-100 dark:border-gray-800 ml-4 space-y-8 py-2">
+                            {% for log in weekly_logs %}
+                            <div class="relative pl-6 group">
+                                <!-- Marker dot -->
+                                <div class="absolute -left-[7px] top-1.5 w-3.5 h-3.5 rounded-full border-2 border-white dark:border-darkSurface bg-primary group-hover:scale-125 transition-all"></div>
+                                
+                                <div class="bg-gray-50 dark:bg-gray-900/30 p-5 rounded-2xl border border-gray-100 dark:border-gray-800 relative hover:border-gray-200 dark:hover:border-gray-700 transition-colors">
+                                    <div class="flex items-start justify-between flex-wrap gap-2 mb-3">
+                                        <div>
+                                            <h4 class="font-black text-sm text-gray-900 dark:text-white">{{ log.week_title }}</h4>
+                                            <p class="text-[10px] text-gray-400 font-bold uppercase mt-0.5">
+                                                By {{ log.student.user.get_full_name }} &bull; {{ log.created_at|date:"d M Y" }}
+                                            </p>
+                                        </div>
+                                        {% if log.commit_tag %}
+                                        <span class="px-2 py-0.5 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded-md text-[9px] font-bold font-mono border border-gray-200 dark:border-gray-700">
+                                            <i class="fa-solid fa-code-commit text-[8px] mr-1"></i>{{ log.commit_tag }}
+                                        </span>
+                                        {% endif %}
+                                    </div>
+                                    <p class="text-xs text-gray-600 dark:text-gray-400 whitespace-pre-line leading-relaxed font-medium">
+                                        {{ log.accomplishments }}
+                                    </p>
+                                </div>
+                            </div>
+                            {% empty %}
+                            <div class="pl-6 text-gray-400 py-4 text-xs font-semibold uppercase tracking-wider">
+                                No weekly logs submitted yet. Start tracking your progress by submitting a log today.
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Sidebar Column: Mentor, Teammates, Interactive Checklist -->
+                <div class="space-y-8">
+                    
+                    <!-- Guide Mentor Section -->
+                    <div class="bg-white dark:bg-darkSurface rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm p-6 space-y-4">
+                        <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Faculty Mentor</h3>
+                        {% if mentor %}
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-900/20 text-primary flex items-center justify-center text-xl font-black">
+                                {{ mentor.user.first_name|first }}{{ mentor.user.last_name|first }}
+                            </div>
+                            <div class="space-y-1">
+                                <h4 class="font-black text-sm text-gray-900 dark:text-white leading-none">{{ mentor.user.get_full_name }}</h4>
+                                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">{{ mentor.designation|default:"CS Faculty Guide" }}</p>
+                                <p class="text-[10px] text-primary dark:text-blue-400 font-bold uppercase tracking-wider leading-none">{{ mentor.department.dept_name }}</p>
+                            </div>
+                        </div>
+                        <div class="pt-2 border-t border-gray-100 dark:border-gray-800 space-y-2 text-xs">
+                            <div class="flex items-center gap-2 text-gray-500 dark:text-gray-400">
+                                <i class="fa-solid fa-envelope w-4 text-center"></i>
+                                <span class="truncate font-semibold">{{ mentor.user.email }}</span>
+                            </div>
+                            {% if mentor.user.phone %}
+                            <div class="flex items-center gap-2 text-gray-500 dark:text-gray-400">
+                                <i class="fa-solid fa-phone w-4 text-center"></i>
+                                <span class="font-semibold">{{ mentor.user.phone }}</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% else %}
+                        <div class="text-xs text-gray-400 font-semibold uppercase tracking-wider">No mentor assigned yet.</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Team Members Roster -->
+                    <div class="bg-white dark:bg-darkSurface rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm p-6 space-y-4">
+                        <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Project Team (Teammates)</h3>
+                        <div class="space-y-4">
+                            {% for member in teammates %}
+                            <div class="flex items-center justify-between border-b border-gray-50 dark:border-gray-800 pb-3 last:border-0 last:pb-0">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-9 h-9 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 flex items-center justify-center text-xs font-black">
+                                        {{ member.student.user.first_name|first }}{{ member.student.user.last_name|first }}
+                                    </div>
+                                    <div>
+                                        <h4 class="font-black text-xs text-gray-900 dark:text-white leading-tight">
+                                            {{ member.student.user.get_full_name }}
+                                            {% if member.student == student %}<span class="text-[9px] text-gray-400 font-normal ml-1">(You)</span>{% endif %}
+                                        </h4>
+                                        <p class="text-[9px] text-gray-400 font-bold uppercase mt-0.5">{{ member.student.enrollment_number }}</p>
+                                    </div>
+                                </div>
+                                <span class="px-2 py-0.5 bg-gray-55 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded text-[9px] font-black uppercase tracking-wider">
+                                    {{ member.get_role_display }}
+                                </span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Interactive Task Checklist (Persistent via LocalStorage) -->
+                    <div class="bg-white dark:bg-darkSurface rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm p-6 space-y-4">
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Project Checklist</h3>
+                            <span class="text-[10px] font-black text-primary" id="checklist-pct">0%</span>
+                        </div>
+                        <div class="w-full bg-gray-100 dark:bg-gray-800 h-1.5 rounded-full overflow-hidden">
+                            <div id="checklist-progress" class="bg-primary h-full transition-all duration-300" style="width: 0%"></div>
+                        </div>
+                        <div class="space-y-2 pt-2" id="checklist-items-container">
+                            <!-- JS will load checkboxes -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MODAL: Submit Weekly Log -->
+            <div id="logModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm hidden">
+                <div class="bg-white dark:bg-darkSurface w-full max-w-xl rounded-3xl shadow-2xl border border-gray-100 dark:border-gray-800 overflow-hidden animate-pop">
+                    <form action="{% url 'submit_weekly_log' %}" method="POST">
+                        {% csrf_token %}
+                        <div class="p-6 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-gray-50 dark:bg-gray-900/50">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-900/20 text-primary flex items-center justify-center text-sm"><i class="fa-solid fa-pen-to-square"></i></div>
+                                <div>
+                                    <h3 class="font-black text-gray-900 dark:text-white uppercase tracking-tight">Weekly Progress Log</h3>
+                                    <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Record your weekly achievements</p>
+                                </div>
+                            </div>
+                            <button type="button" onclick="toggleLogModal(false)" class="w-10 h-10 flex items-center justify-center text-gray-400 hover:text-secondary hover:bg-red-50 dark:hover:bg-red-900/20 rounded-full transition-all"><i class="fa-solid fa-xmark text-xl"></i></button>
+                        </div>
+
+                        <div class="p-6 sm:p-8 space-y-6">
+                            <div class="space-y-1">
+                                <label class="block text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1.5">Week Title *</label>
+                                <input type="text" name="week_title" required class="w-full px-4 py-3 bg-gray-55 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl text-xs font-bold dark:text-white focus:outline-none focus:border-primary" placeholder="e.g. Week 9: Auth module & API Integration">
+                            </div>
+
+                            <div class="space-y-1">
+                                <label class="block text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1.5">Accomplishments & Progress Details *</label>
+                                <textarea name="accomplishments" rows="4" required class="w-full px-4 py-3 bg-gray-55 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl text-xs font-medium dark:text-white focus:outline-none focus:border-primary leading-relaxed" placeholder="Apne is hafte ke key deliverables aur implementation details yahan likhein..."></textarea>
+                            </div>
+
+                            <div class="space-y-1">
+                                <label class="block text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1.5">Github Commit / Tag (Optional)</label>
+                                <input type="text" name="commit_tag" class="w-full px-4 py-3 bg-gray-55 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl text-xs font-bold dark:text-white focus:outline-none focus:border-primary" placeholder="e.g. v1.0.3-beta or hash e89fd32">
+                            </div>
+
+                            <div class="flex gap-4 pt-2">
+                                <button type="button" onclick="toggleLogModal(false)" class="flex-1 py-4 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-[10px] font-black uppercase tracking-widest rounded-2xl hover:bg-gray-200 dark:hover:bg-gray-700 transition-all">Cancel</button>
+                                <button type="submit" class="flex-[2] py-4 btn-gradient text-white text-[10px] font-black uppercase tracking-widest rounded-2xl transition-all">Save Weekly Log</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- MODAL: Upload Deliverable -->
+            <div id="uploadModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm hidden">
+                <div class="bg-white dark:bg-darkSurface w-full max-w-xl rounded-3xl shadow-2xl border border-gray-100 dark:border-gray-800 overflow-hidden animate-pop">
+                    <form action="{% url 'upload_project_deliverable' %}" method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="p-6 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-gray-50 dark:bg-gray-900/50">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-900/20 text-primary flex items-center justify-center text-sm"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+                                <div>
+                                    <h3 class="font-black text-gray-900 dark:text-white uppercase tracking-tight">Upload Project File</h3>
+                                    <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Submit document or code archive for evaluation</p>
+                                </div>
+                            </div>
+                            <button type="button" onclick="toggleUploadModal(false)" class="w-10 h-10 flex items-center justify-center text-gray-400 hover:text-secondary hover:bg-red-50 dark:hover:bg-red-900/20 rounded-full transition-all"><i class="fa-solid fa-xmark text-xl"></i></button>
+                        </div>
+
+                        <div class="p-6 sm:p-8 space-y-6">
+                            <div class="space-y-1">
+                                <label class="block text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1.5">Deliverable Category *</label>
+                                <select name="category" required class="w-full px-4 py-3 bg-gray-55 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl text-xs font-bold dark:text-white focus:outline-none focus:border-primary">
+                                    <option value="" disabled selected>Select category...</option>
+                                    <option value="Synopsis">Synopsis Proposal</option>
+                                    <option value="SRS">SRS Specification Doc</option>
+                                    <option value="Code">Phase Code Archive</option>
+                                    <option value="Other">Other Deliverable</option>
+                                </select>
+                            </div>
+
+                            <div class="space-y-1">
+                                <label class="block text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1.5">File Title / Description *</label>
+                                <input type="text" name="title" required class="w-full px-4 py-3 bg-gray-55 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl text-xs font-bold dark:text-white focus:outline-none focus:border-primary" placeholder="e.g. Major Project Phase-I Architecture Design">
+                            </div>
+
+                            <div class="space-y-1">
+                                <label class="block text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1.5">Attachment (PDF, ZIP, tar.gz - Max 25MB) *</label>
+                                <div class="border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-2xl p-8 flex flex-col items-center justify-center text-center bg-gray-55 dark:bg-gray-900/30 group hover:border-primary transition-all cursor-pointer relative overflow-hidden">
+                                    <div class="absolute inset-0 bg-primary opacity-0 group-hover:opacity-[0.02] transition-opacity"></div>
+                                    <i class="fa-solid fa-file-pdf text-4xl text-gray-300 group-hover:text-primary transition-colors mb-3"></i>
+                                    <h4 class="font-bold text-gray-900 dark:text-white text-xs mb-1" id="fileUploadNameDisplay">Apni file chunein</h4>
+                                    <p class="text-[10px] text-gray-400 font-semibold uppercase">Drag & Drop or Click to browse</p>
+                                    <input type="file" name="file" required class="absolute inset-0 opacity-0 cursor-pointer" onchange="updateFileLabel(this)">
+                                </div>
+                            </div>
+
+                            <div class="flex gap-4 pt-2">
+                                <button type="button" onclick="toggleUploadModal(false)" class="flex-1 py-4 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-[10px] font-black uppercase tracking-widest rounded-2xl hover:bg-gray-200 dark:hover:bg-gray-700 transition-all">Cancel</button>
+                                <button type="submit" class="flex-[2] py-4 btn-gradient text-white text-[10px] font-black uppercase tracking-widest rounded-2xl transition-all">Submit Deliverable</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Countdown Timer logic for Presentation Date
+    document.addEventListener('DOMContentLoaded', () => {
+        {% if project %}
+        const presentationDateStr = "{{ project.presentation_date|date:'Y-m-d' }}";
+        if (presentationDateStr) {
+            const presDate = new Date(presentationDateStr);
+            const now = new Date();
+            const timeDiff = presDate.getTime() - now.getTime();
+            const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
+            
+            const countText = document.getElementById('presentation-text');
+            const countdownSub = document.getElementById('countdown-subtext');
+            
+            if (daysDiff > 0) {
+                countdownSub.innerText = `${daysDiff} Days Remaining`;
+                countdownSub.classList.add('text-warning');
+            } else if (daysDiff === 0) {
+                countdownSub.innerText = "TODAY";
+                countdownSub.classList.remove('text-gray-500');
+                countdownSub.classList.add('text-secondary', 'font-black');
+            } else {
+                countdownSub.innerText = "Completed / Awaiting Grades";
+                countdownSub.classList.remove('text-gray-500');
+                countdownSub.classList.add('text-success', 'font-bold');
+            }
+        }
+        {% endif %}
+    });
+
+    // Modals handling
+    function toggleLogModal(show) {
+        const modal = document.getElementById('logModal');
+        if (show) {
+            modal.classList.remove('hidden');
+        } else {
+            modal.classList.add('hidden');
+        }
+    }
+
+    function toggleUploadModal(show) {
+        const modal = document.getElementById('uploadModal');
+        if (show) {
+            modal.classList.remove('hidden');
+        } else {
+            modal.classList.add('hidden');
+        }
+    }
+
+    function updateFileLabel(input) {
+        const display = document.getElementById('fileUploadNameDisplay');
+        if (input.files && input.files[0]) {
+            display.innerText = input.files[0].name;
+            display.classList.add('text-primary');
+        } else {
+            display.innerText = "Apni file chunein";
+            display.classList.remove('text-primary');
+        }
+    }
+
+    // Interactive Checklist (Persistent via LocalStorage and Project Scope)
+    {% if project %}
+    const projectId = "{{ project.id }}";
+    const defaultChecklistItems = [
+        "Synopsis Proposal Submission",
+        "SRS Documentation Upload",
+        "Database Architecture Design",
+        "Backend API Endpoints Complete",
+        "Frontend Integration UI",
+        "Mid-term Review presentation",
+        "Final Review & Verification"
+    ];
+
+    function loadChecklist() {
+        const container = document.getElementById('checklist-items-container');
+        if (!container) return;
+
+        // Retrieve from localStorage or set defaults
+        let data = localStorage.getItem(`project_${projectId}_checklist`);
+        if (!data) {
+            data = defaultChecklistItems.map(task => ({ task, completed: false }));
+        } else {
+            data = JSON.parse(data);
+        }
+
+        container.innerHTML = '';
+        data.forEach((item, index) => {
+            const div = document.createElement('div');
+            div.className = 'flex items-center gap-3 py-1.5';
+            
+            const input = document.createElement('input');
+            input.type = 'checkbox';
+            input.id = `task-${index}`;
+            input.checked = item.completed;
+            input.className = 'w-4 h-4 rounded text-primary border-gray-300 dark:border-gray-700 bg-gray-50 focus:ring-primary focus:ring-2 focus:ring-offset-0 cursor-pointer';
+            input.addEventListener('change', () => toggleTask(index));
+
+            const label = document.createElement('label');
+            label.htmlFor = `task-${index}`;
+            label.className = `text-xs cursor-pointer select-none font-medium flex-1 ${item.completed ? 'line-through text-gray-400 dark:text-gray-600' : 'text-gray-700 dark:text-gray-300'}`;
+            label.innerText = item.task;
+
+            div.appendChild(input);
+            div.appendChild(label);
+            container.appendChild(div);
+        });
+
+        calculateProgress(data);
+    }
+
+    function toggleTask(index) {
+        let data = JSON.parse(localStorage.getItem(`project_${projectId}_checklist`));
+        if (!data) {
+            data = defaultChecklistItems.map(task => ({ task, completed: false }));
+        }
+        data[index].completed = !data[index].completed;
+        localStorage.setItem(`project_${projectId}_checklist`, JSON.stringify(data));
+        loadChecklist();
+    }
+
+    function calculateProgress(data) {
+        const total = data.length;
+        const completed = data.filter(item => item.completed).length;
+        const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+        document.getElementById('checklist-pct').innerText = `${percent}%`;
+        document.getElementById('checklist-progress').style.width = `${percent}%`;
+    }
+
+    document.addEventListener('DOMContentLoaded', loadChecklist);
+    {% endif %}
+</script>
+{% endblock %}

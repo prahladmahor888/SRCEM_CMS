@@ -1,0 +1,65 @@
+{% extends 'base/base.html' %}
+
+{% block title %}{{ role_display }} Dashboard - SRCEM Portal{% endblock %}
+
+{# ── Suppress public-facing blocks ── #}
+{% block ticker %}{% endblock %}
+{% block navbar %}{% endblock %}
+{% block floating_contact %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block content %}
+<div class="flex-1 flex flex-col min-w-0 bg-gray-50 dark:bg-darkBg transition-all duration-300 h-full overflow-hidden">
+    
+    <!-- Dashboard Header -->
+    {% include 'base/header_dashboard.html' %}
+
+    <div class="flex-1 overflow-y-auto p-6 sm:p-8 space-y-8 no-scrollbar">
+        
+        <!-- Welcome Header -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div>
+                <h1 class="text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">{{ role_display }} <span class="text-info">Portal</span></h1>
+                <p class="text-gray-500 dark:text-gray-400 mt-1 font-medium">Welcome back, <span class="text-gray-900 dark:text-gray-200 font-bold">{{ user.get_full_name|default:user.username }}</span>. Your workspace is ready.</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <div class="bg-white dark:bg-gray-800 px-4 py-2 rounded-sm border border-gray-200 dark:border-gray-700 shadow-sm flex items-center gap-3">
+                    <i class="fa-solid fa-shield-halved text-info"></i>
+                    <span class="text-xs font-bold text-gray-600 dark:text-gray-400 uppercase tracking-widest">Authorized Staff Only</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Generic Entry Points -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="bg-white dark:bg-gray-800 p-8 rounded-sm border border-gray-200 dark:border-gray-700 shadow-sm flex flex-col items-center text-center group hover:border-info/30 transition-all">
+                <div class="w-16 h-16 bg-info/10 text-info rounded-full flex items-center justify-center mb-6 group-hover:bg-info group-hover:text-white transition-all text-2xl">
+                    <i class="fa-solid fa-folder-open"></i>
+                </div>
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">My Department</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">Manage records and documentation for the {{ role_display }} department.</p>
+                <button class="w-full py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-bold text-xs uppercase tracking-widest rounded-sm hover:bg-info hover:text-white transition-all">Access Module</button>
+            </div>
+
+            <div class="bg-white dark:bg-gray-800 p-8 rounded-sm border border-gray-200 dark:border-gray-700 shadow-sm flex flex-col items-center text-center group hover:border-success/30 transition-all">
+                <div class="w-16 h-16 bg-success/10 text-success rounded-full flex items-center justify-center mb-6 group-hover:bg-success group-hover:text-white transition-all text-2xl">
+                    <i class="fa-solid fa-envelope-open-text"></i>
+                </div>
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">Communications</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">Check internal memos, circulars, and departmental notifications.</p>
+                <button class="w-full py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-bold text-xs uppercase tracking-widest rounded-sm hover:bg-success hover:text-white transition-all">Open Inbox</button>
+            </div>
+
+            <div class="bg-white dark:bg-gray-800 p-8 rounded-sm border border-gray-200 dark:border-gray-700 shadow-sm flex flex-col items-center text-center group hover:border-warning/30 transition-all">
+                <div class="w-16 h-16 bg-warning/10 text-warning rounded-full flex items-center justify-center mb-6 group-hover:bg-warning group-hover:text-white transition-all text-2xl">
+                    <i class="fa-solid fa-user-gear"></i>
+                </div>
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">My Profile</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">Update your personal information and check employment details.</p>
+                <button class="w-full py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-bold text-xs uppercase tracking-widest rounded-sm hover:bg-warning hover:text-white transition-all">Edit Account</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,293 @@
+{% extends 'base/public_base.html' %}
+
+{% block title %}SRCEM - Apply Now (Admissions 2026-27){% endblock %}
+
+{% block content %}
+    <!-- Main Form Container -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+        
+        <div class="mb-8 text-center sm:text-left">
+            <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-900 dark:text-white mb-2">Admission Registration Form</h1>
+            <p class="text-gray-600 dark:text-gray-400 text-sm sm:text-base">Niche diye gaye form ko sahi jankari ke saath bharein. Session 2026-27 ke liye.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            
+            <!-- Left Column: Form Sections -->
+            <div class="lg:col-span-8">
+                <form id="admissionForm" class="space-y-6" method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="p-4 mb-4 rounded-sm {% if message.tags == 'success' %}bg-green-100 text-green-700{% else %}bg-red-100 text-red-700{% endif %}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                    
+                    <!-- 1. Admission & Course Selection -->
+                    <div class="bg-white dark:bg-gray-800 rounded-sm shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+                        <div class="bg-primary/5 dark:bg-blue-900/20 border-l-4 border-primary p-4 sm:p-5 border-b border-gray-200 dark:border-gray-700">
+                            <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                                <span class="bg-primary text-white w-6 h-6 rounded-full flex items-center justify-center text-xs">1</span> Admission Type & Program
+                            </h3>
+                        </div>
+                        <div class="p-4 sm:p-6 space-y-6">
+                            <!-- Entry Type Selection -->
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Admission Entry Type *</label>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <!-- Regular Radio -->
+                                    <label class="cursor-pointer group">
+                                        <input type="radio" name="entryType" value="regular" class="peer sr-only" checked>
+                                        <div class="p-4 border border-gray-200 dark:border-gray-700 rounded-sm peer-checked:border-primary peer-checked:bg-blue-50 dark:peer-checked:bg-blue-900/10 transition-all h-full hover:border-primary/50">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 peer-checked:bg-primary peer-checked:text-white flex items-center justify-center transition-colors">
+                                                    <i class="fa-solid fa-graduation-cap text-lg"></i>
+                                                </div>
+                                                <div>
+                                                    <p class="text-sm font-bold text-gray-800 dark:text-gray-200 group-peer-checked:text-primary">Regular Admission</p>
+                                                    <p class="text-[10px] text-gray-500 dark:text-gray-400">1st Year (Semester 1) Entry</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </label>
+                                    <!-- Lateral Radio -->
+                                    <label class="cursor-pointer group">
+                                        <input type="radio" name="entryType" value="lateral" class="peer sr-only">
+                                        <div class="p-4 border border-gray-200 dark:border-gray-700 rounded-sm peer-checked:border-secondary peer-checked:bg-red-50 dark:peer-checked:bg-red-900/10 transition-all h-full hover:border-secondary/50">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 peer-checked:bg-secondary peer-checked:text-white flex items-center justify-center transition-colors">
+                                                    <i class="fa-solid fa-arrow-right-to-bracket text-lg"></i>
+                                                </div>
+                                                <div>
+                                                    <p class="text-sm font-bold text-gray-800 dark:text-gray-200 group-peer-checked:text-secondary">Lateral Entry</p>
+                                                    <p class="text-[10px] text-gray-500 dark:text-gray-400">Direct 2nd Year (Semester 3) Entry</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 pt-4 border-t border-gray-100 dark:border-gray-700">
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Program Category *</label>
+                                    <select name="program_category" class="w-full px-3 py-2.5 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-sm text-sm text-gray-900 dark:text-white focus:outline-none focus:border-primary transition-colors cursor-pointer" required>
+                                        <option value="ug">Undergraduate (UG)</option>
+                                        <option value="pg">Postgraduate (PG)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Program / Course *</label>
+                                    <select name="applied_course" class="w-full px-3 py-2.5 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-sm text-sm text-gray-900 dark:text-white focus:outline-none focus:border-primary transition-colors cursor-pointer" required>
+                                        <option value="" disabled selected>Select Program...</option>
+                                        {% for course in courses %}
+                                            <option value="{{ course.id }}">{{ course.program_name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="sm:col-span-2">
+                                    <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Preferred Branch *</label>
+                                    <select name="branch" class="w-full px-3 py-2.5 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-sm text-sm text-gray-900 dark:text-white focus:outline-none focus:border-primary transition-colors cursor-pointer" required>
+                                        <option value="" disabled selected>Select Branch...</option>
+                                        <option value="cse">Computer Science & Engineering</option>
+                                        <option value="it">Information Technology</option>
+                                        <option value="me">Mechanical Engineering</option>
+                                        <option value="ce">Civil Engineering</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. Personal Information -->
+                    <div class="bg-white dark:bg-gray-800 rounded-sm shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+                        <div class="bg-primary/5 dark:bg-blue-900/20 border-l-4 border-primary p-4 sm:p-5 border-b border-gray-200 dark:border-gray-700">
+                            <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                                <span class="bg-primary text-white w-6 h-6 rounded-full flex items-center justify-center text-xs">2</span> Personal Information
+                            </h3>
+                        </div>
+                        <div class="p-4 sm:p-6">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">First Name *</label>
+                                    <input type="text" name="first_name" class="w-full px-3 py-2.5 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-sm text-sm" placeholder="First Name" required>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Last Name *</label>
+                                    <input type="text" name="last_name" class="w-full px-3 py-2.5 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-sm text-sm" placeholder="Surname" required>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Email ID *</label>
+                                    <input type="email" name="email" class="w-full px-3 py-2.5 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-sm text-sm" placeholder="email@example.com" required>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Phone Number *</label>
+                                    <input type="tel" name="phone" class="w-full px-3 py-2.5 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-sm text-sm" placeholder="+91" required>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3. Academic Records (Dynamic) -->
+                    <div class="bg-white dark:bg-gray-800 rounded-sm shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+                        <div class="bg-primary/5 dark:bg-blue-900/20 border-l-4 border-primary p-4 sm:p-5 border-b border-gray-200 dark:border-gray-700">
+                            <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                                <span class="bg-primary text-white w-6 h-6 rounded-full flex items-center justify-center text-xs">3</span> Academic Record
+                            </h3>
+                        </div>
+                        <div class="p-4 sm:p-6 space-y-8">
+                            <!-- Always Visible: Class 10th -->
+                            <div>
+                                <h4 class="text-sm font-bold text-gray-800 dark:text-gray-200 border-b border-gray-200 dark:border-gray-700 pb-2 mb-4 flex items-center gap-2">
+                                    <i class="fa-solid fa-circle-check text-success text-[10px]"></i> Class 10th (High School) Details *
+                                </h4>
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                    <input type="text" name="high_school_board" class="px-3 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-sm text-sm" placeholder="Board Name" required>
+                                    <input type="text" name="high_school_year" class="px-3 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-sm text-sm" placeholder="Passing Year" required>
+                                    <input type="text" name="high_school_percentage" class="px-3 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-sm text-sm" placeholder="Percentage / CGPA" required>
+                                </div>
+                            </div>
+                            
+                            <!-- Case A: Show if Regular -->
+                            <div id="regularSection">
+                                <h4 class="text-sm font-bold text-primary dark:text-blue-400 border-b border-gray-200 dark:border-gray-700 pb-2 mb-4 flex items-center gap-2">
+                                    <i class="fa-solid fa-book text-[10px]"></i> Class 12th (Higher Secondary) Details *
+                                </h4>
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                    <input type="text" name="higher_secondary_board" class="px-3 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-sm text-sm" placeholder="Board / Council Name">
+                                    <input type="text" name="higher_secondary_year" class="px-3 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-sm text-sm" placeholder="Passing Year / Status">
+                                    <input type="text" name="higher_secondary_percentage" class="px-3 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-sm text-sm" placeholder="Percentage / CGPA">
+                                </div>
+                            </div>
+
+                            <!-- Case B: Show if Lateral Entry -->
+                            <div id="lateralSection" class="hidden">
+                                <h4 class="text-sm font-bold text-secondary border-b border-gray-200 dark:border-gray-700 pb-2 mb-4 flex items-center gap-2">
+                                    <i class="fa-solid fa-user-gear text-[10px]"></i> Diploma / B.Sc (Last Exam) Details *
+                                </h4>
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                    <input type="text" name="lateral_university" class="px-3 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-sm text-sm" placeholder="University / Board Name">
+                                    <input type="text" name="lateral_year" class="px-3 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-sm text-sm" placeholder="Final Year Passing">
+                                    <input type="text" name="lateral_percentage" class="px-3 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-sm text-sm" placeholder="Aggregate % / CGPA">
+                                </div>
+                                <p class="text-[10px] text-gray-500 mt-2 italic"><i class="fa-solid fa-circle-info mr-1"></i> Lateral entry admission is direct into the 3rd Semester.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 4. Document Uploads (Dynamic Label) -->
+                    <div class="bg-white dark:bg-gray-800 rounded-sm shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+                        <div class="bg-primary/5 dark:bg-blue-900/20 border-l-4 border-primary p-4 sm:p-5 border-b border-gray-200 dark:border-gray-700">
+                            <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                                <span class="bg-primary text-white w-6 h-6 rounded-full flex items-center justify-center text-xs">4</span> Upload Documents
+                            </h3>
+                        </div>
+                        <div class="p-4 sm:p-6">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Passport Size Photo *</label>
+                                    <div class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-sm p-4 flex flex-col items-center justify-center text-center hover:border-primary dark:hover:border-primary transition-colors cursor-pointer bg-gray-50 dark:bg-gray-900/50 h-32 relative">
+                                        <i class="fa-solid fa-image text-2xl text-gray-400 mb-2"></i>
+                                        <p class="text-xs font-bold text-gray-700 dark:text-gray-300">Click to upload photo</p>
+                                        <input type="file" name="photo" class="absolute inset-0 opacity-0 cursor-pointer" accept="image/*" required>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label id="uploadLabel" class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Class 12th Marksheet *</label>
+                                    <div class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-sm p-4 flex flex-col items-center justify-center text-center hover:border-primary dark:hover:border-primary transition-colors cursor-pointer bg-gray-50 dark:bg-gray-900/50 h-32 relative">
+                                        <i class="fa-solid fa-file-arrow-up text-2xl text-gray-400 mb-2"></i>
+                                        <p id="uploadText" class="text-xs font-bold text-gray-700 dark:text-gray-300">Upload Marksheet</p>
+                                        <input type="file" name="marksheet" class="absolute inset-0 opacity-0 cursor-pointer" accept=".pdf,.jpg,.jpeg,.png" required>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Submit Actions -->
+                    <div class="bg-white dark:bg-gray-800 rounded-sm shadow-sm border border-gray-200 dark:border-gray-700 p-6 flex flex-col sm:flex-row items-center justify-between gap-6">
+                        <div class="text-center sm:text-left">
+                            <p class="text-xs font-bold text-gray-500 uppercase">Registration Fee</p>
+                            <span class="text-3xl font-extrabold text-primary dark:text-blue-400">₹1,000</span>
+                        </div>
+                        <button type="submit" class="w-full sm:w-auto bg-primary hover:bg-primaryDark text-white font-bold text-sm px-10 py-4 rounded-sm transition-all shadow-lg flex items-center justify-center gap-2">
+                            Proceed to Payment <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+
+                </form>
+            </div>
+
+            <!-- Right Column: Info & Help -->
+            <div class="lg:col-span-4 space-y-6">
+                <!-- Admission Instructions -->
+                <div class="bg-blue-50 dark:bg-blue-900/10 rounded-sm border border-blue-200 dark:border-blue-800/30 p-6">
+                    <h3 class="font-bold text-primary dark:text-blue-400 mb-4 flex items-center gap-2 uppercase tracking-wider text-sm">
+                        <i class="fa-solid fa-circle-info"></i> Instructions
+                    </h3>
+                    <ul class="space-y-4 text-xs text-gray-700 dark:text-gray-300">
+                        <li class="flex gap-3">
+                            <i class="fa-solid fa-check text-success shrink-0"></i>
+                            <span>Sahi admission type (Regular/Lateral) chunein, baad mein badla nahi ja sakega.</span>
+                        </li>
+                        <li class="flex gap-3">
+                            <i class="fa-solid fa-check text-success shrink-0"></i>
+                            <span>Documents clear aur readable honi chahiye (PDF/JPG format).</span>
+                        </li>
+                        <li class="flex gap-3">
+                            <i class="fa-solid fa-check text-success shrink-0"></i>
+                            <span>Form bharne ke baad registration fee pay karna zaroori hai.</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Support -->
+                <div class="bg-white dark:bg-gray-800 rounded-sm shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+                    <h4 class="font-bold text-gray-900 dark:text-white mb-4">Need Support?</h4>
+                    <div class="space-y-3 text-xs">
+                        <p class="flex items-center gap-3">
+                            <i class="fa-solid fa-phone text-primary"></i> 1800-270-0000
+                        </p>
+                        <p class="flex items-center gap-3">
+                            <i class="fa-solid fa-envelope text-primary"></i> admissions@srcem.edu.in
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+    <!-- JavaScript for Dynamic Logic -->
+    <script>
+        // --- Entry Type Dynamic Form Logic ---
+        const entryRadios = document.querySelectorAll('input[name="entryType"]');
+        const regularSection = document.getElementById('regularSection');
+        const lateralSection = document.getElementById('lateralSection');
+        const uploadLabel = document.getElementById('uploadLabel');
+        const uploadText = document.getElementById('uploadText');
+
+        entryRadios.forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                const type = e.target.value;
+
+                if (type === 'lateral') {
+                    // Lateral Entry case
+                    regularSection.classList.add('hidden');
+                    lateralSection.classList.remove('hidden');
+                    uploadLabel.innerText = "Diploma / Graduation Marksheet *";
+                    uploadText.innerText = "Upload Diploma Marksheet";
+                } else {
+                    // Regular Admission case
+                    regularSection.classList.remove('hidden');
+                    lateralSection.classList.add('hidden');
+                    uploadLabel.innerText = "Class 12th Marksheet *";
+                    uploadText.innerText = "Upload 12th Marksheet";
+                }
+            });
+        });
+    </script>
+{% endblock %}

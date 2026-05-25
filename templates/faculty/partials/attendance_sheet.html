@@ -1,0 +1,149 @@
+{% if students %}
+<!-- Section 2: Attendance Sheet -->
+<form id="attendanceSheetForm" method="POST" action="." class="bg-white dark:bg-darkSidebar mt-6 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800 flex flex-col overflow-hidden">
+    {% csrf_token %}
+    <input type="hidden" name="class_batch" value="{{ class_id }}">
+    <input type="hidden" name="subject" value="{{ selected_subject.id }}">
+    <input type="hidden" name="date" value="{{ date }}">
+    
+    <!-- Header & Summary -->
+    <div class="p-4 sm:p-5 border-b border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/20 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+        
+        <div>
+            {% if selected_subject %}
+            <h3 class="text-lg font-extrabold text-gray-900 dark:text-white">{{ selected_subject.subject_name }} ({{ selected_subject.subject_code }})</h3>
+            {% else %}
+            <h3 class="text-lg font-extrabold text-orange-500"><i class="fa-solid fa-triangle-exclamation mr-2"></i> Select Subject to Mark Attendance</h3>
+            {% endif %}
+            <p class="text-xs font-bold text-gray-500 dark:text-gray-400 mt-1">
+                {{ selected_class.label }} | {{ date }}
+            </p>
+        </div>
+
+        <!-- Live Stats -->
+        <div class="flex flex-wrap gap-3">
+            <div class="flex items-center gap-2 bg-white dark:bg-gray-800 px-3 py-1.5 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm">
+                <span class="text-[10px] font-black text-gray-500 uppercase">Total:</span>
+                <span class="text-sm font-black text-gray-900 dark:text-white" id="totalCount">{{ students|length }}</span>
+            </div>
+            <div class="flex items-center gap-2 bg-green-50 dark:bg-green-900/20 px-3 py-1.5 rounded-2xl border border-green-200 dark:border-green-800/50 shadow-sm">
+                <span class="text-[10px] font-black text-green-700 dark:text-green-500 uppercase">Present:</span>
+                <span class="text-sm font-black text-green-700 dark:text-green-400" id="presentCount">0</span>
+            </div>
+            <div class="flex items-center gap-2 bg-red-50 dark:bg-red-900/20 px-3 py-1.5 rounded-2xl border border-red-200 dark:border-red-800/50 shadow-sm">
+                <span class="text-[10px] font-black text-red-700 dark:text-red-500 uppercase">Absent:</span>
+                <span class="text-sm font-black text-red-700 dark:text-red-400" id="absentCount">0</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Bar & Student Search -->
+    <div class="px-4 sm:px-5 py-3 border-b border-gray-200 dark:border-gray-800 flex flex-col sm:flex-row justify-between items-center gap-3 bg-white dark:bg-darkSidebar">
+        <!-- Search Bar -->
+        <div class="relative w-full sm:w-80">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <i class="fa-solid fa-magnifying-glass text-gray-400"></i>
+            </div>
+            <input type="text" id="studentSearch" class="w-full pl-9 pr-3 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-2xl text-sm text-gray-900 dark:text-white focus:outline-none focus:border-primary transition-colors shadow-sm" placeholder="Search by name or roll no...">
+        </div>
+        
+        <!-- Quick Actions -->
+        <div class="flex items-center justify-between w-full sm:w-auto gap-4">
+            <div class="flex items-center gap-2">
+                <label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">Session Type:</label>
+                <select name="session_type" class="bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-2xl text-xs font-bold px-3 py-1.5">
+                    <option value="Theory" {% if existing_session.session_type == 'Theory' %}selected{% endif %}>Theory</option>
+                    <option value="Lab" {% if existing_session.session_type == 'Lab' %}selected{% endif %}>Practical/Lab</option>
+                </select>
+            </div>
+            <button type="button" id="markAllPresentBtn" class="w-full sm:w-auto text-xs font-black text-success border border-success bg-white dark:bg-darkSidebar hover:bg-green-50 dark:hover:bg-green-900/20 px-4 py-2 rounded-2xl transition-all flex items-center justify-center gap-2 shadow-sm">
+                <i class="fa-solid fa-check-double"></i> Mark All Present
+            </button>
+        </div>
+    </div>
+
+    <!-- Student List Table -->
+    <div class="p-0 overflow-x-auto">
+        <table class="w-full text-left border-collapse min-w-[600px]">
+            <thead>
+                <tr class="bg-gray-50 dark:bg-gray-900/50 text-[10px] uppercase font-black tracking-widest text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-800">
+                    <th class="p-4 w-20 text-center">S.No.</th>
+                    <th class="p-4 w-32">Roll No.</th>
+                    <th class="p-4">Student Name</th>
+                    <th class="p-4 text-center w-64">Attendance Status</th>
+                </tr>
+            </thead>
+            <tbody class="text-sm divide-y divide-gray-100 dark:divide-gray-800" id="attendanceTableBody">
+                {% for student in students %}
+                <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors student-row" data-name="{{ student.user.get_full_name }}" data-roll="{{ student.roll_number|default:student.enrollment_number }}">
+                    <td class="p-4 text-center font-bold text-gray-400">{{ forloop.counter }}</td>
+                    <td class="p-4 font-black text-gray-700 dark:text-gray-300">{{ student.roll_number|default:student.enrollment_number }}</td>
+                    <td class="p-4">
+                        <div class="flex items-center gap-3">
+                            {% if student.profile_photo %}
+                            <img src="{{ student.profile_photo.url }}" class="w-8 h-8 rounded-2xl object-cover border border-gray-200 dark:border-gray-700">
+                            {% else %}
+                            <div class="w-8 h-8 rounded-2xl bg-primary/10 text-primary flex items-center justify-center font-black text-[10px]">
+                                {{ student.user.first_name|first }}{{ student.user.last_name|first }}
+                            </div>
+                            {% endif %}
+                            <span class="font-extrabold text-gray-900 dark:text-white">{{ student.user.get_full_name }}</span>
+                        </div>
+                    </td>
+                    <td class="p-4 text-center">
+                        <div class="flex justify-center gap-1 bg-gray-100 dark:bg-gray-900 p-1 rounded-2xl border border-gray-200 dark:border-gray-800 w-max mx-auto">
+                            <label class="cursor-pointer relative">
+                                <input type="radio" name="status_{{ student.id }}" value="P" required class="attendance-radio sr-only" {% if student.existing_status == 'P' %}checked{% endif %}>
+                                <div class="status-btn px-4 py-1.5 text-[10px] font-black rounded-xl text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 border border-transparent text-center w-12">P</div>
+                            </label>
+                            <label class="cursor-pointer relative">
+                                <input type="radio" name="status_{{ student.id }}" value="A" class="attendance-radio sr-only" {% if student.existing_status == 'A' %}checked{% endif %}>
+                                <div class="status-btn px-4 py-1.5 text-[10px] font-black rounded-xl text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 border border-transparent text-center w-12">A</div>
+                            </label>
+                            <label class="cursor-pointer relative">
+                                <input type="radio" name="status_{{ student.id }}" value="L" class="attendance-radio sr-only" {% if student.existing_status == 'L' %}checked{% endif %}>
+                                <div class="status-btn px-4 py-1.5 text-[10px] font-black rounded-xl text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 border border-transparent text-center w-12">L</div>
+                            </label>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="p-20 text-center">
+                        <div class="flex flex-col items-center gap-4 text-gray-400">
+                            <i class="fa-solid fa-user-slash text-5xl opacity-20"></i>
+                            <p class="font-bold text-sm tracking-widest uppercase">No students found in this section</p>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Footer Actions -->
+    <div class="p-4 sm:p-5 border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/30 flex flex-col sm:flex-row justify-between items-center gap-4">
+        <div class="w-full sm:flex-1">
+            <input type="text" name="remarks" value="{{ existing_session.remarks|default:'' }}" placeholder="Add optional remarks or topic covered..." class="w-full px-4 py-2 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-2xl text-xs font-bold text-gray-900 dark:text-white focus:outline-none focus:border-primary">
+        </div>
+        <div class="flex gap-3 w-full sm:w-auto">
+            <button type="reset" class="flex-1 sm:flex-none px-6 py-2.5 border border-gray-300 dark:border-gray-700 rounded-2xl text-gray-700 dark:text-gray-300 bg-white dark:bg-darkSidebar hover:bg-gray-50 dark:hover:bg-gray-700 font-black text-xs uppercase transition-all">
+                Reset
+            </button>
+            <button type="submit" {% if not selected_subject %}disabled title="Please select a subject first"{% endif %} class="flex-1 sm:flex-none px-8 py-2.5 {% if selected_subject %}bg-primary hover:bg-primaryDark shadow-primary/30{% else %}bg-gray-400 cursor-not-allowed opacity-50{% endif %} text-white rounded-2xl font-black text-xs uppercase transition-all shadow-sm flex items-center justify-center gap-2">
+                <i class="fa-solid {% if existing_session %}fa-rotate{% else %}fa-check-double{% endif %}"></i> 
+                {% if existing_session %}Update Attendance{% else %}Submit Attendance{% endif %}
+            </button>
+        </div>
+    </div>
+</form>
+{% else %}
+<!-- Empty State -->
+<div class="bg-white dark:bg-darkSidebar mt-6 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800 p-20 text-center">
+    <div class="flex flex-col items-center gap-4 text-gray-300 dark:text-gray-600">
+        <i class="fa-solid fa-clipboard-list text-7xl opacity-30"></i>
+        <h3 class="text-xl font-black uppercase tracking-widest text-gray-400">Select Class to Load Students</h3>
+        <p class="text-sm font-bold opacity-60">Search and select the Class/Batch in the filter bar above to fetch students automatically.</p>
+    </div>
+</div>
+{% endif %}

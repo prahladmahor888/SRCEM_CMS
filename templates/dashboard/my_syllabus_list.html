@@ -1,0 +1,79 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}My Syllabus Progress - SRCEM CMS{% endblock %}
+
+{% block navbar %}{% endblock %}
+{% block ticker %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block content %}
+<div class="flex-1 flex flex-col min-w-0 bg-gray-50 dark:bg-darkBg transition-all duration-300 h-full overflow-hidden">
+    {% include 'base/header_dashboard.html' %}
+
+    <div class="flex-1 overflow-y-auto p-4 sm:p-8 no-scrollbar bg-gray-50 dark:bg-darkBg pb-40">
+        <div class="max-w-7xl mx-auto space-y-8">
+            
+            <!-- Header Section -->
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div>
+                    <h1 class="text-3xl font-black text-gray-900 dark:text-white uppercase tracking-tight">My Academic Syllabus</h1>
+                    <p class="text-gray-500 dark:text-gray-400 font-medium text-sm mt-1">Monitor and update the progress of your allotted subjects.</p>
+                </div>
+            </div>
+
+            <!-- Subject Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for coverage in object_list %}
+                <div class="bg-white dark:bg-darkSurface rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden group hover:shadow-xl transition-all duration-300">
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-[10px] font-black px-2 py-0.5 rounded uppercase tracking-widest">
+                                {{ coverage.allotment.subject.subject_code }}
+                            </span>
+                            <span class="text-[10px] font-bold text-gray-400 uppercase">Sem: {{ coverage.allotment.semester }}</span>
+                        </div>
+                        
+                        <h3 class="text-lg font-black text-gray-900 dark:text-white mb-2 line-clamp-2 min-h-[3.5rem]">
+                            {{ coverage.allotment.subject.subject_name }}
+                        </h3>
+
+                        <!-- Progress Bar -->
+                        <div class="space-y-2 mb-6">
+                            <div class="flex justify-between items-end">
+                                <span class="text-xs font-bold text-gray-400 uppercase tracking-tighter">Current Progress</span>
+                                <span class="text-xl font-black {% if coverage.percentage < 30 %}text-secondary{% elif coverage.percentage < 70 %}text-warning{% else %}text-success{% endif %}">
+                                    {{ coverage.percentage }}%
+                                </span>
+                            </div>
+                            <div class="h-2 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
+                                <div class="h-full {% if coverage.percentage < 30 %}bg-secondary{% elif coverage.percentage < 70 %}bg-warning{% else %}bg-success{% endif %} transition-all duration-1000" 
+                                     style="width: {{ coverage.percentage }}%"></div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-2 mb-6 text-[10px] text-gray-500 font-medium uppercase tracking-wider">
+                            <i class="fa-solid fa-clock-rotate-left"></i>
+                            Last Updated: {{ coverage.last_updated|timesince }} ago
+                        </div>
+
+                        <a href="{% url 'syllabus_progress_update' coverage.pk %}" 
+                           class="block w-full text-center py-3 bg-gray-50 dark:bg-gray-800 hover:bg-primary hover:text-white dark:hover:bg-primary transition-all rounded-xl text-xs font-black uppercase tracking-widest text-gray-600 dark:text-gray-300">
+                            Update Progress
+                        </a>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-span-full py-20 text-center bg-white dark:bg-darkSurface rounded-3xl border-2 border-dashed border-gray-100 dark:border-gray-800">
+                    <div class="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fa-solid fa-book-open text-gray-400 text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight">No Subjects Allotted</h3>
+                    <p class="text-gray-500 max-w-xs mx-auto text-sm mt-2">You don't have any subjects allotted for the current session.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,97 @@
+<footer class="bg-gray-900 text-white pt-16 pb-8 border-t-4 border-yellow-500 relative overflow-hidden">
+    <!-- Decorative background elements -->
+    <div class="absolute top-0 right-0 -mt-16 -mr-16 w-64 h-64 bg-primary/20 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute bottom-0 left-0 -mb-16 -ml-16 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
+            
+            <!-- Column 1: About & Contact -->
+            <div class="space-y-6">
+                <div class="flex items-center gap-3">
+                    <img src="https://srgoc.org/wp-content/uploads/2024/12/cropped-Group-Logo-1.png" alt="SRCEM Logo" class="h-14 bg-white p-1 rounded">
+                    <div>
+                        <h3 class="text-xl font-extrabold tracking-tight text-white mb-0 leading-tight">SRCEM</h3>
+                        <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Gwalior, M.P.</p>
+                    </div>
+                </div>
+                <p class="text-sm text-gray-400 leading-relaxed text-justify pr-4">
+                    Shri Ram College of Engineering & Management is a premier institution dedicated to academic excellence, innovation, and holistic student development since its inception.
+                </p>
+                <div class="space-y-3 pt-2">
+                    <div class="flex items-start gap-3 text-gray-300">
+                        <i class="fa-solid fa-location-dot mt-1 text-secondary"></i>
+                        <span class="text-sm">National Expressway, AB Road,<br>Banmore, Near Gwalior, M.P. 476444</span>
+                    </div>
+                    <div class="flex items-center gap-3 text-gray-300">
+                        <i class="fa-solid fa-phone text-secondary"></i>
+                        <span class="text-sm font-semibold tracking-wide">1800-270-0000 (Toll Free)</span>
+                    </div>
+                    <div class="flex items-center gap-3 text-gray-300">
+                        <i class="fa-solid fa-envelope text-secondary"></i>
+                        <a href="mailto:info@srgoc.org" class="text-sm hover:text-yellow-400 transition">info@srgoc.org</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Column 2: Quick Links -->
+            <div>
+                <h3 class="text-lg font-bold mb-6 text-white border-b-2 border-primary pb-2 inline-block">Quick Links</h3>
+                <ul class="space-y-3">
+                    <li><a href="{% url 'home' %}" class="text-sm text-gray-400 hover:text-yellow-400 hover:pl-2 transition-all flex items-center gap-2"><i class="fa-solid fa-angle-right text-xs"></i> About Us</a></li>
+                    <li><a href="{% url 'apply_now' %}" class="text-sm text-gray-400 hover:text-yellow-400 hover:pl-2 transition-all flex items-center gap-2"><i class="fa-solid fa-angle-right text-xs"></i> Admissions 2026</a></li>
+                    <li><a href="{% url 'home' %}" class="text-sm text-gray-400 hover:text-yellow-400 hover:pl-2 transition-all flex items-center gap-2"><i class="fa-solid fa-angle-right text-xs"></i> Academic Calendar</a></li>
+                    <li><a href="{% url 'placements' %}" class="text-sm text-gray-400 hover:text-yellow-400 hover:pl-2 transition-all flex items-center gap-2"><i class="fa-solid fa-angle-right text-xs"></i> Placement Records</a></li>
+                    <li><a href="{% url 'home' %}" class="text-sm text-gray-400 hover:text-yellow-400 hover:pl-2 transition-all flex items-center gap-2"><i class="fa-solid fa-angle-right text-xs"></i> Fee Structure</a></li>
+                    <li><a href="{% url 'home' %}" class="text-sm text-gray-400 hover:text-yellow-400 hover:pl-2 transition-all flex items-center gap-2"><i class="fa-solid fa-angle-right text-xs"></i> Contact Directory</a></li>
+                </ul>
+            </div>
+
+            <!-- Column 3: Important Resources -->
+            <div>
+                <h3 class="text-lg font-bold mb-6 text-white border-b-2 border-primary pb-2 inline-block">Resources</h3>
+                <ul class="space-y-3">
+                    <li><a href="https://www.aicte-india.org/" target="_blank" class="text-sm text-gray-400 hover:text-yellow-400 hover:pl-2 transition-all flex items-center gap-2"><i class="fa-solid fa-angle-right text-xs"></i> AICTE Mandatory Disclosure</a></li>
+                    <li><a href="{% url 'home' %}" class="text-sm text-gray-400 hover:text-yellow-400 hover:pl-2 transition-all flex items-center gap-2"><i class="fa-solid fa-angle-right text-xs"></i> Anti-Ragging Committee</a></li>
+                    <li><a href="{% url 'home' %}" class="text-sm text-gray-400 hover:text-yellow-400 hover:pl-2 transition-all flex items-center gap-2"><i class="fa-solid fa-angle-right text-xs"></i> Grievance Redressal</a></li>
+                    <li><a href="{% url 'student_erp' %}" class="text-sm text-gray-400 hover:text-yellow-400 hover:pl-2 transition-all flex items-center gap-2"><i class="fa-solid fa-angle-right text-xs"></i> Student ERP Portal</a></li>
+                    <li><a href="{% url 'digital_library' %}" class="text-sm text-gray-400 hover:text-yellow-400 hover:pl-2 transition-all flex items-center gap-2"><i class="fa-solid fa-angle-right text-xs"></i> E-Library Access</a></li>
+                    <li><a href="https://www.rgpv.ac.in/" target="_blank" class="text-sm text-gray-400 hover:text-yellow-400 hover:pl-2 transition-all flex items-center gap-2"><i class="fa-solid fa-angle-right text-xs"></i> RGPV Bhopal Portal</a></li>
+                </ul>
+            </div>
+
+            <!-- Column 4: Newsletter & Social -->
+            <div>
+                <h3 class="text-lg font-bold mb-6 text-white border-b-2 border-primary pb-2 inline-block">Connect With Us</h3>
+                <p class="text-sm text-gray-400 mb-4">Subscribe to our newsletter for latest updates on events and admissions.</p>
+                <form class="flex mb-6">
+                    <input type="email" placeholder="Your Email Address" class="bg-gray-800 text-sm text-white px-4 py-2 rounded-l w-full focus:outline-none focus:ring-1 focus:ring-primary border border-gray-700 border-r-0">
+                    <button type="submit" class="bg-primary hover:bg-blue-700 text-white px-4 py-2 rounded-r transition font-bold"><i class="fa-solid fa-paper-plane"></i></button>
+                </form>
+                
+                <h4 class="text-sm font-bold mb-3 text-white">Follow Us</h4>
+                <div class="flex gap-3">
+                    <a href="https://facebook.com/srcem" target="_blank" class="w-8 h-8 rounded bg-gray-800 hover:bg-blue-600 flex items-center justify-center text-gray-400 hover:text-white transition"><i class="fa-brands fa-facebook-f"></i></a>
+                    <a href="https://twitter.com/srcem" target="_blank" class="w-8 h-8 rounded bg-gray-800 hover:bg-blue-400 flex items-center justify-center text-gray-400 hover:text-white transition"><i class="fa-brands fa-twitter"></i></a>
+                    <a href="https://instagram.com/srcem" target="_blank" class="w-8 h-8 rounded bg-gray-800 hover:bg-pink-600 flex items-center justify-center text-gray-400 hover:text-white transition"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="https://linkedin.com/school/srcem" target="_blank" class="w-8 h-8 rounded bg-gray-800 hover:bg-blue-700 flex items-center justify-center text-gray-400 hover:text-white transition"><i class="fa-brands fa-linkedin-in"></i></a>
+                    <a href="https://youtube.com/srcem" target="_blank" class="w-8 h-8 rounded bg-gray-800 hover:bg-red-600 flex items-center justify-center text-gray-400 hover:text-white transition"><i class="fa-brands fa-youtube"></i></a>
+                </div>
+            </div>
+            
+        </div>
+
+        <div class="border-t border-gray-800 pt-6 flex flex-col md:flex-row justify-between items-center gap-4">
+            <p class="text-xs text-gray-500 font-medium">
+                &copy; {% now "Y" %} Shri Ram College of Engineering & Management. All Rights Reserved.
+            </p>
+            <div class="flex gap-4 text-xs text-gray-500 font-medium">
+                <a href="#" class="hover:text-white transition">Privacy Policy</a>
+                <span class="text-gray-700">|</span>
+                <a href="#" class="hover:text-white transition">Terms of Use</a>
+                <span class="text-gray-700">|</span>
+                <a href="#" class="hover:text-white transition">Sitemap</a>
+            </div>
+        </div>
+    </div>
+</footer>

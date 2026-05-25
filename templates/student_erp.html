@@ -1,0 +1,271 @@
+{% extends 'base/public_base.html' %}
+{% load static %}
+
+{% block title %}Digital Campus & Student ERP - SRCEM{% endblock %}
+
+{% block extra_css %}
+<style>
+    .glass-card {
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .dark .glass-card {
+        background: rgba(15, 23, 42, 0.7);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    /* New Immersive Hero Background */
+    .hero-section-bg {
+        background-image: linear-gradient(rgba(15, 23, 42, 0.85), rgba(30, 58, 138, 0.7)), url('https://images.unsplash.com/photo-1521737711867-e3b97375f902?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+    }
+    .text-glow {
+        text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+    }
+    .parallax-section {
+        background-attachment: fixed;
+        background-size: cover;
+        background-position: center;
+    }
+    @keyframes float {
+        0% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+        100% { transform: translateY(0px); }
+    }
+    .floating { animation: float 4s ease-in-out infinite; }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Enhanced Hero Section with Immersive Background -->
+<section class="relative py-24 lg:py-40 hero-section-bg text-white overflow-hidden mt-[-1px]">
+    <!-- Floating Elements for depth -->
+    <div class="absolute top-20 left-10 w-24 h-24 bg-white/5 rounded-full blur-xl floating" style="animation-delay: 1s;"></div>
+    <div class="absolute bottom-20 right-10 w-32 h-32 bg-blue-400/10 rounded-full blur-2xl floating"></div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            <div class="text-center lg:text-left">
+                <div class="inline-flex items-center gap-2 px-4 py-2 bg-white/10 border border-white/20 rounded-full text-[11px] font-black uppercase tracking-widest mb-8 backdrop-blur-md shadow-2xl">
+                    <span class="w-2.5 h-2.5 rounded-full bg-green-400 animate-pulse"></span>
+                    Standard Digital Infrastructure
+                </div>
+                
+                <!-- Main Heading with improved typography -->
+                <h1 class="text-5xl lg:text-8xl font-black leading-[1.05] mb-8 text-glow tracking-tighter">
+                    One ID. <br>
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-300 to-blue-500">Endless</span> <br>
+                    Possibilities.
+                </h1>
+                
+                <p class="text-xl text-blue-100 mb-12 max-w-xl mx-auto lg:mx-0 leading-relaxed font-medium opacity-90">
+                    SRCEM ka naya digital ecosystem ab aapke smartphone par. Attendance, Results, aur Fees—sab kuch ek surakshit jagah.
+                </p>
+                
+                <div class="flex flex-col sm:flex-row gap-5 justify-center lg:justify-start">
+                    <a href="{% url 'login' %}" class="bg-white text-primaryDark px-10 py-5 rounded-sm font-black shadow-2xl hover:bg-blue-50 hover:-translate-y-1 transition duration-300 flex items-center justify-center gap-3 uppercase tracking-wider text-sm">
+                        <i class="fa-solid fa-right-to-bracket"></i> Open Student Portal
+                    </a>
+                    <button class="bg-transparent border-2 border-white/50 backdrop-blur-md text-white px-8 py-5 rounded-sm font-bold hover:bg-white hover:text-primaryDark transition duration-300 flex items-center justify-center gap-3 text-sm uppercase tracking-wider">
+                        <i class="fa-solid fa-play-circle text-xl"></i> Explore Modules
+                    </button>
+                </div>
+            </div>
+
+            <!-- Featured Mockup Interface -->
+            <div class="relative group hidden lg:block">
+                <div class="absolute -inset-1 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl blur opacity-20 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
+                <div class="relative z-10 p-2 bg-gray-950 rounded-xl shadow-2xl border border-white/10 transform rotate-1 group-hover:rotate-0 transition-transform duration-700">
+                    <div class="bg-gray-900 h-7 w-full flex items-center px-4 gap-2 rounded-t-lg">
+                        <div class="w-2 h-2 rounded-full bg-red-500/50"></div>
+                        <div class="w-2 h-2 rounded-full bg-yellow-500/50"></div>
+                        <div class="w-2 h-2 rounded-full bg-green-500/50"></div>
+                    </div>
+                    <!-- UI Dashboard Image -->
+                    <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" alt="[ERP Analytics ka chitra]" class="w-full h-auto object-cover opacity-95 rounded-b-lg">
+                </div>
+                
+                <!-- Floating Overlays -->
+                <div class="absolute -top-10 -right-10 glass-card p-5 rounded-sm shadow-2xl border-l-4 border-success animate-bounce hidden md:block" style="animation-duration: 4s;">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-green-100 dark:bg-green-900/30 text-success flex items-center justify-center rounded-sm text-xl"><i class="fa-solid fa-user-check"></i></div>
+                        <div>
+                            <p class="text-[10px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest">Attendance Status</p>
+                            <p class="text-base font-black text-gray-900 dark:text-white">85.4% Present</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Quick Stats Bar -->
+<section class="py-16 bg-white dark:bg-gray-950 border-b border-gray-100 dark:border-gray-800 transition-colors duration-300">
+    <div class="max-w-7xl mx-auto px-4">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-12 items-center">
+            <div class="text-center group">
+                <div class="text-primary dark:text-blue-400 text-4xl mb-4 group-hover:scale-110 transition-transform"><i class="fa-solid fa-bolt-lightning"></i></div>
+                <h4 class="text-4xl font-black text-gray-900 dark:text-white tracking-tighter">0.5s</h4>
+                <p class="text-[11px] font-bold text-gray-500 uppercase tracking-widest mt-1">Real-time Sync</p>
+            </div>
+            <div class="text-center group">
+                <div class="text-primary dark:text-blue-400 text-4xl mb-4 group-hover:scale-110 transition-transform"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+                <h4 class="text-4xl font-black text-gray-900 dark:text-white tracking-tighter">100%</h4>
+                <p class="text-[11px] font-bold text-gray-500 uppercase tracking-widest mt-1">Cloud Secure</p>
+            </div>
+            <div class="text-center group">
+                <div class="text-primary dark:text-blue-400 text-4xl mb-4 group-hover:scale-110 transition-transform"><i class="fa-solid fa-lock"></i></div>
+                <h4 class="text-4xl font-black text-gray-900 dark:text-white tracking-tighter">256-bit</h4>
+                <p class="text-[11px] font-bold text-gray-500 uppercase tracking-widest mt-1">Encryption</p>
+            </div>
+            <div class="text-center group">
+                <div class="text-primary dark:text-blue-400 text-4xl mb-4 group-hover:scale-110 transition-transform"><i class="fa-solid fa-mobile-screen"></i></div>
+                <h4 class="text-4xl font-black text-gray-900 dark:text-white tracking-tighter">Mobile</h4>
+                <p class="text-[11px] font-bold text-gray-500 uppercase tracking-widest mt-1">First Approach</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Module Cards Section -->
+<section class="py-24 bg-gray-50 dark:bg-gray-900/30 transition-colors duration-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-20">
+            <span class="text-secondary font-extrabold tracking-[0.3em] uppercase text-xs mb-3 block">Digital Ecosystem</span>
+            <h2 class="text-4xl lg:text-6xl font-black text-gray-900 dark:text-white tracking-tighter mb-6">Designed for <span class="text-primary dark:text-blue-500">Students.</span></h2>
+            <div class="h-1.5 w-20 bg-secondary mx-auto rounded-full"></div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
+            
+            <!-- Module 1: Attendance -->
+            <div class="relative overflow-hidden rounded-sm shadow-2xl group cursor-pointer border border-gray-100 dark:border-gray-800">
+                <img src="https://images.unsplash.com/photo-1434030216411-0b793f4b4173?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="[Attendance Scan]" class="w-full h-80 object-cover group-hover:scale-110 transition-transform duration-700">
+                <div class="absolute inset-0 bg-gradient-to-t from-primaryDark via-primaryDark/50 to-transparent p-8 flex flex-col justify-end">
+                    <div class="w-12 h-12 bg-white/20 backdrop-blur-md text-white rounded-sm flex items-center justify-center mb-6 border border-white/20 text-xl"><i class="fa-solid fa-fingerprint"></i></div>
+                    <h3 class="text-2xl font-black text-white mb-3 tracking-tight">Smart Attendance</h3>
+                    <p class="text-sm text-blue-100/80 leading-relaxed font-medium">Daily attendance reports aur low-attendance alerts direct aapke dashboard par.</p>
+                </div>
+            </div>
+
+            <!-- Module 2: Fees -->
+            <div class="relative overflow-hidden rounded-sm shadow-2xl group cursor-pointer border border-gray-100 dark:border-gray-800">
+                <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="[Fee Payment]" class="w-full h-80 object-cover group-hover:scale-110 transition-transform duration-700">
+                <div class="absolute inset-0 bg-gradient-to-t from-red-950 via-red-950/50 to-transparent p-8 flex flex-col justify-end">
+                    <div class="w-12 h-12 bg-white/20 backdrop-blur-md text-white rounded-sm flex items-center justify-center mb-6 border border-white/20 text-xl"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+                    <h3 class="text-2xl font-black text-white mb-3 tracking-tight">E-Fees & Receipts</h3>
+                    <p class="text-sm text-red-50/80 leading-relaxed font-medium">Secure UPI payments aur pichli sabhi fees receipts ek click mein download karein.</p>
+                </div>
+            </div>
+
+            <!-- Module 3: E-Locker -->
+            <div class="relative overflow-hidden rounded-sm shadow-2xl group cursor-pointer border border-gray-100 dark:border-gray-800">
+                <img src="https://images.unsplash.com/photo-1507733423093-fa7a9bd44778?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="[Study Notes]" class="w-full h-80 object-cover group-hover:scale-110 transition-transform duration-700">
+                <div class="absolute inset-0 bg-gradient-to-t from-green-950 via-green-950/50 to-transparent p-8 flex flex-col justify-end">
+                    <div class="w-12 h-12 bg-white/20 backdrop-blur-md text-white rounded-sm flex items-center justify-center mb-6 border border-white/20 text-xl"><i class="fa-solid fa-book-open"></i></div>
+                    <h3 class="text-2xl font-black text-white mb-3 tracking-tight">Digital E-Locker</h3>
+                    <p class="text-sm text-green-50/80 leading-relaxed font-medium">Faculty dwara shared Unit-wise notes, assignments aur video tutorials ka access.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-16 text-center">
+            <button class="bg-primary text-white font-black text-sm px-10 py-4 rounded-sm shadow-xl hover:bg-primaryDark transition-all uppercase tracking-widest">See All 12+ Modules</button>
+        </div>
+    </div>
+</section>
+
+<!-- Lifestyle / Campus Integration -->
+<section class="py-24 bg-white dark:bg-gray-950 transition-colors duration-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col lg:flex-row gap-20 items-center">
+            <div class="lg:w-1/2">
+                <div class="inline-block px-3 py-1 bg-red-50 dark:bg-red-900/20 text-secondary rounded-sm text-[10px] font-black uppercase tracking-widest mb-6">Experience</div>
+                <h2 class="text-4xl lg:text-6xl font-black text-gray-900 dark:text-white mb-8 leading-tight tracking-tighter">Stay Connected, <br> <span class="text-primary dark:text-blue-500">Everywhere.</span></h2>
+                
+                <div class="space-y-8">
+                    <div class="flex gap-5 group">
+                        <div class="w-12 h-12 bg-blue-50 dark:bg-blue-900/30 text-primary flex items-center justify-center shrink-0 rounded-sm border border-blue-100 group-hover:bg-primary group-hover:text-white transition-all"><i class="fa-solid fa-wifi text-xl"></i></div>
+                        <div>
+                            <h4 class="font-bold text-gray-900 dark:text-white text-lg">Smart Wi-Fi Campus</h4>
+                            <p class="text-sm text-gray-500 leading-relaxed">Pure campus mein high-speed internet access taaki aap kabhi bhi material access kar sakein.</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-5 group">
+                        <div class="w-12 h-12 bg-green-50 dark:bg-green-900/30 text-success flex items-center justify-center shrink-0 rounded-sm border border-green-100 group-hover:bg-success group-hover:text-white transition-all"><i class="fa-solid fa-mobile-button text-xl"></i></div>
+                        <div>
+                            <h4 class="font-bold text-gray-900 dark:text-white text-lg">Anytime, Any Device</h4>
+                            <p class="text-sm text-gray-500 leading-relaxed">Laptop, Desktop ya Mobile—aapka dashboard hamesha up-to-date rehta hai.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <a href="{% url 'apply_now' %}" class="mt-12 inline-block bg-primary text-white px-10 py-4 rounded-sm font-black shadow-2xl hover:bg-primaryDark transition-all uppercase tracking-widest text-sm">Join SRCEM Today</a>
+            </div>
+
+            <!-- Image Grid with Better Visuals -->
+            <div class="lg:w-1/2 grid grid-cols-2 gap-6 relative">
+                <div class="absolute -z-10 -top-10 -left-10 w-40 h-40 bg-blue-100/50 dark:bg-blue-900/20 blur-3xl rounded-full"></div>
+                <div class="space-y-6">
+                    <img src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="[Library Students]" class="rounded-sm shadow-2xl h-80 w-full object-cover grayscale-[0.3] hover:grayscale-0 transition duration-500">
+                    <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="[Group Study]" class="rounded-sm shadow-2xl h-56 w-full object-cover grayscale-[0.3] hover:grayscale-0 transition duration-500">
+                </div>
+                <div class="space-y-6 pt-12">
+                    <img src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="[Modern Classroom]" class="rounded-sm shadow-2xl h-56 w-full object-cover grayscale-[0.3] hover:grayscale-0 transition duration-500">
+                    <img src="https://images.unsplash.com/photo-1531482615713-2afd69097998?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="[IT Lab]" class="rounded-sm shadow-2xl h-80 w-full object-cover grayscale-[0.3] hover:grayscale-0 transition duration-500">
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Parallax Mobile App Teaser -->
+<section class="relative py-32 bg-primaryDark overflow-hidden parallax-section" style="background-image: linear-gradient(rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.9)), url('https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+            
+            <div class="order-2 lg:order-1 flex justify-center lg:justify-start">
+                <!-- Phone Mockup -->
+                <div class="w-64 h-[520px] bg-black rounded-[3rem] border-[8px] border-gray-800 shadow-2xl relative overflow-hidden ring-4 ring-white/10">
+                    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-gray-800 rounded-b-2xl z-20 flex items-center justify-center gap-2">
+                        <div class="w-1.5 h-1.5 rounded-full bg-gray-600"></div>
+                        <div class="w-10 h-1 bg-gray-700 rounded-full"></div>
+                    </div>
+                    <div class="bg-white h-full w-full p-5 pt-10 overflow-y-auto">
+                        <img src="https://srgoc.org/wp-content/uploads/2024/12/cropped-Group-Logo-1.png" class="h-6 mx-auto mb-8 grayscale opacity-50">
+                        <div class="bg-primary p-5 rounded-2xl text-white mb-6 shadow-xl">
+                            <p class="text-[9px] opacity-70 uppercase font-black">Attendance</p>
+                            <p class="text-xl font-black">85.4%</p>
+                            <div class="mt-4 h-1.5 w-full bg-white/20 rounded-full overflow-hidden">
+                                <div class="bg-white h-full" style="width: 85%"></div>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="h-20 bg-blue-50 rounded-xl flex flex-col items-center justify-center gap-2 border border-blue-100 shadow-sm"><i class="fa-solid fa-clock text-primary"></i><span class="text-[9px] font-black text-gray-600 uppercase">Timetable</span></div>
+                            <div class="h-20 bg-red-50 rounded-xl flex flex-col items-center justify-center gap-2 border border-red-100 shadow-sm"><i class="fa-solid fa-credit-card text-secondary"></i><span class="text-[9px] font-black text-gray-600 uppercase">Fees</span></div>
+                            <div class="h-20 bg-green-50 rounded-xl flex flex-col items-center justify-center gap-2 border border-green-100 shadow-sm"><i class="fa-solid fa-award text-success"></i><span class="text-[9px] font-black text-gray-600 uppercase">Results</span></div>
+                            <div class="h-20 bg-amber-50 rounded-xl flex flex-col items-center justify-center gap-2 border border-amber-100 shadow-sm"><i class="fa-solid fa-bus text-warning"></i><span class="text-[9px] font-black text-gray-600 uppercase">Bus GPS</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="order-1 lg:order-2 text-center lg:text-left">
+                <h2 class="text-4xl md:text-7xl font-black text-white mb-8 tracking-tighter leading-tight">Campus in <br> Your Pocket.</h2>
+                <p class="text-blue-100 text-xl mb-12 font-light leading-relaxed">
+                    SRCEM Student Portal ab official App ke roop mein available hai. Exam notification ho ya assignment deadline—kuch bhi miss nahi hoga.
+                </p>
+                <div class="flex flex-wrap justify-center lg:justify-start gap-6">
+                    <button class="bg-black text-white px-10 py-4 rounded-xl border border-white/20 flex items-center gap-4 hover:bg-gray-900 transition-all shadow-2xl">
+                        <i class="fa-brands fa-google-play text-4xl text-blue-400"></i>
+                        <div class="text-left leading-tight"><p class="text-[10px] uppercase text-gray-400 font-black">Get it on</p><p class="text-lg font-black tracking-tight">Play Store</p></div>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

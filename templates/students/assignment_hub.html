@@ -1,0 +1,298 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Assignment Hub - SRCEM ERP{% endblock %}
+
+{# ── Suppress public-facing blocks ── #}
+{% block ticker %}{% endblock %}
+{% block navbar %}{% endblock %}
+{% block floating_contact %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .custom-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    .custom-card:hover { transform: translateY(-4px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
+    
+    .tab-btn { 
+        padding-left: 1.5rem; padding-right: 1.5rem; padding-top: 0.5rem; padding-bottom: 0.5rem;
+        border-radius: 0.75rem; font-size: 11px; font-weight: 900; 
+        text-transform: uppercase; letter-spacing: 0.1em; transition: all 0.3s;
+        white-space: nowrap;
+    }
+    .tab-active { 
+        background-color: #6366f1; /* primary color */
+        color: white; 
+        box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.3);
+    }
+    .tab-inactive { 
+        color: #6b7280;
+        transition: all 0.3s;
+    }
+    .dark .tab-inactive { color: #9ca3af; }
+    .tab-inactive:hover { background-color: rgba(0,0,0,0.05); }
+    .dark .tab-inactive:hover { background-color: rgba(255,255,255,0.05); }
+
+    @keyframes slideIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+    .animate-pop { animation: slideIn 0.2s ease-out forwards; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="flex-1 flex flex-col min-w-0 bg-gray-50 dark:bg-darkBg transition-all duration-300 h-full overflow-hidden">
+    
+    <!-- Dashboard Header -->
+    {% include 'base/header_dashboard.html' %}
+
+    <div class="flex-1 overflow-y-auto p-4 sm:p-8 no-scrollbar bg-gray-50 dark:bg-darkBg transition-colors">
+        <div class="max-w-7xl mx-auto space-y-8 pb-10">
+
+            <!-- Analytical Summary Grid -->
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+                <!-- Pending -->
+                <div class="bg-white dark:bg-darkSurface p-5 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm flex items-center justify-between group custom-card border-b-4 border-b-primary cursor-pointer" onclick="filterByTab('pending')">
+                    <div>
+                        <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Pending Tasks</p>
+                        <h3 class="text-2xl font-black text-gray-900 dark:text-white">{{ pending_count|default:"0" }}</h3>
+                        <p class="text-[9px] text-secondary font-bold mt-1 uppercase">Action Required</p>
+                    </div>
+                    <div class="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-900/20 text-primary flex items-center justify-center text-xl group-hover:scale-110 transition-transform"><i class="fa-solid fa-clock-rotate-left"></i></div>
+                </div>
+                <!-- Submitted -->
+                <div class="bg-white dark:bg-darkSurface p-5 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm flex items-center justify-between group custom-card border-b-4 border-b-success cursor-pointer" onclick="filterByTab('submitted')">
+                    <div>
+                        <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Submitted</p>
+                        <h3 class="text-2xl font-black text-success">{{ submitted_count|default:"0" }}</h3>
+                        <p class="text-[9px] text-gray-500 font-bold mt-1 uppercase">Awaiting Review</p>
+                    </div>
+                    <div class="w-12 h-12 rounded-2xl bg-green-50 dark:bg-green-900/20 text-success flex items-center justify-center text-xl group-hover:scale-110 transition-transform"><i class="fa-solid fa-check-double"></i></div>
+                </div>
+                <!-- Grades (Mock for design) -->
+                <div class="bg-white dark:bg-darkSurface p-5 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm flex items-center justify-between group custom-card border-b-4 border-b-indigo-500 cursor-pointer" onclick="filterByTab('graded')">
+                    <div>
+                        <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Graded Tasks</p>
+                        <h3 class="text-2xl font-black text-gray-900 dark:text-white">{{ graded_count|default:"0" }}</h3>
+                        <p class="text-[9px] text-primary dark:text-blue-400 font-bold mt-1 uppercase">Performance Tracked</p>
+                    </div>
+                    <div class="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-900/20 text-indigo-500 flex items-center justify-center text-xl group-hover:scale-110 transition-transform"><i class="fa-solid fa-award"></i></div>
+                </div>
+                <!-- Total -->
+                <div class="bg-white dark:bg-darkSurface p-5 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm flex items-center justify-between group custom-card border-b-4 border-b-gray-400">
+                    <div>
+                        <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Total Assignments</p>
+                        <h3 class="text-2xl font-black text-gray-900 dark:text-white">{{ total_assignments|default:"0" }}</h3>
+                        <p class="text-[9px] text-gray-500 font-bold mt-1 uppercase">Curriculum Load</p>
+                    </div>
+                    <div class="w-12 h-12 rounded-2xl bg-gray-50 dark:bg-gray-800 text-gray-400 flex items-center justify-center text-xl group-hover:scale-110 transition-transform"><i class="fa-solid fa-layer-group"></i></div>
+                </div>
+            </div>
+
+            <!-- Control Bar: Tabs, Search & Filters -->
+            <div class="flex flex-col xl:flex-row gap-6 items-stretch xl:items-center justify-between">
+                <div class="bg-white dark:bg-darkSurface p-1.5 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm flex gap-1 overflow-x-auto no-scrollbar">
+                    <button class="tab-btn tab-active" data-filter="all" onclick="switchTaskTab('all', this)">All Assignments</button>
+                    <button class="tab-btn tab-inactive" data-filter="pending" onclick="switchTaskTab('pending', this)">Pending ({{ pending_count|default:"0" }})</button>
+                    <button class="tab-btn tab-inactive" data-filter="submitted" onclick="switchTaskTab('submitted', this)">Submitted</button>
+                    <button class="tab-btn tab-inactive" data-filter="graded" onclick="switchTaskTab('graded', this)">Graded</button>
+                </div>
+
+                <div class="flex flex-col sm:flex-row gap-4 items-center flex-1 max-w-2xl">
+                    <div class="relative flex-1 group w-full">
+                        <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+                        <input type="text" id="assignmentSearch" onkeyup="searchAssignments()" class="w-full pl-10 pr-4 py-3 bg-white dark:bg-darkSurface border border-gray-100 dark:border-gray-800 rounded-2xl text-xs font-bold focus:outline-none focus:border-primary transition-all shadow-sm" placeholder="Search by topic or subject code...">
+                    </div>
+                    <select id="subjectFilter" onchange="searchAssignments()" class="px-6 py-3 bg-white dark:bg-darkSurface border border-gray-100 dark:border-gray-800 rounded-2xl text-[11px] font-black uppercase tracking-widest outline-none cursor-pointer hover:border-primary transition-colors w-full sm:w-auto">
+                        <option value="">All Subjects</option>
+                        {% for sub in curriculum_subjects %}
+                        <option value="{{ sub.subject_code }}">{{ sub.subject_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <!-- ASSIGNMENTS GRID -->
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8" id="assignmentGrid">
+                {% for assignment in object_list %}
+                <div class="assignment-card custom-card bg-white dark:bg-darkSurface rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden flex flex-col" 
+                     data-status="{% if assignment.student_submission %}{{ assignment.student_submission.status }}{% else %}pending{% endif %}"
+                     data-subject="{{ assignment.subject.subject_code }}">
+                    <div class="p-6 flex-1 space-y-5">
+                        <div class="flex justify-between items-start">
+                            {% if assignment.student_submission %}
+                                {% if assignment.student_submission.status == 'graded' %}
+                                <div class="px-2.5 py-1 bg-green-50 dark:bg-green-950 text-success border border-green-100 dark:border-green-900 rounded-lg text-[9px] font-black uppercase tracking-widest">
+                                    Graded
+                                </div>
+                                <span class="text-xl font-black text-primary dark:text-blue-400">{{ assignment.student_submission.points_obtained|default:"0" }} <span class="text-xs text-gray-400">/ {{ assignment.max_points }}</span></span>
+                                {% else %}
+                                <div class="px-2.5 py-1 bg-blue-50 dark:bg-blue-900/30 text-primary dark:text-blue-400 border border-blue-100 dark:border-blue-800 rounded-lg text-[9px] font-black uppercase tracking-widest">
+                                    Submitted
+                                </div>
+                                <span class="text-[10px] font-bold text-gray-400 uppercase">{{ assignment.max_points }} Points</span>
+                                {% endif %}
+                            {% else %}
+                                <div class="px-2.5 py-1 bg-red-50 dark:bg-red-950 text-secondary border border-red-100 dark:border-red-900 rounded-lg text-[9px] font-black uppercase tracking-widest">
+                                    Due: {{ assignment.due_date|date:"d M" }}
+                                </div>
+                                <span class="text-[10px] font-bold text-gray-400 uppercase">{{ assignment.max_points }} Points</span>
+                            {% endif %}
+                        </div>
+
+                        <div>
+                            <h4 class="text-[10px] font-black text-primary dark:text-blue-400 uppercase tracking-[0.2em] mb-1.5">{{ assignment.subject.subject_name }} ({{ assignment.subject.subject_code }})</h4>
+                            <h3 class="text-lg font-black text-gray-900 dark:text-white leading-snug">{{ assignment.title }}</h3>
+                        </div>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 line-clamp-3 leading-relaxed">{{ assignment.description }}</p>
+                        
+                        {% if assignment.student_submission and assignment.student_submission.status == 'graded' %}
+                        <div class="bg-indigo-50/50 dark:bg-indigo-900/10 p-4 rounded-xl border border-indigo-100 dark:border-indigo-800/40 relative">
+                            <p class="text-[10px] font-black text-indigo-500 uppercase mb-2 tracking-widest">Professor Remarks:</p>
+                            <p class="text-xs text-gray-600 dark:text-gray-300 italic font-medium">"{{ assignment.student_submission.remarks|default:"Good work!" }}"</p>
+                            <i class="fa-solid fa-quote-right absolute bottom-2 right-4 text-2xl opacity-10 text-indigo-500"></i>
+                        </div>
+                        {% endif %}
+
+                        <div class="flex items-center gap-3 pt-2">
+                            <div class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-[10px] font-bold">
+                                {{ assignment.faculty.user.first_name|first }}{{ assignment.faculty.user.last_name|first }}
+                            </div>
+                            <div>
+                                <p class="text-[10px] font-black text-gray-700 dark:text-gray-300 uppercase leading-none">{{ assignment.faculty.user.get_full_name }}</p>
+                                <p class="text-[9px] text-gray-400 font-bold uppercase mt-1">Faculty Guide</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-4 bg-gray-50 dark:bg-gray-900/50 border-t border-gray-100 dark:border-gray-800 flex gap-3">
+                        {% if assignment.attachment %}
+                        <a href="{{ assignment.attachment.url }}" target="_blank" class="flex-1 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-gray-100 transition-all text-center flex items-center justify-center">
+                            <i class="fa-solid fa-download mr-1.5"></i> Task File
+                        </a>
+                        {% endif %}
+
+                        {% if not assignment.student_submission %}
+                        <button onclick="toggleSubmitModal('{{ assignment.id }}', '{{ assignment.title }}', '{{ assignment.subject.subject_code }}')" class="flex-[2] py-3 bg-primary hover:bg-primaryDark text-white text-[10px] font-black uppercase tracking-widest rounded-xl shadow-lg shadow-primary/20 transition-all">Submit Assignment</button>
+                        {% else %}
+                        <div class="flex-[2] py-3 bg-gray-100 dark:bg-gray-800 text-success text-[10px] font-black uppercase tracking-widest rounded-xl text-center flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-check-circle"></i> Already Submitted
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-span-full py-20 flex flex-col items-center justify-center text-center">
+                    <div class="w-24 h-24 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-6">
+                        <i class="fa-solid fa-folder-open text-4xl text-gray-300"></i>
+                    </div>
+                    <h3 class="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight">No Assignments Found</h3>
+                    <p class="text-sm text-gray-500 mt-2">Check back later or try adjusting your filters.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- SUBMISSION MODAL -->
+    <div id="submitModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm hidden">
+        <div class="bg-white dark:bg-darkSurface w-full max-w-xl rounded-3xl shadow-2xl border border-gray-100 dark:border-gray-800 overflow-hidden animate-pop">
+            <form id="submissionForm" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="p-6 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-gray-50 dark:bg-gray-900/50">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-primary text-white flex items-center justify-center text-sm"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+                        <div>
+                            <h3 class="font-black text-gray-900 dark:text-white uppercase tracking-tight" id="modalTitle">Upload Assignment</h3>
+                            <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest" id="modalSubject">Subject Placeholder</p>
+                        </div>
+                    </div>
+                    <button type="button" onclick="toggleSubmitModal()" class="w-10 h-10 flex items-center justify-center text-gray-400 hover:text-secondary hover:bg-red-50 dark:hover:bg-red-900/20 rounded-full transition-all"><i class="fa-solid fa-xmark text-xl"></i></button>
+                </div>
+
+                <div class="p-8 space-y-8">
+                    <!-- Dropzone -->
+                    <div class="border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-3xl p-10 flex flex-col items-center justify-center text-center bg-gray-50 dark:bg-gray-900/50 group hover:border-primary transition-all cursor-pointer relative overflow-hidden">
+                        <div class="absolute inset-0 bg-primary opacity-0 group-hover:opacity-[0.03] transition-opacity"></div>
+                        <i class="fa-solid fa-file-pdf text-5xl text-gray-300 group-hover:text-primary transition-colors mb-4"></i>
+                        <h4 class="font-bold text-gray-900 dark:text-white mb-1" id="fileNameDisplay">Click to select files</h4>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 font-medium">Drag and drop your ZIP or PDF file here.<br>Max file size: 25MB.</p>
+                        <input type="file" name="file" required class="absolute inset-0 opacity-0 cursor-pointer" onchange="updateFileName(this)">
+                    </div>
+
+                    <div class="flex gap-4">
+                        <button type="button" onclick="toggleSubmitModal()" class="flex-1 py-4 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-[10px] font-black uppercase tracking-widest rounded-2xl hover:bg-gray-200 transition-all">Cancel</button>
+                        <button type="submit" class="flex-[2] py-4 bg-primary hover:bg-primaryDark text-white text-[10px] font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-primary/20 transition-all active:scale-95">Complete Submission</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // --- Modal Logic ---
+    function toggleSubmitModal(assignmentId = null, title = '', subjectCode = '') {
+        const modal = document.getElementById('submitModal');
+        const form = document.getElementById('submissionForm');
+        
+        if (assignmentId) {
+            form.action = `/students/assignment-submit/${assignmentId}/`;
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('modalSubject').innerText = subjectCode;
+            modal.classList.remove('hidden');
+        } else {
+            modal.classList.add('hidden');
+        }
+    }
+
+    function updateFileName(input) {
+        const display = document.getElementById('fileNameDisplay');
+        if (input.files && input.files[0]) {
+            display.innerText = input.files[0].name;
+            display.classList.add('text-primary');
+        }
+    }
+
+    // --- Tab Filtering Logic ---
+    function switchTaskTab(status, btn) {
+        // Update UI buttons
+        document.querySelectorAll('.tab-btn').forEach(b => {
+            b.classList.remove('tab-active');
+            b.classList.add('tab-inactive');
+        });
+        btn.classList.add('tab-active');
+        btn.classList.remove('tab-inactive');
+
+        searchAssignments(); // Trigger update with existing search/subject filters
+    }
+
+    // --- Unified Search and Filter Logic ---
+    function searchAssignments() {
+        const searchQuery = document.getElementById('assignmentSearch').value.toLowerCase();
+        const subjectQuery = document.getElementById('subjectFilter').value;
+        const activeTab = document.querySelector('.tab-btn.tab-active').getAttribute('data-filter');
+        const cards = document.querySelectorAll('.assignment-card');
+
+        cards.forEach(card => {
+            const title = card.querySelector('h3').innerText.toLowerCase();
+            const subject = card.getAttribute('data-subject');
+            const status = card.getAttribute('data-status');
+
+            const matchesSearch = title.includes(searchQuery);
+            const matchesSubject = !subjectQuery || subject === subjectQuery;
+            const matchesStatus = activeTab === 'all' || status === activeTab;
+
+            if (matchesSearch && matchesSubject && matchesStatus) {
+                card.style.display = 'flex';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
+
+    function filterByTab(status) {
+        const btn = document.querySelector(`.tab-btn[data-filter="${status}"]`);
+        if (btn) switchTaskTab(status, btn);
+    }
+</script>
+{% endblock %}

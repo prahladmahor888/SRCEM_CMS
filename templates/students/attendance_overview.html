@@ -1,0 +1,204 @@
+{% extends 'base/dashboard_base.html' %}
+
+{% block title %}Attendance Overview - {{ user.get_full_name }}{% endblock %}
+
+{% block dashboard_content %}
+<!-- Main Attendance Module Container -->
+<div class="space-y-6">
+
+    <!-- Page Intro -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+            <h2 class="text-2xl font-extrabold text-gray-900 dark:text-white">Attendance Overview</h2>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Track your daily class presence and subject-wise metrics.</p>
+        </div>
+        <div>
+            <button onclick="window.print()" class="bg-white dark:bg-darkSurface text-primary dark:text-blue-400 font-bold text-sm px-4 py-2 rounded-xl border border-gray-200 dark:border-darkBorder shadow-sm hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors flex items-center gap-2">
+                <i class="fa-solid fa-print"></i> Print Report
+            </button>
+        </div>
+    </div>
+
+    <!-- Quick Stats Grid (4 Columns) -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        
+        <!-- Stat 1: Overall Percentage -->
+        <div class="bg-white dark:bg-darkSurface p-4 sm:p-5 rounded-2xl shadow-sm border border-gray-200 dark:border-darkBorder">
+            <div class="flex items-center gap-3 mb-2">
+                <div class="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-primary dark:text-blue-400 flex items-center justify-center text-sm border border-blue-100 dark:border-blue-800/30">
+                    <i class="fa-solid fa-percent"></i>
+                </div>
+                <p class="text-xs sm:text-sm font-semibold text-gray-500 dark:text-gray-400">Overall Attendance</p>
+            </div>
+            <h3 class="text-2xl sm:text-3xl font-extrabold {% if percentage >= 75 %}text-success{% else %}text-secondary{% endif %}">{{ percentage }}%</h3>
+        </div>
+
+        <!-- Stat 2: Total Classes Held -->
+        <div class="bg-white dark:bg-darkSurface p-4 sm:p-5 rounded-2xl shadow-sm border border-gray-200 dark:border-darkBorder">
+            <div class="flex items-center gap-3 mb-2">
+                <div class="w-8 h-8 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-400 flex items-center justify-center text-sm border border-gray-200 dark:border-gray-700">
+                    <i class="fa-solid fa-chalkboard"></i>
+                </div>
+                <p class="text-xs sm:text-sm font-semibold text-gray-500 dark:text-gray-400">Total Classes Held</p>
+            </div>
+            <h3 class="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white">{{ total_held }}</h3>
+        </div>
+
+        <!-- Stat 3: Total Attended -->
+        <div class="bg-white dark:bg-darkSurface p-4 sm:p-5 rounded-2xl shadow-sm border border-gray-200 dark:border-darkBorder">
+            <div class="flex items-center gap-3 mb-2">
+                <div class="w-8 h-8 rounded-lg bg-green-50 dark:bg-green-900/20 text-success flex items-center justify-center text-sm border border-green-100 dark:border-green-800/30">
+                    <i class="fa-solid fa-user-check"></i>
+                </div>
+                <p class="text-xs sm:text-sm font-semibold text-gray-500 dark:text-gray-400">Classes Attended</p>
+            </div>
+            <h3 class="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white">{{ attended }}</h3>
+        </div>
+
+        <!-- Stat 4: Total Absent -->
+        <div class="bg-white dark:bg-darkSurface p-4 sm:p-5 rounded-2xl shadow-sm border border-gray-200 dark:border-darkBorder">
+            <div class="flex items-center gap-3 mb-2">
+                <div class="w-8 h-8 rounded-lg bg-red-50 dark:bg-red-900/20 text-secondary flex items-center justify-center text-sm border border-red-100 dark:border-red-800/30">
+                    <i class="fa-solid fa-user-xmark"></i>
+                </div>
+                <p class="text-xs sm:text-sm font-semibold text-gray-500 dark:text-gray-400">Classes Missed</p>
+            </div>
+            <h3 class="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white">{{ absent }}</h3>
+        </div>
+
+    </div>
+
+    <!-- Subject-wise Summary Table -->
+    <div class="bg-white dark:bg-darkSurface rounded-2xl shadow-sm border border-gray-200 dark:border-darkBorder overflow-hidden">
+        <div class="p-4 sm:p-5 border-b border-gray-200 dark:border-darkBorder bg-gray-50/30 dark:bg-gray-900/20">
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                <i class="fa-solid fa-chart-pie text-primary dark:text-blue-400"></i> Subject-wise Summary
+            </h3>
+        </div>
+        <div class="p-0 overflow-x-auto custom-scrollbar">
+            <table class="w-full text-left border-collapse min-w-[600px]">
+                <thead>
+                    <tr class="bg-gray-50 dark:bg-gray-900/50 text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-darkBorder">
+                        <th class="p-4 font-semibold">Subject Code & Name</th>
+                        <th class="p-4 font-semibold text-center">Classes Held</th>
+                        <th class="p-4 font-semibold text-center">Attended</th>
+                        <th class="p-4 font-semibold text-center">Absent</th>
+                        <th class="p-4 font-semibold min-w-[150px]">Attendance %</th>
+                    </tr>
+                </thead>
+                <tbody class="text-sm divide-y divide-gray-100 dark:divide-gray-800">
+                    {% for item in subject_summary %}
+                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                        <td class="p-4">
+                            <span class="font-bold text-gray-900 dark:text-white block">{{ item.allotment__subject__subject_name }}</span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400">{{ item.allotment__subject__subject_code }}</span>
+                        </td>
+                        <td class="p-4 text-center font-medium text-gray-600 dark:text-gray-300">{{ item.held }}</td>
+                        <td class="p-4 text-center font-bold text-success">{{ item.attended }}</td>
+                        <td class="p-4 text-center font-medium text-secondary">{{ item.absent }}</td>
+                        <td class="p-4">
+                            <div class="flex items-center justify-between mb-1">
+                                <span class="text-xs font-bold {% if item.percentage >= 75 %}text-success{% else %}text-secondary{% endif %}">{{ item.percentage|stringformat:".1f" }}%</span>
+                            </div>
+                            <div class="w-full bg-gray-200 dark:bg-gray-800 rounded-full h-1.5 border border-gray-300 dark:border-gray-700">
+                                <div class="{% if item.percentage >= 75 %}bg-success{% else %}bg-secondary{% endif %} h-1.5 rounded-full" style="width: {{ item.percentage }}%"></div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="p-10 text-center text-gray-400 italic font-medium">No attendance records found yet.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Monthly Calendar View Table (Subject by Date) -->
+    <div class="bg-white dark:bg-darkSurface rounded-2xl shadow-sm border border-gray-200 dark:border-darkBorder overflow-hidden">
+        
+        <!-- Table Header & Month Picker -->
+        <div class="p-4 sm:p-5 border-b border-gray-200 dark:border-darkBorder flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-gray-50/30 dark:bg-gray-900/20">
+            <div>
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                    <i class="fa-regular fa-calendar-grid-w text-primary dark:text-blue-400"></i> Monthly Attendance Grid
+                </h3>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Calendar view to track daily presence for each subject.</p>
+            </div>
+            
+            <!-- Month Filter -->
+            <form method="GET" class="flex items-center gap-2">
+                <span class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase">Month:</span>
+                <input type="month" name="month" onchange="this.form.submit()" class="text-sm font-bold border border-gray-300 dark:border-darkBorder rounded-xl px-3 py-1.5 bg-gray-50 dark:bg-gray-800 text-primary dark:text-blue-400 focus:outline-none focus:border-primary transition-colors cursor-pointer shadow-sm" value="{{ selected_month }}">
+            </form>
+        </div>
+
+        <!-- Status Legend -->
+        <div class="px-4 py-3 bg-gray-50/50 dark:bg-gray-900/30 border-b border-gray-200 dark:border-darkBorder flex flex-wrap gap-5 text-xs font-bold">
+            <span class="flex items-center gap-1.5"><span class="w-5 h-5 flex items-center justify-center bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-md border border-green-200 dark:border-green-800/50">P</span> Present</span>
+            <span class="flex items-center gap-1.5"><span class="w-5 h-5 flex items-center justify-center bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded-md border border-red-200 dark:border-red-800/50">A</span> Absent</span>
+            <span class="flex items-center gap-1.5"><span class="w-5 h-5 flex items-center justify-center bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 rounded-md border border-purple-200 dark:border-purple-800/50">L</span> Leave</span>
+            <span class="flex items-center gap-1.5"><span class="w-5 h-5 flex items-center justify-center bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 rounded-md border border-gray-200 dark:border-gray-700">-</span> No Class</span>
+        </div>
+
+        <!-- Matrix Table -->
+        <div class="p-0 overflow-x-auto pb-2 custom-scrollbar">
+            <table class="w-full text-left border-collapse min-w-max">
+                <thead>
+                    <tr class="bg-gray-50 dark:bg-gray-900/80 text-[10px] sm:text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-darkBorder">
+                        <!-- Sticky Column for Subject Name -->
+                        <th class="p-3 font-bold sticky left-0 z-10 bg-gray-50 dark:bg-darkSidebar shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] dark:shadow-[2px_0_8px_-2px_rgba(0,0,0,0.6)] w-40 max-w-[180px]">Subject</th>
+                        
+                        {% for day in days_list %}
+                        <th class="p-2 font-bold text-center border-l border-gray-200 dark:border-darkBorder w-10 {% if day.is_sunday %}text-secondary{% endif %} {% if day.is_today %}bg-blue-50/50 dark:bg-blue-900/20{% endif %}">
+                            {{ day.day }}<br>
+                            <span class="text-[8px] font-normal leading-none block mt-0.5 {% if day.is_today %}text-primary dark:text-blue-400 font-bold{% endif %}">{{ day.name }}</span>
+                        </th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody class="text-sm divide-y divide-gray-100 dark:divide-gray-800">
+                    
+                    {% for row in matrix_data %}
+                    <tr class="hover:bg-gray-50 dark:hover:bg-primary/5 transition-colors group">
+                        <td class="p-3 text-[11px] sm:text-xs font-bold text-gray-900 dark:text-white sticky left-0 z-10 bg-white dark:bg-darkSurface shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] dark:shadow-[2px_0_8px_-2px_rgba(0,0,0,0.6)] group-hover:bg-gray-50 dark:group-hover:bg-gray-800 whitespace-normal border-r border-gray-100 dark:border-darkBorder/50">
+                            {{ row.subject.subject_name }}
+                        </td>
+                        
+                        {% for status in row.statuses %}
+                        <td class="p-1 border-l border-gray-100 dark:border-darkBorder/30 min-w-[40px]">
+                            {% if status == 'P' %}
+                                <span class="flex w-6 h-6 items-center justify-center mx-auto bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400 font-bold rounded-md text-[10px] border border-green-200 dark:border-green-800/30">P</span>
+                            {% elif status == 'A' %}
+                                <span class="flex w-6 h-6 items-center justify-center mx-auto bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-400 font-bold rounded-md text-[10px] border border-red-200 dark:border-red-800/30">A</span>
+                            {% elif status == 'L' %}
+                                <span class="flex w-6 h-6 items-center justify-center mx-auto bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-400 font-bold rounded-md text-[10px] border border-purple-200 dark:border-purple-800/30">L</span>
+                            {% else %}
+                                <span class="flex w-6 h-6 items-center justify-center mx-auto text-gray-300 dark:text-gray-600 font-bold text-[10px]">-</span>
+                            {% endif %}
+                        </td>
+                        {% endfor %}
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="{{ days_list|length|add:1 }}" class="p-10 text-center text-gray-400 italic font-medium">No subjects found for current curriculum.</td>
+                    </tr>
+                    {% endfor %}
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<style>
+    /* Custom scrollbar for horizontal scrolling in the matrix */
+    .custom-scrollbar::-webkit-scrollbar { height: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    .dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+</style>
+{% endblock %}
