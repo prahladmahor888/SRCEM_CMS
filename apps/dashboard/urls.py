@@ -78,6 +78,11 @@ urlpatterns = [
     path('user-groups/<int:pk>/', account_views.GroupDetailView.as_view(), name='group_detail'),
     path('user-groups/<int:pk>/edit/', account_views.GroupUpdateView.as_view(), name='group_edit'),
 
+    # Security Monitoring
+    path('security-logs/', account_views.SecurityLogListView.as_view(), name='security_log_list'),
+    path('security-logs/<int:pk>/', account_views.SecurityLogDetailView.as_view(), name='security_log_detail'),
+
+
     # 📤 BULK DATA TOOLS
     path('bulk-import/', views.BulkImportView.as_view(), name='bulk_import'),
     path('toggle-bulk-porter/', views.toggle_bulk_porter, name='toggle_bulk_porter'),

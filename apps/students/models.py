@@ -40,9 +40,18 @@ class Student(models.Model):
     section = models.CharField(max_length=10, default='A', null=True, blank=True)
     admission_date = models.DateField(null=True, blank=True)
     batch_year = models.IntegerField(null=True, blank=True) # YEAR type in MySQL
+    FEE_CATEGORY_CHOICES = [
+        ('fees_base', 'Regular Fee Based'),
+        ('scholarship_base', 'Scholarship Based'),
+        ('tfw', 'Tuition Fee Waiver (TFW)'),
+        ('management_quota', 'Management Quota'),
+    ]
+
     cgpa = models.DecimalField(max_digits=4, decimal_places=2, default=0.00, null=True, blank=True)
     admission_semester_fee = models.DecimalField(max_digits=10, decimal_places=2, default=75000.00, help_text="Agreed semester fee package at admission")
     one_time_admission_fee = models.DecimalField(max_digits=10, decimal_places=2, default=5000.00, help_text="One-time charges at the time of admission")
+    fee_category = models.CharField(max_length=50, choices=FEE_CATEGORY_CHOICES, default='fees_base', help_text="Fee base/scholarship base quota type")
+    referred_by = models.CharField(max_length=150, null=True, blank=True, help_text="Who referenced the student admission")
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='active')
     
     # Mentorship

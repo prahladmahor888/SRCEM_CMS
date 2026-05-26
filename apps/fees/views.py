@@ -214,3 +214,61 @@ class AccountantLedgerView(RolePermissionMixin, View):
         }
         return render(request, self.template_name, context)
 
+
+class FeeStructureView(RolePermissionMixin, View):
+    template_name = 'fees/fee_structure.html'
+
+    def test_func(self):
+        return self.request.user.is_authenticated
+
+    def get(self, request, *args, **kwargs):
+        from apps.core.models import Branch
+        
+        branches = Branch.objects.select_related('program__dept').all().order_by('program__program_name', 'branch_name')
+        
+        structures = []
+        for b in branches:
+            prog_code = (b.program.program_code or '').upper() if b.program else ''
+            
+            # Map standard fees based on program code
+            if 'B.TECH' in prog_code or 'B.E.' in prog_code:
+                sem_fee = 75000.00
+                one_time = 5000.00
+            elif 'M.TECH' in prog_code or 'M.E.' in prog_code:
+                sem_fee = 60000.00
+                one_time = 5000.00
+            elif 'MBA' in prog_code:
+                sem_fee = 65000.00
+                one_time = 5000.00
+            elif 'BCA' in prog_code or 'BBA' in prog_code:
+                sem_fee = 45000.00
+                one_time = 4000.00
+            elif 'DIPLOMA' in prog_code or 'POLY' in prog_code:
+                sem_fee = 30000.00
+                one_time = 3000.00
+            else:
+                sem_fee = 50000.00
+                one_time = 4000.00
+                
+            total_semesters = b.duration_years * 2
+            total_fee = (sem_fee * total_semesters) + one_time
+            
+            structures.append({
+                'id': b.id,
+                'program': b.program.program_name if b.program else 'N/A',
+                'program_code': prog_code,
+                'branch_name': b.branch_name,
+                'branch_code': b.branch_code or 'N/A',
+                'duration': f"{b.duration_years} Years ({total_semesters} Semesters)",
+                'semester_fee': sem_fee,
+                'one_time_fee': one_time,
+                'total_fee': total_fee
+            })
+            
+        context = {
+            'fee_structures': structures,
+            'module_name': "Fee Registry",
+        }
+        return render(request, self.template_name, context)
+
+

@@ -393,3 +393,32 @@ class StaffProfile(models.Model):
 
     def __str__(self):
         return f"Staff: {self.user.login_id}"
+
+
+class SecurityLog(models.Model):
+    EVENT_CHOICES = [
+        ('LOGIN_SUCCESS', 'Successful Login'),
+        ('LOGIN_FAILED', 'Failed Login'),
+        ('LOGOUT', 'User Logout'),
+        ('PASSWORD_CHANGE', 'Password Change'),
+        ('UNAUTHORIZED_ACCESS', 'Unauthorized Access'),
+        ('ERROR', 'System Error / Exception'),
+        ('SUSPICIOUS', 'Suspicious Activity'),
+    ]
+
+    event_type = models.CharField(max_length=50, choices=EVENT_CHOICES)
+    login_id = models.CharField(max_length=100, null=True, blank=True)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='security_logs')
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    user_agent = models.TextField(null=True, blank=True)
+    path = models.CharField(max_length=255, null=True, blank=True)
+    details = models.TextField(null=True, blank=True)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'security_logs'
+        ordering = ['-timestamp']
+
+    def __str__(self):
+        return f"{self.event_type} - {self.login_id or 'Unknown'} ({self.ip_address}) at {self.timestamp}"
+

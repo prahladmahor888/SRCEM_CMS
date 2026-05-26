@@ -1,0 +1,174 @@
+{% extends 'base/base.html' %}
+{% load erp_tags %}
+
+{% block title %}Fee Structure - SRCEM ERP{% endblock %}
+
+{# ── Suppress public-facing blocks ── #}
+{% block ticker %}{% endblock %}
+{% block navbar %}{% endblock %}
+{% block floating_contact %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    body { overflow: hidden !important; }
+
+    .table-container { 
+        overflow-x: auto; 
+        -webkit-overflow-scrolling: touch; 
+    }
+    .table-container::-webkit-scrollbar { height: 6px; }
+    .table-container::-webkit-scrollbar-track { background: transparent; }
+    .table-container::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    .dark .table-container::-webkit-scrollbar-thumb { background: #475569; }
+
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="flex-1 flex flex-col min-w-0 bg-gray-50 dark:bg-darkBg transition-all duration-300 h-full overflow-hidden">
+    
+    <!-- Dashboard Header -->
+    {% include 'base/header_dashboard.html' %}
+
+    <!-- Scrollable Body -->
+    <div class="flex-1 overflow-y-auto p-4 sm:p-8 no-scrollbar pb-24">
+        <div class="max-w-full mx-auto space-y-6">
+
+            <!-- Stats / Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="bg-white dark:bg-darkSurface p-5 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center text-xl shrink-0">
+                        <i class="fa-solid fa-graduation-cap"></i>
+                    </div>
+                    <div>
+                        <span class="block text-[9px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest leading-none mb-1.5">Courses Offered</span>
+                        <span class="text-2xl font-black text-gray-900 dark:text-white leading-none">{{ fee_structures|length }}</span>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-darkSurface p-5 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center text-xl shrink-0">
+                        <i class="fa-solid fa-wallet"></i>
+                    </div>
+                    <div>
+                        <span class="block text-[9px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest leading-none mb-1.5">Average Semester Fee</span>
+                        <span class="text-2xl font-black text-gray-900 dark:text-white leading-none">₹53,000</span>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-darkSurface p-5 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center text-xl shrink-0">
+                        <i class="fa-solid fa-file-invoice-dollar"></i>
+                    </div>
+                    <div>
+                        <span class="block text-[9px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest leading-none mb-1.5">Min One-Time Fee</span>
+                        <span class="text-2xl font-black text-gray-900 dark:text-white leading-none">₹3,000</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action / Search Bar -->
+            <div class="bg-white dark:bg-darkSurface p-4 sm:p-5 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
+                <div class="relative flex-1 max-w-xl group">
+                    <i class="fa-solid fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors"></i>
+                    <input type="text" id="structureSearch" onkeyup="filterStructureTable()"
+                        class="w-full pl-12 pr-4 py-2.5 bg-gray-50 dark:bg-darkBg border border-gray-200 dark:border-gray-800 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary dark:text-gray-100 placeholder:text-gray-400 transition-all"
+                        placeholder="Search program or branch name...">
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-[9px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Pricing Policy: Standard Base</span>
+                </div>
+            </div>
+
+            <!-- Main Table Card -->
+            <div class="bg-white dark:bg-darkSurface rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden flex flex-col">
+                <div class="p-4 sm:p-5 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/50 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <i class="fa-solid fa-file-invoice-dollar text-primary dark:text-blue-400"></i>
+                        <h3 class="font-black text-[11px] uppercase tracking-[0.2em] text-gray-900 dark:text-white">Fee Structure Matrix</h3>
+                    </div>
+                    <span class="px-3 py-1 bg-primary/10 text-primary rounded-full text-[9px] font-black uppercase tracking-widest">
+                        Academic Session 2026-2027
+                    </span>
+                </div>
+
+                <div class="table-container flex-1">
+                    <table class="w-full text-left border-collapse" id="feeTable">
+                        <thead>
+                            <tr class="border-b border-gray-100 dark:border-gray-800 text-[9px] font-black uppercase tracking-widest text-gray-400 dark:text-gray-500 bg-gray-50/20 dark:bg-gray-900/20">
+                                <th class="px-6 py-4">Program</th>
+                                <th class="px-6 py-4">Branch Details</th>
+                                <th class="px-6 py-4 text-center">Duration</th>
+                                <th class="px-6 py-4 text-right">Standard Semester Fee</th>
+                                <th class="px-6 py-4 text-right">One-Time Admission Fee</th>
+                                <th class="px-6 py-4 text-right">Total Program Fee</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+                            {% for f in fee_structures %}
+                                <tr class="fee-row hover:bg-gray-50/50 dark:hover:bg-gray-900/20 transition-colors text-sm font-bold text-gray-700 dark:text-gray-300">
+                                    <!-- Program -->
+                                    <td class="px-6 py-4">
+                                        <div class="flex items-center gap-2">
+                                            <span class="px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded-lg text-[9px] font-black uppercase tracking-wider">{{ f.program_code }}</span>
+                                            <span class="text-gray-900 dark:text-white font-semibold text-xs">{{ f.program }}</span>
+                                        </div>
+                                    </td>
+                                    <!-- Branch -->
+                                    <td class="px-6 py-4">
+                                        <div>
+                                            <span class="block text-gray-800 dark:text-gray-200 leading-none mb-1 font-bold text-xs">{{ f.branch_name }}</span>
+                                            <span class="block text-[9px] text-gray-400 dark:text-gray-500 uppercase tracking-widest font-semibold">Code: {{ f.branch_code }}</span>
+                                        </div>
+                                    </td>
+                                    <!-- Duration -->
+                                    <td class="px-6 py-4 text-center text-xs text-gray-600 dark:text-gray-400">{{ f.duration }}</td>
+                                    <!-- Semester Fee -->
+                                    <td class="px-6 py-4 text-right font-black text-gray-900 dark:text-white">₹{{ f.semester_fee|floatformat:2 }}</td>
+                                    <!-- One Time Fee -->
+                                    <td class="px-6 py-4 text-right font-black text-gray-600 dark:text-gray-400">₹{{ f.one_time_fee|floatformat:2 }}</td>
+                                    <!-- Total Fee -->
+                                    <td class="px-6 py-4 text-right font-black text-primary dark:text-blue-400">₹{{ f.total_fee|floatformat:2 }}</td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="6" class="px-6 py-12 text-center text-gray-400 dark:text-gray-500">
+                                        <div class="flex flex-col items-center justify-center gap-3">
+                                            <i class="fa-solid fa-building-circle-exclamation text-4xl text-gray-300 dark:text-gray-700"></i>
+                                            <p class="font-black text-sm uppercase tracking-widest">No Branches Registered</p>
+                                            <p class="text-xs text-gray-400 leading-normal">Configure academic branches and programs to populate the fee structures matrix.</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    function filterStructureTable() {
+        const input = document.getElementById("structureSearch");
+        const filter = input.value.toUpperCase();
+        const table = document.getElementById("feeTable");
+        const rows = table.getElementsByClassName("fee-row");
+
+        for (let i = 0; i < rows.length; i++) {
+            const cells = rows[i].getElementsByTagName("td");
+            let rowText = "";
+            for (let j = 0; j < cells.length; j++) {
+                rowText += cells[j].textContent || cells[j].innerText;
+            }
+            if (rowText.toUpperCase().indexOf(filter) > -1) {
+                rows[i].style.display = "";
+            } else {
+                rows[i].style.display = "none";
+            }
+        }
+    }
+</script>
+{% endblock %}

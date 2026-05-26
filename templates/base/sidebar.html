@@ -134,6 +134,9 @@
             <a href="{% url 'admission_requests_list' %}" class="{% if request.resolver_match.url_name == 'admission_requests_list' %}nav-link-active{% else %}nav-link{% endif %}">
                 <i class="fa-solid fa-file-contract w-5 text-center"></i> <span>Online Applications</span>
             </a>
+            <a href="{% url 'admission_merit_list' %}" class="{% if request.resolver_match.url_name == 'admission_merit_list' %}nav-link-active{% else %}nav-link{% endif %}">
+                <i class="fa-solid fa-list-ol w-5 text-center"></i> <span>Merit List</span>
+            </a>
         {% endif %}
 
         <!-- Institutional Hierarchy (Admin/Sub-Admin Only) -->
@@ -253,6 +256,9 @@
             <a href="{% url 'admission_requests_list' %}" class="{% if request.resolver_match.url_name == 'admission_requests_list' %}nav-link-active{% else %}nav-link{% endif %}">
                 <i class="fa-solid fa-file-contract w-5 text-center"></i> <span>Online Applications</span>
             </a>
+            <a href="{% url 'admission_merit_list' %}" class="{% if request.resolver_match.url_name == 'admission_merit_list' %}nav-link-active{% else %}nav-link{% endif %}">
+                <i class="fa-solid fa-list-ol w-5 text-center"></i> <span>Merit List</span>
+            </a>
             <a href="{% url 'student_list' %}" class="{% if request.resolver_match.url_name == 'student_list' %}nav-link-active{% else %}nav-link{% endif %}">
                 <i class="fa-solid fa-file-signature w-5 text-center"></i> <span>Applications</span>
             </a>
@@ -262,15 +268,12 @@
             <a href="#" class="nav-link opacity-60">
                 <i class="fa-solid fa-shield-check w-5 text-center"></i> <span>Doc Verification</span>
             </a>
-            <a href="#" class="nav-link opacity-60">
-                <i class="fa-solid fa-list-ol w-5 text-center"></i> <span>Merit Lists</span>
-            </a>
 
             <div class="sidebar-section-title">Configuration</div>
             <a href="#" class="nav-link opacity-60">
                 <i class="fa-solid fa-layer-group w-5 text-center"></i> <span>Intake Settings</span>
             </a>
-            <a href="#" class="nav-link opacity-60">
+            <a href="{% url 'fee_structure' %}" class="{% if request.resolver_match.url_name == 'fee_structure' %}nav-link-active{% else %}nav-link{% endif %}">
                 <i class="fa-solid fa-file-invoice-dollar w-5 text-center"></i> <span>Fee Structure</span>
             </a>
         {% endif %}
@@ -290,6 +293,9 @@
             <a href="{% url 'id_counter_list' %}" class="{% if request.resolver_match.url_name == 'id_counter_list' %}nav-link-active{% else %}nav-link{% endif %}">
                 <i class="fa-solid fa-barcode w-5 text-center"></i> <span>ID Config</span>
             </a>
+            <a href="{% url 'security_log_list' %}" class="{% if request.resolver_match.url_name == 'security_log_list' or request.resolver_match.url_name == 'security_log_detail' %}nav-link-active{% else %}nav-link{% endif %}">
+                <i class="fa-solid fa-user-shield w-5 text-center"></i> <span>Security Logs</span>
+            </a>
         {% endif %}
 
         <!-- Operations -->
@@ -297,6 +303,9 @@
             <div class="sidebar-section-title">Operations</div>
             <a href="{% url 'admission_requests_list' %}" class="{% if request.resolver_match.url_name == 'admission_requests_list' %}nav-link-active{% else %}nav-link{% endif %}">
                 <i class="fa-solid fa-file-contract w-5 text-center"></i> <span>Online Applications</span>
+            </a>
+            <a href="{% url 'admission_merit_list' %}" class="{% if request.resolver_match.url_name == 'admission_merit_list' %}nav-link-active{% else %}nav-link{% endif %}">
+                <i class="fa-solid fa-list-ol w-5 text-center"></i> <span>Merit List</span>
             </a>
             <a href="{% url 'student_list' %}" class="{% if request.resolver_match.url_name == 'student_list' %}nav-link-active{% else %}nav-link{% endif %}">
                 <i class="fa-solid fa-address-book w-5 text-center"></i> <span>Admissions</span>

@@ -5,6 +5,13 @@ db.sqlite3
 # Local scratch directory
 scratch/
 
+# Log files
+logs/
+*.log
+
+# Compiled static files
+staticfiles/
+
 # User-uploaded media
 media/
 

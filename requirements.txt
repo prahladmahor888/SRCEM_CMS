@@ -4,3 +4,6 @@ python-decouple
 Pillow
 pandas
 openpyxl
+whitenoise
+gunicorn
+waitress

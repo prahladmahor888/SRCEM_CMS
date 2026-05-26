@@ -18,8 +18,23 @@ class StudentForm(forms.ModelForm):
             'user', 'branch', 'enrollment_number', 'roll_number', 
             'semester', 'batch_year', 'status', 'date_of_birth', 
             'gender', 'blood_group', 'phone_alt', 'address', 
-            'nationality', 'category', 'bio'
+            'nationality', 'bio',
+            'category', 'fee_category', 'referred_by', 'admission_semester_fee', 'one_time_admission_fee'
         ]
+
+    def clean(self):
+        cleaned_data = super().clean()
+        category = cleaned_data.get('category')
+        fee_category = cleaned_data.get('fee_category')
+        
+        if category == 'General' and fee_category == 'scholarship_base':
+            self.add_error('fee_category', "General category students cannot select the scholarship-based quota.")
+            
+        if fee_category == 'scholarship_base':
+            cleaned_data['admission_semester_fee'] = 0.00
+            cleaned_data['one_time_admission_fee'] = 0.00
+            
+        return cleaned_data
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

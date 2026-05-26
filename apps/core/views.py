@@ -125,45 +125,143 @@ class PlacementListView(ListView):
         return context
 
 
-class ERPBaseMixin(LoginRequiredMixin):
-    """Base mixin for all ERP views to handle common context and role logic."""
-    page_title = ""
-    module_name = "" # e.g., 'Student', 'Faculty'
-    
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['page_title'] = self.page_title or f"{self.module_name} Management"
-        context['module_name'] = self.module_name
-        return context
-
 from django.contrib import messages
 
 class RolePermissionMixin(UserPassesTestMixin):
     """View Mixin to check for a specific Role-Based Permission."""
     required_permission = None
 
+    def get_required_permission(self):
+        if self.required_permission:
+            return self.required_permission
+        
+        # Smart default permission mapping based on model
+        if hasattr(self, 'model') and self.model:
+            model_name = self.model._meta.model_name
+            # For lists and details, default to viewing permissions
+            if isinstance(self, (ListView, DetailView)):
+                if model_name == 'student':
+                    return 'can_view_academic_registry'
+                elif model_name == 'facultyprofile':
+                    return 'can_manage_faculty'
+                else:
+                    return 'can_view_academic_registry'
+            # For creation and modification, default to managing permissions
+            elif isinstance(self, (CreateView, UpdateView)):
+                if model_name == 'student':
+                    return 'can_manage_students'
+                elif model_name == 'facultyprofile':
+                    return 'can_manage_faculty'
+                elif model_name == 'subject':
+                    return 'can_manage_subjects'
+                elif model_name in ['staffprofile', 'user']:
+                    return 'can_manage_users'
+                else:
+                    return 'can_manage_academic_registry'
+        return None
+
     def test_func(self):
-        if not self.request.user.is_authenticated:
+        user = self.request.user
+        if not user.is_authenticated:
             return False
         
         # Superusers bypass checks
-        if self.request.user.is_superuser:
+        if user.is_superuser:
             return True
             
-        # Students are globally restricted from all Registry views 
-        # unless they are viewing their OWN user record (specific logic elsewhere)
-        # Students can access their own data views
-        if hasattr(self.request.user, 'is_student_user') and self.request.user.is_student_user:
-            allowed_student_perms = ['is_own_profile', 'can_view_student_timetable', 'student_attendance', 'can_view_my_leaves']
-            return self.required_permission in allowed_student_perms or not self.required_permission
+        perm = self.get_required_permission()
 
-        if not self.required_permission:
+        # If the user is a student:
+        if hasattr(user, 'is_student_user') and user.is_student_user:
+            allowed_student_perms = ['is_own_profile', 'can_view_student_timetable', 'student_attendance', 'can_view_my_leaves']
+            
+            # Check if this is an ERP management registry view by inspecting class name or base class names
+            class_names = [cls.__name__ for cls in self.__class__.__mro__]
+            is_management_view = any(name in ['ERPListView', 'ERPCreateView', 'ERPUpdateView', 'ERPDetailView'] for name in class_names)
+                
+            if is_management_view:
+                # Students are only allowed if they have one of the explicit allowed student permissions
+                return perm in allowed_student_perms
+            else:
+                return perm in allowed_student_perms or not perm
+
+        if not perm:
             return True
-        return self.request.user.has_role_permission(self.required_permission)
+        return user.has_role_permission(perm)
 
     def handle_no_permission(self):
-        messages.error(self.request, "Access Denied: You do not have permission to access this management registry.")
+        messages.error(self.request, "Access Denied: You do not have permission to access this page.")
         return HttpResponseRedirect(reverse_lazy('dashboard'))
+
+class ERPBaseMixin(LoginRequiredMixin):
+    """Base mixin for all ERP views to handle common context and role logic."""
+    page_title = ""
+    module_name = "" # e.g., 'Student', 'Faculty'
+
+    def dispatch(self, request, *args, **kwargs):
+        # 1. Run LoginRequiredMixin check first (by using parent's dispatch)
+        if not request.user.is_authenticated:
+            from django.urls import reverse
+            return HttpResponseRedirect(f"{reverse('login')}?next={self.request.path}")
+
+        # 2. Check if the view subclasses UserPassesTestMixin (meaning role checks are already handled by inheritance)
+        if not isinstance(self, UserPassesTestMixin):
+            # Enforce dynamic role & permission security checks
+            perm = None
+            if hasattr(self, 'required_permission') and self.required_permission:
+                perm = self.required_permission
+            elif hasattr(self, 'model') and self.model:
+                model_name = self.model._meta.model_name
+                from django.views.generic import ListView, DetailView, CreateView, UpdateView
+                if isinstance(self, (ListView, DetailView)):
+                    if model_name == 'student':
+                        perm = 'can_view_academic_registry'
+                    elif model_name == 'facultyprofile':
+                        perm = 'can_manage_faculty'
+                    else:
+                        perm = 'can_view_academic_registry'
+                elif isinstance(self, (CreateView, UpdateView)):
+                    if model_name == 'student':
+                        perm = 'can_manage_students'
+                    elif model_name == 'facultyprofile':
+                        perm = 'can_manage_faculty'
+                    elif model_name == 'subject':
+                        perm = 'can_manage_subjects'
+                    elif model_name in ['staffprofile', 'user']:
+                        perm = 'can_manage_users'
+                    else:
+                        perm = 'can_manage_academic_registry'
+
+            user = request.user
+            if not user.is_superuser:
+                # Restrict students from management endpoints by default
+                if hasattr(user, 'is_student_user') and user.is_student_user:
+                    allowed_student_perms = ['is_own_profile', 'can_view_student_timetable', 'student_attendance', 'can_view_my_leaves']
+                    
+                    class_names = [cls.__name__ for cls in self.__class__.__mro__]
+                    is_management_view = any(name in ['ERPListView', 'ERPCreateView', 'ERPUpdateView', 'ERPDetailView'] for name in class_names)
+                    
+                    if is_management_view:
+                        if perm not in allowed_student_perms:
+                            messages.error(request, "Access Denied: You do not have permission to access this page.")
+                            return HttpResponseRedirect(reverse_lazy('dashboard'))
+                    else:
+                        if perm not in allowed_student_perms and perm:
+                            messages.error(request, "Access Denied: You do not have permission to access this page.")
+                            return HttpResponseRedirect(reverse_lazy('dashboard'))
+                
+                # Check other roles
+                elif perm and not user.has_role_permission(perm):
+                    messages.error(request, "Access Denied: You do not have permission to access this page.")
+                    return HttpResponseRedirect(reverse_lazy('dashboard'))
+
+        return super().dispatch(request, *args, **kwargs)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['page_title'] = self.page_title or f"{self.module_name} Management"
+        context['module_name'] = self.module_name
+        return context
 
 class ERPListView(ERPBaseMixin, ListView):
     template_name = 'generic/list.html'
@@ -305,8 +403,18 @@ class ERPDetailView(ERPBaseMixin, DetailView):
         obj = super().get_object(queryset)
         user = self.request.user
 
-        # Superusers and Global Admins bypass
-        if user.is_superuser or not user.has_role_permission('can_view_dept_data'):
+        # Superusers and Global Admins/Accountants/etc. who have global access bypass
+        # But students NEVER bypass to view other users' records.
+        if hasattr(user, 'is_student_user') and user.is_student_user:
+            is_own = False
+            if isinstance(obj, user.__class__): # obj is a User
+                is_own = (obj == user)
+            elif hasattr(obj, 'user'): # obj has a user reference (like Student profile)
+                is_own = (obj.user == user)
+                
+            if not is_own:
+                from django.core.exceptions import PermissionDenied
+                raise PermissionDenied("You do not have permission to view this record.")
             return obj
 
         # Departmental Isolation Check

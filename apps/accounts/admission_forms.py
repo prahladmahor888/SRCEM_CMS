@@ -36,6 +36,8 @@ class Step2ProfileForm(forms.ModelForm):
     gender = forms.ChoiceField(choices=Student.GENDER_CHOICES)
     blood_group = forms.ChoiceField(choices=Student.BLOOD_GROUP_CHOICES, required=False)
     category = forms.ChoiceField(choices=Student.CATEGORY_CHOICES, required=False)
+    fee_category = forms.ChoiceField(choices=Student.FEE_CATEGORY_CHOICES, initial='fees_base', label="Quota / Fee Category")
+    referred_by = forms.CharField(max_length=150, required=False, label="Referred By (Reference Name)")
     address = forms.CharField(widget=forms.Textarea(attrs={'rows': 3}))
     
     # Guardian fields (included for combined form handling)
@@ -54,8 +56,9 @@ class Step2ProfileForm(forms.ModelForm):
         model = Student
         fields = [
             'roll_number', 'semester', 'admission_date', 'batch_year',
+            'category', 'fee_category', 'referred_by', 'admission_semester_fee', 'one_time_admission_fee',
             'date_of_birth', 'gender', 'blood_group', 'phone_alt',
-            'address', 'nationality', 'category', 'bio'
+            'address', 'nationality', 'bio'
         ]
 
     def __init__(self, *args, **kwargs):
@@ -65,6 +68,20 @@ class Step2ProfileForm(forms.ModelForm):
         # Specifically for date fields
         if 'admission_date' in self.fields:
             self.fields['admission_date'].widget = forms.DateInput(attrs={'type': 'date', 'class': 'form-input'})
+
+    def clean(self):
+        cleaned_data = super().clean()
+        category = cleaned_data.get('category')
+        fee_category = cleaned_data.get('fee_category')
+        
+        if category == 'General' and fee_category == 'scholarship_base':
+            self.add_error('fee_category', "General category students cannot select the scholarship-based quota.")
+            
+        if fee_category == 'scholarship_base':
+            cleaned_data['admission_semester_fee'] = 0.00
+            cleaned_data['one_time_admission_fee'] = 0.00
+            
+        return cleaned_data
 
 class Step3DocumentForm(forms.Form):
     """Step 3: Document Uploads"""

@@ -488,6 +488,76 @@
                 roleSelect.addEventListener('change', handleRoleChange);
                 handleRoleChange(); // Run on initial load
             }
+
+            // --- Dynamic Fee Category & Quota Logic ---
+            const categorySelect = document.getElementById('id_category');
+            const feeCategorySelect = document.getElementById('id_fee_category');
+            const semesterFeeInput = document.getElementById('id_admission_semester_fee');
+            const oneTimeFeeInput = document.getElementById('id_one_time_admission_fee');
+
+            if (feeCategorySelect) {
+                function handleFeeCategoryChange() {
+                    if (feeCategorySelect.value === 'scholarship_base') {
+                        if (semesterFeeInput) {
+                            semesterFeeInput.value = '0.00';
+                            const container = semesterFeeInput.closest('.space-y-2');
+                            if (container) container.style.display = 'none';
+                        }
+                        if (oneTimeFeeInput) {
+                            oneTimeFeeInput.value = '0.00';
+                            const container = oneTimeFeeInput.closest('.space-y-2');
+                            if (container) container.style.display = 'none';
+                        }
+                    } else {
+                        if (semesterFeeInput) {
+                            if (semesterFeeInput.value === '0.00' || semesterFeeInput.value === '0') {
+                                semesterFeeInput.value = '75000.00';
+                            }
+                            const container = semesterFeeInput.closest('.space-y-2');
+                            if (container) container.style.display = 'block';
+                        }
+                        if (oneTimeFeeInput) {
+                            if (oneTimeFeeInput.value === '0.00' || oneTimeFeeInput.value === '0') {
+                                oneTimeFeeInput.value = '5000.00';
+                            }
+                            const container = oneTimeFeeInput.closest('.space-y-2');
+                            if (container) container.style.display = 'block';
+                        }
+                    }
+                }
+
+                function handleCategoryChange() {
+                    if (!categorySelect) return;
+                    const category = categorySelect.value;
+                    
+                    const scholarshipOption = feeCategorySelect.querySelector('option[value="scholarship_base"]');
+                    if (!scholarshipOption) return;
+
+                    if (category === 'General') {
+                        if (feeCategorySelect.value === 'scholarship_base') {
+                            feeCategorySelect.value = 'fees_base';
+                            handleFeeCategoryChange();
+                        }
+                        scholarshipOption.disabled = true;
+                        scholarshipOption.textContent = 'Scholarship Based (Disabled for General)';
+                    } else {
+                        scholarshipOption.disabled = false;
+                        scholarshipOption.textContent = 'Scholarship Based';
+                    }
+                }
+
+                feeCategorySelect.addEventListener('change', handleFeeCategoryChange);
+                if (categorySelect) {
+                    categorySelect.addEventListener('change', () => {
+                        handleCategoryChange();
+                        handleFeeCategoryChange();
+                    });
+                }
+
+                // Run on initial load
+                handleCategoryChange();
+                handleFeeCategoryChange();
+            }
         });
     </script>
 

@@ -64,3 +64,63 @@ def save_user_profile(sender, instance, **kwargs):
     except Exception:
         # Avoid recursive or failed saves during complex updates
         pass
+
+
+from django.contrib.auth.signals import user_logged_in, user_logged_out, user_login_failed
+from .models import SecurityLog
+from .utils import get_client_ip
+import logging
+
+logger = logging.getLogger('security')
+
+@receiver(user_logged_in)
+def log_user_logged_in(sender, request, user, **kwargs):
+    ip_address = get_client_ip(request) if request else 'Unknown'
+    user_agent = request.META.get('HTTP_USER_AGENT', '') if request else 'Unknown'
+    
+    SecurityLog.objects.create(
+        event_type='LOGIN_SUCCESS',
+        login_id=user.login_id,
+        user=user,
+        ip_address=ip_address,
+        user_agent=user_agent,
+        path=request.path if request else '',
+        details="User logged in successfully."
+    )
+    logger.info(f"LOGIN_SUCCESS - User: {user.login_id} - IP: {ip_address}")
+
+
+@receiver(user_logged_out)
+def log_user_logged_out(sender, request, user, **kwargs):
+    if user:
+        ip_address = get_client_ip(request) if request else 'Unknown'
+        user_agent = request.META.get('HTTP_USER_AGENT', '') if request else 'Unknown'
+        
+        SecurityLog.objects.create(
+            event_type='LOGOUT',
+            login_id=user.login_id,
+            user=user,
+            ip_address=ip_address,
+            user_agent=user_agent,
+            path=request.path if request else '',
+            details="User logged out successfully."
+        )
+        logger.info(f"LOGOUT - User: {user.login_id} - IP: {ip_address}")
+
+
+@receiver(user_login_failed)
+def log_user_login_failed(sender, credentials, request=None, **kwargs):
+    ip_address = get_client_ip(request) if request else 'Unknown'
+    user_agent = request.META.get('HTTP_USER_AGENT', '') if request else 'Unknown'
+    login_id = credentials.get('username') or credentials.get('login_id') or 'Unknown'
+    
+    SecurityLog.objects.create(
+        event_type='LOGIN_FAILED',
+        login_id=login_id,
+        ip_address=ip_address,
+        user_agent=user_agent,
+        path=request.path if request else '',
+        details=f"Failed login attempt with username/login_id: {login_id}"
+    )
+    logger.warning(f"LOGIN_FAILED - Attempted User: {login_id} - IP: {ip_address}")
+

@@ -16,7 +16,7 @@ from django.utils import timezone
 
 from apps.core.views import ERPListView, ERPCreateView, ERPUpdateView, ERPDetailView, RolePermissionMixin
 from apps.accounts.models import User
-from apps.core.models import Branch, ExamSchedule, StudyMaterial, Subject
+from apps.core.models import Program, Branch, ExamSchedule, StudyMaterial, Subject
 from apps.faculty.models import Assignment
 from apps.students.models import Student, Guardian, Document, AssignmentSubmission
 from apps.accounts.admission_forms import Step1AccountForm, Step2ProfileForm, Step3DocumentForm
@@ -29,10 +29,32 @@ class StudentAdmissionWizardView(RolePermissionMixin, View):
 
     def get(self, request, *args, **kwargs):
         step = int(request.GET.get('step', 1))
+        registration_id = request.GET.get('registration_id')
+        
         if step == 1 and not request.GET.get('continue'):
             if 'admission_data' in request.session:
                 del request.session['admission_data']
             request.session['admission_step'] = 1
+            
+            if registration_id:
+                try:
+                    reg = OnlineAdmissionRegistration.objects.get(id=registration_id)
+                    data = {
+                        'first_name': reg.first_name,
+                        'last_name': reg.last_name,
+                        'email': reg.email,
+                        'phone': reg.phone,
+                        'academic_program': reg.applied_course_id if reg.applied_course else '',
+                    }
+                    if reg.applied_course:
+                        branch_obj = Branch.objects.filter(program=reg.applied_course, branch_name__icontains=reg.branch).first()
+                        if branch_obj:
+                            data['academic_branch'] = branch_obj.id
+                            data['academic_department'] = branch_obj.department_id
+                    
+                    request.session['admission_data'] = data
+                except OnlineAdmissionRegistration.DoesNotExist:
+                    pass
         
         step = request.session.get('admission_step', 1)
         data = request.session.get('admission_data', {})
@@ -55,6 +77,14 @@ class StudentAdmissionWizardView(RolePermissionMixin, View):
         form = self.get_form_for_step(step, request.POST, request.FILES)
         
         if form.is_valid():
+            if step == 2:
+                # Sync validated/cleaned data back to session
+                data['admission_semester_fee'] = str(form.cleaned_data.get('admission_semester_fee') or '0.00')
+                data['one_time_admission_fee'] = str(form.cleaned_data.get('one_time_admission_fee') or '0.00')
+                data['fee_category'] = form.cleaned_data.get('fee_category')
+                data['category'] = form.cleaned_data.get('category')
+                request.session['admission_data'] = data
+
             if step < 3:
                 request.session['admission_step'] = step + 1
                 return redirect(f"{request.path}?step={step + 1}")
@@ -110,6 +140,22 @@ class StudentAdmissionWizardView(RolePermissionMixin, View):
                 student.nationality = data.get('nationality')
                 student.category = data.get('category')
                 student.bio = data.get('bio')
+                
+                # Quota, Reference & custom agreed package fees mapping
+                student.referred_by = data.get('referred_by')
+                student.fee_category = data.get('fee_category')
+                
+                if student.fee_category == 'scholarship_base':
+                    student.admission_semester_fee = 0.00
+                    student.one_time_admission_fee = 0.00
+                else:
+                    sem_fee = data.get('admission_semester_fee')
+                    if sem_fee:
+                        student.admission_semester_fee = sem_fee
+                    one_time_fee = data.get('one_time_admission_fee')
+                    if one_time_fee:
+                        student.one_time_admission_fee = one_time_fee
+                
                 student.save()
 
                 # 3. Create Guardian
@@ -688,6 +734,107 @@ class OnlineAdmissionRegistrationDetailView(RolePermissionMixin, ERPDetailView):
             return True
         allowed_roles = ['ADMIN', 'SUB_ADMIN', 'HOD', 'ADMISSION', 'STAFF']
         return str(self.request.user.role).upper() in allowed_roles
+
+
+class AdmissionMeritListView(RolePermissionMixin, View):
+    template_name = 'dashboard/admission_merit_list.html'
+
+    def test_func(self):
+        if not self.request.user.is_authenticated:
+            return False
+        if self.request.user.is_superuser:
+            return True
+        allowed_roles = ['ADMIN', 'SUB_ADMIN', 'HOD', 'ADMISSION', 'STAFF']
+        return str(self.request.user.role).upper() in allowed_roles
+
+    def get(self, request, *args, **kwargs):
+        # Filters from query params
+        program_id = request.GET.get('program')
+        branch_name = request.GET.get('branch')
+        status = request.GET.get('status')
+        rank_by = request.GET.get('rank_by', '12th') # Default rank criteria is 12th class percentage
+        
+        queryset = OnlineAdmissionRegistration.objects.all()
+        
+        if program_id:
+            queryset = queryset.filter(applied_course_id=program_id)
+        if branch_name:
+            queryset = queryset.filter(branch=branch_name)
+        if status:
+            queryset = queryset.filter(status=status)
+            
+        # Parse helper for percentages (could contain '%', spaces, or other format characters)
+        def parse_percentage(val):
+            if not val:
+                return 0.0
+            val_str = str(val).replace('%', '').strip()
+            try:
+                return float(val_str)
+            except ValueError:
+                return 0.0
+                
+        # Sort in python for safety and robust formatting parsing
+        applicants = list(queryset)
+        if rank_by == '10th':
+            key_func = lambda x: parse_percentage(x.high_school_percentage)
+        elif rank_by == 'lateral':
+            key_func = lambda x: parse_percentage(x.lateral_percentage)
+        else: # Default 12th
+            key_func = lambda x: parse_percentage(x.higher_secondary_percentage)
+            
+        applicants.sort(key=key_func, reverse=True)
+        
+        # Assign rank dynamically based on sorting
+        for rank, app in enumerate(applicants, start=1):
+            app.rank = rank
+            
+        # Context data
+        programs = Program.objects.all()
+        # Find all unique branch values currently submitted
+        unique_branches = OnlineAdmissionRegistration.objects.values_list('branch', flat=True).distinct()
+        unique_branches = [b for b in unique_branches if b]
+        
+        # Calculate stats for the dashboard counters
+        total_count = queryset.count()
+        pending_count = queryset.filter(status='Pending').count()
+        shortlisted_count = queryset.filter(status='Shortlisted').count()
+        approved_count = queryset.filter(status='Approved').count()
+        converted_count = queryset.filter(status='Converted').count()
+        
+        context = {
+            'applicants': applicants,
+            'programs': programs,
+            'unique_branches': unique_branches,
+            'selected_program': int(program_id) if program_id else None,
+            'selected_branch': branch_name,
+            'selected_status': status,
+            'rank_by': rank_by,
+            
+            'stats': {
+                'total': total_count,
+                'pending': pending_count,
+                'shortlisted': shortlisted_count,
+                'approved': approved_count,
+                'converted': converted_count,
+            },
+            'module_name': "Admission Merit List"
+        }
+        return render(request, self.template_name, context)
+
+    def post(self, request, *args, **kwargs):
+        action = request.POST.get('action')
+        reg_id = request.POST.get('registration_id')
+        if action == 'update_status' and reg_id:
+            try:
+                reg = OnlineAdmissionRegistration.objects.get(id=reg_id)
+                new_status = request.POST.get('status')
+                if new_status in ['Pending', 'Shortlisted', 'Approved', 'Rejected', 'Converted']:
+                    reg.status = new_status
+                    reg.save()
+                    return JsonResponse({'status': 'success', 'new_status': new_status})
+            except OnlineAdmissionRegistration.DoesNotExist:
+                return JsonResponse({'status': 'error', 'message': 'Applicant registration record not found.'}, status=404)
+        return JsonResponse({'status': 'error', 'message': 'Invalid action or request data.'}, status=400)
 
 
 class StudentProjectConsoleView(RolePermissionMixin, View):

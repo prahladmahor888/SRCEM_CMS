@@ -8,8 +8,9 @@ from django.views import View
 from django.contrib.auth.models import Group
 
 from apps.core.views import ERPListView, ERPCreateView, ERPUpdateView, ERPDetailView, RolePermissionMixin
-from apps.accounts.models import User, StaffProfile, IDCounter, Role, Permission
+from apps.accounts.models import User, StaffProfile, IDCounter, Role, Permission, SecurityLog
 from apps.accounts.forms import UserCreationForm
+from apps.accounts.utils import get_client_ip
 from apps.students.models import Student
 from apps.faculty.models import FacultyProfile
 
@@ -205,6 +206,17 @@ def profile_view(request):
                 user.set_password(new_password)
                 update_session_auth_hash(request, user)
                 messages.success(request, "Password updated successfully!")
+                
+                # Log password change security event
+                SecurityLog.objects.create(
+                    event_type='PASSWORD_CHANGE',
+                    login_id=user.login_id,
+                    user=user,
+                    ip_address=get_client_ip(request),
+                    user_agent=request.META.get('HTTP_USER_AGENT', ''),
+                    path=request.path,
+                    details="User changed password from their profile page."
+                )
             else:
                 messages.error(request, "Passwords do not match.")
 
@@ -215,14 +227,49 @@ def profile_view(request):
         messages.success(request, "Profile updated successfully!")
         return redirect('profile')
 
+    # Load dynamic activity logs for this user from SecurityLog
+    recent_security_logs = SecurityLog.objects.filter(user=user)[:15]
+    recent_logs = []
+    for log in recent_security_logs:
+        icon = 'fa-circle-info'
+        color = 'blue'
+        if log.event_type == 'LOGIN_SUCCESS':
+            icon = 'fa-right-to-bracket'
+            color = 'blue'
+        elif log.event_type == 'LOGIN_FAILED':
+            icon = 'fa-triangle-exclamation'
+            color = 'red'
+        elif log.event_type == 'LOGOUT':
+            icon = 'fa-right-from-bracket'
+            color = 'orange'
+        elif log.event_type == 'PASSWORD_CHANGE':
+            icon = 'fa-key'
+            color = 'purple'
+        elif log.event_type == 'UNAUTHORIZED_ACCESS':
+            icon = 'fa-shield-halved'
+            color = 'red'
+        elif log.event_type == 'ERROR':
+            icon = 'fa-bug'
+            color = 'red'
+            
+        recent_logs.append({
+            'action': log.get_event_type_display(),
+            'time': log.timestamp.strftime('%d %b %Y, %H:%M') if log.timestamp else 'Just now',
+            'icon': icon,
+            'color': color,
+            'ip': log.ip_address
+        })
+        
+    if not recent_logs:
+        recent_logs = [
+            {'action': 'Profile Created', 'time': user.date_joined.strftime('%d %b %Y, %H:%M') if user.date_joined else 'Today', 'icon': 'fa-user-plus', 'color': 'blue', 'ip': 'System'},
+        ]
+
     context = {
         'user': user,
         'profile': profile,
         'role_display': user.get_role_display(),
-        'recent_logs': [
-            {'action': 'Successful Login', 'time': user.last_login.strftime('%d %b %Y, %H:%M') if user.last_login else 'Today', 'icon': 'fa-right-to-bracket', 'color': 'blue'},
-            {'action': 'Dashboard Accessed', 'time': 'Just now', 'icon': 'fa-gauge-high', 'color': 'green'},
-        ]
+        'recent_logs': recent_logs
     }
     return render(request, 'dashboard/profile.html', context)
 
@@ -271,3 +318,36 @@ class StaffRegistryUpdateView(RolePermissionMixin, ERPUpdateView):
     fields = ['role', 'first_name', 'last_name', 'email', 'phone', 'is_active']
     success_url = reverse_lazy('staff_list')
     required_permission = 'can_manage_users'
+
+
+class SecurityLogListView(RolePermissionMixin, ERPListView):
+    model = SecurityLog
+    module_name = "Security Log"
+    list_fields = ['event_type', 'login_id', 'ip_address', 'path', 'timestamp']
+    paginate_by = 25
+    required_permission = 'can_manage_users'
+
+    def get_queryset(self):
+        return SecurityLog.objects.all().order_by('-timestamp')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['can_add'] = False
+        context['can_edit'] = False
+        # Prevent bulk operations for security log safety
+        context['can_delete'] = False
+        return context
+
+
+class SecurityLogDetailView(RolePermissionMixin, ERPDetailView):
+    model = SecurityLog
+    module_name = "Security Log"
+    detail_fields = ['event_type', 'login_id', 'ip_address', 'path', 'user_agent', 'details', 'timestamp']
+    required_permission = 'can_manage_users'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['can_add'] = False
+        context['can_edit'] = False
+        return context
+

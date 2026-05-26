@@ -31,5 +31,6 @@ urlpatterns = [
 
     # Apply Now Requests (Admin/Staff)
     path('admission-requests/', views.OnlineAdmissionRegistrationListView.as_view(), name='admission_requests_list'),
+    path('admission-requests/merit-list/', views.AdmissionMeritListView.as_view(), name='admission_merit_list'),
     path('admission-requests/<int:pk>/', views.OnlineAdmissionRegistrationDetailView.as_view(), name='admission_requests_detail'),
 ]

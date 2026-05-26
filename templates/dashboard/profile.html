@@ -283,9 +283,14 @@
                                 <div class="w-10 h-10 rounded-full bg-{{ log.color }}-50 dark:bg-{{ log.color }}-900/30 text-{{ log.color }}-600 dark:text-{{ log.color }}-400 flex items-center justify-center shrink-0 border border-{{ log.color }}-100 dark:border-{{ log.color }}-800/30 shadow-inner">
                                     <i class="fa-solid {{ log.icon }}"></i>
                                 </div>
-                                <div>
+                                <div class="flex-1">
                                     <p class="text-sm font-bold text-gray-900 dark:text-gray-100">{{ log.action }}</p>
-                                    <p class="text-[10px] text-gray-400 mt-2 font-black uppercase tracking-widest">{{ log.time }}</p>
+                                    <div class="flex flex-wrap items-center gap-2 mt-2">
+                                        <p class="text-[10px] text-gray-400 font-black uppercase tracking-widest">{{ log.time }}</p>
+                                        {% if log.ip %}
+                                            <span class="px-2 py-0.5 bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 text-[9px] font-mono rounded font-bold">IP: {{ log.ip }}</span>
+                                        {% endif %}
+                                    </div>
                                 </div>
                             </li>
                             {% endfor %}
