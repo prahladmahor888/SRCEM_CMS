@@ -19,11 +19,15 @@ urlpatterns = [
     path('study-materials/', views.StudentStudyMaterialListView.as_view(), name='student_study_materials'),
     path('assignment-hub/', views.StudentAssignmentListView.as_view(), name='student_assignment_hub'),
     path('assignment-submit/<int:pk>/', views.AssignmentSubmitView.as_view(), name='submit_assignment'),
+    path('assignment-submit-form/<int:pk>/', views.AssignmentSubmitFormView.as_view(), name='assignment_submit_form'),
     path('student/my-leaves/', views.StudentMyLeaveListView.as_view(), name='student_my_leaves'),
     path('student/project/', views.StudentProjectConsoleView.as_view(), name='student_project_console'),
     path('student/project/weekly-log/', views.SubmitWeeklyLogView.as_view(), name='submit_weekly_log'),
+    path('student/project/weekly-log-form/', views.ProjectWeeklyLogFormView.as_view(), name='weekly_log_form'),
     path('student/project/upload-deliverable/', views.UploadDeliverableView.as_view(), name='upload_project_deliverable'),
+    path('student/project/upload-deliverable-form/', views.ProjectDeliverableFormView.as_view(), name='upload_deliverable_form'),
     path('my-marks/', views.StudentMarksView.as_view(), name='student_marks'),
+
 
 
     # Admin APIs

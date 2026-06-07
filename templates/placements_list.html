@@ -11,8 +11,8 @@
     </div>
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
         <span class="bg-secondary text-white px-3 py-1 rounded-sm text-[10px] font-bold uppercase tracking-widest mb-3 inline-block shadow-lg">Alumni & Placement Network</span>
-        <h1 class="text-3xl md:text-5xl font-extrabold text-white mb-4">Our Placed Achievers</h1>
-        <p class="text-blue-100 text-base max-w-xl mx-auto">
+        <h1 class="font-heading text-3xl md:text-5xl font-extrabold text-white mb-4">Our Placed Achievers</h1>
+        <p class="font-sans text-blue-100 text-base max-w-xl mx-auto">
             Celebrating the success of SRCEM students who have secured roles in leading multi-nationals and top tech startups.
         </p>
     </div>
@@ -23,20 +23,20 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <form method="GET" action="{% url 'placements_list' %}" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
             <!-- Search Keyword Input -->
-            <div class="space-y-1">
+            <div class="space-y-1 font-poppins">
                 <label for="q" class="text-xs font-bold text-gray-505 dark:text-gray-400 uppercase tracking-wider">Search Student / Company</label>
                 <div class="relative">
-                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
+                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400 font-sans">
                         <i class="fa-solid fa-magnifying-glass text-sm"></i>
                     </span>
-                    <input type="text" name="q" id="q" value="{{ query|default:'' }}" placeholder="e.g. Amazon, Rohit..." class="w-full pl-9 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-sm bg-white dark:bg-gray-750 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary">
+                    <input type="text" name="q" id="q" value="{{ query|default:'' }}" placeholder="e.g. Amazon, Rohit..." class="font-sans w-full pl-9 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-sm bg-white dark:bg-gray-750 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary">
                 </div>
             </div>
 
             <!-- Branch Dropdown -->
-            <div class="space-y-1">
+            <div class="space-y-1 font-poppins">
                 <label for="branch" class="text-xs font-bold text-gray-505 dark:text-gray-400 uppercase tracking-wider">Filter by Branch</label>
-                <select name="branch" id="branch" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-sm bg-white dark:bg-gray-750 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary">
+                <select name="branch" id="branch" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-sm bg-white dark:bg-gray-750 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary font-sans">
                     <option value="">All Branches</option>
                     {% for b in branches %}
                     <option value="{{ b }}" {% if selected_branch == b %}selected{% endif %}>{{ b }}</option>
@@ -45,9 +45,9 @@
             </div>
 
             <!-- Placed Year Dropdown -->
-            <div class="space-y-1">
+            <div class="space-y-1 font-poppins">
                 <label for="year" class="text-xs font-bold text-gray-505 dark:text-gray-400 uppercase tracking-wider">Placement Year</label>
-                <select name="year" id="year" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-sm bg-white dark:bg-gray-750 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary">
+                <select name="year" id="year" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-sm bg-white dark:bg-gray-750 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary font-sans">
                     <option value="">All Years</option>
                     {% for y in years %}
                     <option value="{{ y }}" {% if selected_year == y|stringformat:"i" %}selected{% endif %}>{{ y }}</option>
@@ -56,7 +56,7 @@
             </div>
 
             <!-- Action Buttons -->
-            <div class="flex gap-2">
+            <div class="flex gap-2 font-poppins">
                 <button type="submit" class="flex-1 bg-primary hover:bg-primaryDark text-white font-bold py-2 px-4 rounded-sm text-sm transition shadow-sm hover:shadow-md flex items-center justify-center gap-2">
                     <i class="fa-solid fa-filter"></i> Apply Filters
                 </button>
@@ -81,21 +81,21 @@
                     <img src="{% if achiever.get_image_url %}{{ achiever.get_image_url }}{% else %}https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80{% endif %}" alt="{{ achiever.student_name }}" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
                     <div class="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/80 p-4">
                         {% if achiever.is_highest %}
-                        <span class="bg-yellow-500 text-gray-900 text-[9px] font-bold px-2 py-0.5 rounded-sm uppercase">Highest Package</span>
+                        <span class="bg-yellow-500 text-gray-900 text-[9px] font-bold px-2 py-0.5 rounded-sm uppercase font-poppins">Highest Package</span>
                         {% endif %}
-                        <h3 class="text-white font-bold text-lg">{{ achiever.student_name }}</h3>
+                        <h3 class="font-poppins text-white font-bold text-lg">{{ achiever.student_name }}</h3>
                     </div>
                 </div>
                 <div class="p-4">
-                    <div class="flex justify-between items-center mb-3">
-                        <span class="text-xs text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider">Placed In:</span>
+                    <div class="flex justify-between items-center mb-3 font-poppins">
+                        <span class="text-xs text-gray-550 dark:text-gray-400 font-bold uppercase tracking-wider">Placed In:</span>
                         <span class="text-primary dark:text-blue-400 font-black">{{ achiever.company_name }}</span>
                     </div>
-                    <div class="flex justify-between items-center text-sm font-bold">
-                        <span class="text-gray-900 dark:text-white">{{ achiever.package }}</span>
-                        <span class="text-[10px] text-gray-500 uppercase">{{ achiever.branch }}</span>
+                    <div class="flex justify-between items-center text-sm font-bold font-sans">
+                        <span class="font-heading text-gray-900 dark:text-white">{{ achiever.package }}</span>
+                        <span class="font-poppins text-[10px] text-gray-500 uppercase">{{ achiever.branch }}</span>
                     </div>
-                    <div class="mt-2 pt-2 border-t border-gray-100 dark:border-gray-700 flex justify-between text-[10px] text-gray-400 font-bold uppercase">
+                    <div class="mt-2 pt-2 border-t border-gray-100 dark:border-gray-700 flex justify-between text-[10px] text-gray-400 font-bold uppercase font-poppins">
                         <span>Batch {{ achiever.placed_year }}</span>
                         <span class="text-green-500">Verified</span>
                     </div>

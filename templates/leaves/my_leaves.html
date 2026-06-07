@@ -277,19 +277,6 @@
 {% endblock %}
 
 {% block extra_js %}
-<script>
-    function filterHistory() {
-        const filterValue = document.getElementById('leaveFilter').value;
-        const rows = document.querySelectorAll('.history-row');
-
-        rows.forEach(row => {
-            const rowStatus = row.getAttribute('data-status');
-            if (filterValue === 'all' || rowStatus === filterValue) {
-                row.style.display = '';
-            } else {
-                row.style.display = 'none';
-            }
-        });
-    }
-</script>
+{% load static %}
+<script src="{% static 'js/my_leaves.js' %}"></script>
 {% endblock %}

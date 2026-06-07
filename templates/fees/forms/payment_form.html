@@ -1,0 +1,63 @@
+<div id="payment-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+    <div class="bg-white dark:bg-darkSidebar rounded-2xl max-w-md w-full shadow-2xl border border-gray-100 dark:border-gray-800 overflow-hidden transform transition-all scale-100">
+        <!-- Modal Header -->
+        <div class="p-6 border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/30 flex items-center justify-between">
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                <i class="fa-solid fa-indian-rupee-sign text-success"></i> Make Mock Payment
+            </h3>
+            <button type="button" onclick="closePaymentModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+        </div>
+        
+        <!-- Modal Form -->
+        <form method="POST" action="{% url 'student_fees' %}" class="p-6 space-y-4">
+            {% csrf_token %}
+            <div>
+                <label class="block text-xs font-black uppercase tracking-wider text-gray-400 mb-2">Outstanding Dues</label>
+                <div class="text-2xl font-black text-secondary">₹{{ total_due|floatformat:2 }}</div>
+            </div>
+            
+            <div>
+                <label for="amount" class="block text-xs font-black uppercase tracking-wider text-gray-400 mb-2">Payment Amount (₹)</label>
+                <div class="relative rounded-xl shadow-sm">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <span class="text-gray-500 sm:text-sm">₹</span>
+                    </div>
+                    <input type="number" name="amount" id="amount" step="0.01" min="1" max="{{ total_due }}" value="{{ total_due }}" required
+                           class="block w-full pl-8 pr-3 py-3 border border-gray-200 dark:border-gray-800 rounded-xl bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white font-bold focus:ring-primary focus:border-primary sm:text-sm">
+                </div>
+                <p class="text-[10px] text-gray-400 mt-1">Enter any amount up to ₹{{ total_due|floatformat:0 }}.</p>
+            </div>
+            
+            <div>
+                <label for="payment_mode" class="block text-xs font-black uppercase tracking-wider text-gray-400 mb-2">Payment Mode</label>
+                <select name="payment_mode" id="payment_mode" required
+                        class="block w-full px-3 py-3 border border-gray-200 dark:border-gray-800 rounded-xl bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white font-semibold focus:ring-primary focus:border-primary sm:text-sm">
+                    <option value="Online" selected>UPI / Online</option>
+                    <option value="Cash">Cash</option>
+                    <option value="Cheque">Cheque / DD</option>
+                    <option value="Bank-Transfer">NEFT / RTGS</option>
+                </select>
+            </div>
+            
+            <div>
+                <label for="remarks" class="block text-xs font-black uppercase tracking-wider text-gray-400 mb-2">Remarks (Optional)</label>
+                <textarea name="remarks" id="remarks" rows="2" placeholder="e.g. Semester Fee deposit"
+                          class="block w-full px-3 py-2 border border-gray-200 dark:border-gray-800 rounded-xl bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white text-sm focus:ring-primary focus:border-primary"></textarea>
+            </div>
+            
+            <!-- Modal Actions -->
+            <div class="pt-4 flex items-center justify-end gap-3 border-t border-gray-200 dark:border-gray-800">
+                <button type="button" onclick="closePaymentModal()"
+                        class="px-4 py-2.5 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 font-bold text-xs uppercase tracking-wider rounded-xl transition-colors">
+                    Cancel
+                </button>
+                <button type="submit"
+                        class="px-5 py-2.5 bg-primary hover:bg-primaryDark text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow-md transition-colors flex items-center gap-2">
+                    <i class="fa-solid fa-circle-check"></i> Submit Payment
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

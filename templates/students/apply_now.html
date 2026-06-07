@@ -261,33 +261,5 @@
 {% endblock %}
 
 {% block extra_js %}
-    <!-- JavaScript for Dynamic Logic -->
-    <script>
-        // --- Entry Type Dynamic Form Logic ---
-        const entryRadios = document.querySelectorAll('input[name="entryType"]');
-        const regularSection = document.getElementById('regularSection');
-        const lateralSection = document.getElementById('lateralSection');
-        const uploadLabel = document.getElementById('uploadLabel');
-        const uploadText = document.getElementById('uploadText');
-
-        entryRadios.forEach(radio => {
-            radio.addEventListener('change', (e) => {
-                const type = e.target.value;
-
-                if (type === 'lateral') {
-                    // Lateral Entry case
-                    regularSection.classList.add('hidden');
-                    lateralSection.classList.remove('hidden');
-                    uploadLabel.innerText = "Diploma / Graduation Marksheet *";
-                    uploadText.innerText = "Upload Diploma Marksheet";
-                } else {
-                    // Regular Admission case
-                    regularSection.classList.remove('hidden');
-                    lateralSection.classList.add('hidden');
-                    uploadLabel.innerText = "Class 12th Marksheet *";
-                    uploadText.innerText = "Upload 12th Marksheet";
-                }
-            });
-        });
-    </script>
+    <script src="{% static 'js/apply_now.js' %}"></script>
 {% endblock %}

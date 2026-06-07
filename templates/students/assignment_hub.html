@@ -170,7 +170,7 @@
                         {% endif %}
 
                         {% if not assignment.student_submission %}
-                        <button onclick="toggleSubmitModal('{{ assignment.id }}', '{{ assignment.title }}', '{{ assignment.subject.subject_code }}')" class="flex-[2] py-3 bg-primary hover:bg-primaryDark text-white text-[10px] font-black uppercase tracking-widest rounded-xl shadow-lg shadow-primary/20 transition-all">Submit Assignment</button>
+                        <button onclick="toggleSubmitModal('{{ assignment.id }}')" class="flex-[2] py-3 bg-primary hover:bg-primaryDark text-white text-[10px] font-black uppercase tracking-widest rounded-xl shadow-lg shadow-primary/20 transition-all">Submit Assignment</button>
                         {% else %}
                         <div class="flex-[2] py-3 bg-gray-100 dark:bg-gray-800 text-success text-[10px] font-black uppercase tracking-widest rounded-xl text-center flex items-center justify-center gap-2">
                             <i class="fa-solid fa-check-circle"></i> Already Submitted
@@ -191,108 +191,12 @@
         </div>
     </div>
 
-    <!-- SUBMISSION MODAL -->
-    <div id="submitModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm hidden">
-        <div class="bg-white dark:bg-darkSurface w-full max-w-xl rounded-3xl shadow-2xl border border-gray-100 dark:border-gray-800 overflow-hidden animate-pop">
-            <form id="submissionForm" method="POST" enctype="multipart/form-data">
-                {% csrf_token %}
-                <div class="p-6 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-gray-50 dark:bg-gray-900/50">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-xl bg-primary text-white flex items-center justify-center text-sm"><i class="fa-solid fa-cloud-arrow-up"></i></div>
-                        <div>
-                            <h3 class="font-black text-gray-900 dark:text-white uppercase tracking-tight" id="modalTitle">Upload Assignment</h3>
-                            <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest" id="modalSubject">Subject Placeholder</p>
-                        </div>
-                    </div>
-                    <button type="button" onclick="toggleSubmitModal()" class="w-10 h-10 flex items-center justify-center text-gray-400 hover:text-secondary hover:bg-red-50 dark:hover:bg-red-900/20 rounded-full transition-all"><i class="fa-solid fa-xmark text-xl"></i></button>
-                </div>
-
-                <div class="p-8 space-y-8">
-                    <!-- Dropzone -->
-                    <div class="border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-3xl p-10 flex flex-col items-center justify-center text-center bg-gray-50 dark:bg-gray-900/50 group hover:border-primary transition-all cursor-pointer relative overflow-hidden">
-                        <div class="absolute inset-0 bg-primary opacity-0 group-hover:opacity-[0.03] transition-opacity"></div>
-                        <i class="fa-solid fa-file-pdf text-5xl text-gray-300 group-hover:text-primary transition-colors mb-4"></i>
-                        <h4 class="font-bold text-gray-900 dark:text-white mb-1" id="fileNameDisplay">Click to select files</h4>
-                        <p class="text-xs text-gray-500 dark:text-gray-400 font-medium">Drag and drop your ZIP or PDF file here.<br>Max file size: 25MB.</p>
-                        <input type="file" name="file" required class="absolute inset-0 opacity-0 cursor-pointer" onchange="updateFileName(this)">
-                    </div>
-
-                    <div class="flex gap-4">
-                        <button type="button" onclick="toggleSubmitModal()" class="flex-1 py-4 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-[10px] font-black uppercase tracking-widest rounded-2xl hover:bg-gray-200 transition-all">Cancel</button>
-                        <button type="submit" class="flex-[2] py-4 bg-primary hover:bg-primaryDark text-white text-[10px] font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-primary/20 transition-all active:scale-95">Complete Submission</button>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
+    <!-- SUBMISSION MODAL CONTAINER -->
+    <div id="submitModalContainer"></div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
-<script>
-    // --- Modal Logic ---
-    function toggleSubmitModal(assignmentId = null, title = '', subjectCode = '') {
-        const modal = document.getElementById('submitModal');
-        const form = document.getElementById('submissionForm');
-        
-        if (assignmentId) {
-            form.action = `/students/assignment-submit/${assignmentId}/`;
-            document.getElementById('modalTitle').innerText = title;
-            document.getElementById('modalSubject').innerText = subjectCode;
-            modal.classList.remove('hidden');
-        } else {
-            modal.classList.add('hidden');
-        }
-    }
-
-    function updateFileName(input) {
-        const display = document.getElementById('fileNameDisplay');
-        if (input.files && input.files[0]) {
-            display.innerText = input.files[0].name;
-            display.classList.add('text-primary');
-        }
-    }
-
-    // --- Tab Filtering Logic ---
-    function switchTaskTab(status, btn) {
-        // Update UI buttons
-        document.querySelectorAll('.tab-btn').forEach(b => {
-            b.classList.remove('tab-active');
-            b.classList.add('tab-inactive');
-        });
-        btn.classList.add('tab-active');
-        btn.classList.remove('tab-inactive');
-
-        searchAssignments(); // Trigger update with existing search/subject filters
-    }
-
-    // --- Unified Search and Filter Logic ---
-    function searchAssignments() {
-        const searchQuery = document.getElementById('assignmentSearch').value.toLowerCase();
-        const subjectQuery = document.getElementById('subjectFilter').value;
-        const activeTab = document.querySelector('.tab-btn.tab-active').getAttribute('data-filter');
-        const cards = document.querySelectorAll('.assignment-card');
-
-        cards.forEach(card => {
-            const title = card.querySelector('h3').innerText.toLowerCase();
-            const subject = card.getAttribute('data-subject');
-            const status = card.getAttribute('data-status');
-
-            const matchesSearch = title.includes(searchQuery);
-            const matchesSubject = !subjectQuery || subject === subjectQuery;
-            const matchesStatus = activeTab === 'all' || status === activeTab;
-
-            if (matchesSearch && matchesSubject && matchesStatus) {
-                card.style.display = 'flex';
-            } else {
-                card.style.display = 'none';
-            }
-        });
-    }
-
-    function filterByTab(status) {
-        const btn = document.querySelector(`.tab-btn[data-filter="${status}"]`);
-        if (btn) switchTaskTab(status, btn);
-    }
-</script>
+{% load static %}
+<script src="{% static 'js/assignment_hub.js' %}"></script>
 {% endblock %}

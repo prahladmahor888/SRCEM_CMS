@@ -234,37 +234,6 @@
 {% endblock %}
 
 {% block extra_js %}
-<!-- Tab Switcher Script -->
-<script>
-    function switchDay(dayId, dayName) {
-        // Toggle Panels
-        document.querySelectorAll('.day-panel').forEach(p => p.classList.add('hidden'));
-        document.getElementById('panel-' + dayId).classList.remove('hidden');
-
-        // Toggle Tabs
-        document.querySelectorAll('.day-tab').forEach(t => {
-            t.classList.remove('active', 'text-primary', 'dark:text-blue-400', 'bg-blue-50/50', 'dark:bg-blue-900/10', 'border-primary', 'dark:border-blue-400');
-            t.classList.add('border-transparent', 'hover:bg-gray-50', 'dark:hover:bg-gray-700/50');
-        });
-        
-        const activeTab = document.getElementById('tab-' + dayId);
-        activeTab.classList.remove('border-transparent', 'hover:bg-gray-50', 'dark:hover:bg-gray-700/50');
-        activeTab.classList.add('active', 'text-primary', 'dark:text-blue-400', 'bg-blue-50/50', 'dark:bg-blue-900/20', 'border-primary', 'dark:border-blue-400');
-
-        // Update Text
-        document.getElementById('selectedDayText').innerText = dayName;
-    }
-
-    // Initialize with current day or first day
-    window.onload = function() {
-        const activeTab = document.querySelector('.day-tab.active');
-        if (activeTab) {
-            const dayName = activeTab.innerText.split('\n')[0].trim();
-            document.getElementById('selectedDayText').innerText = dayName;
-        } else {
-            // Default to Monday
-            switchDay(1, 'Monday');
-        }
-    };
-</script>
+{% load static %}
+<script src="{% static 'js/faculty_timetable.js' %}"></script>
 {% endblock %}

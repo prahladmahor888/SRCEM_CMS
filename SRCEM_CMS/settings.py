@@ -61,6 +61,7 @@ MIDDLEWARE = [
     'apps.accounts.middleware.TrafficMonitoringMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'apps.core.middleware.HTMLObfuscationMiddleware',
 ]
 
 ROOT_URLCONF = 'SRCEM_CMS.urls'

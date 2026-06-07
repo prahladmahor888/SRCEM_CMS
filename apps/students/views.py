@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.urls import reverse_lazy
 from django.db import transaction
@@ -1103,4 +1103,27 @@ class StudentMarksView(LoginRequiredMixin, View):
             'overall_max': overall_max_internal + overall_max_external,
         }
         return render(request, self.template_name, context)
+
+
+class AssignmentSubmitFormView(RolePermissionMixin, View):
+    required_permission = 'is_own_profile'
+
+    def get(self, request, pk):
+        assignment = get_object_or_404(Assignment, pk=pk)
+        return render(request, 'students/forms/assignment_submit_form.html', {'assignment': assignment})
+
+
+class ProjectWeeklyLogFormView(RolePermissionMixin, View):
+    required_permission = 'is_own_profile'
+
+    def get(self, request):
+        return render(request, 'students/forms/weekly_log_form.html')
+
+
+class ProjectDeliverableFormView(RolePermissionMixin, View):
+    required_permission = 'is_own_profile'
+
+    def get(self, request):
+        return render(request, 'students/forms/upload_deliverable_form.html')
+
 

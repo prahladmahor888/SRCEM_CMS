@@ -272,3 +272,23 @@ class FeeStructureView(RolePermissionMixin, View):
         return render(request, self.template_name, context)
 
 
+class StudentPaymentFormView(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        try:
+            student = request.user.student_profile
+        except Student.DoesNotExist:
+            from django.http import HttpResponse
+            return HttpResponse("Student profile not found.", status=404)
+
+        receipts = FeeReceipt.objects.filter(student=student)
+        total_paid = receipts.filter(is_verified=True).aggregate(total=Sum('amount'))['total'] or 0
+        total_payable = student.one_time_admission_fee + (student.admission_semester_fee * student.semester)
+        total_due = max(0, total_payable - total_paid)
+
+        context = {
+            'total_due': total_due,
+        }
+        return render(request, 'fees/forms/payment_form.html', context)
+
+
+

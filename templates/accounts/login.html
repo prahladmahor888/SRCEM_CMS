@@ -119,18 +119,6 @@
 {% endblock %}
 
 {% block extra_js %}
-<script>
-    const togglePassword = document.getElementById('togglePassword');
-    const passwordField = document.getElementById('passwordField');
-    const eyeIcon = document.getElementById('eyeIcon');
-    
-    if(togglePassword && passwordField && eyeIcon) {
-        togglePassword.addEventListener('click', function () {
-            const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
-            passwordField.setAttribute('type', type);
-            eyeIcon.classList.toggle('fa-eye');
-            eyeIcon.classList.toggle('fa-eye-slash');
-        });
-    }
-</script>
+{% load static %}
+<script src="{% static 'js/login.js' %}"></script>
 {% endblock %}

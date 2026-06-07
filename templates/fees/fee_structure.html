@@ -71,7 +71,7 @@
             <div class="bg-white dark:bg-darkSurface p-4 sm:p-5 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
                 <div class="relative flex-1 max-w-xl group">
                     <i class="fa-solid fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors"></i>
-                    <input type="text" id="structureSearch" onkeyup="filterStructureTable()"
+                    <input type="text" id="structureSearch"
                         class="w-full pl-12 pr-4 py-2.5 bg-gray-50 dark:bg-darkBg border border-gray-200 dark:border-gray-800 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary dark:text-gray-100 placeholder:text-gray-400 transition-all"
                         placeholder="Search program or branch name...">
                 </div>
@@ -150,25 +150,7 @@
     </div>
 </div>
 
-<script>
-    function filterStructureTable() {
-        const input = document.getElementById("structureSearch");
-        const filter = input.value.toUpperCase();
-        const table = document.getElementById("feeTable");
-        const rows = table.getElementsByClassName("fee-row");
-
-        for (let i = 0; i < rows.length; i++) {
-            const cells = rows[i].getElementsByTagName("td");
-            let rowText = "";
-            for (let j = 0; j < cells.length; j++) {
-                rowText += cells[j].textContent || cells[j].innerText;
-            }
-            if (rowText.toUpperCase().indexOf(filter) > -1) {
-                rows[i].style.display = "";
-            } else {
-                rows[i].style.display = "none";
-            }
-        }
-    }
-</script>
+{% block extra_js %}
+{% load static %}
+<script src="{% static 'js/fee_structure.js' %}"></script>
 {% endblock %}

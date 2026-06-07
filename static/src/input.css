@@ -1,3 +1,20 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+    /* Headings use Montserrat */
+    h1, h2, h3, h4, h5, h6 {
+        @apply font-heading tracking-tight;
+    }
+    
+    /* Content paragraphs and default text use Inter */
+    body, p, li, td, th, textarea, input, select {
+        @apply font-sans;
+    }
+
+    /* Interactive components use Poppins */
+    button, .btn, a.btn, input[type="submit"], input[type="button"] {
+        @apply font-poppins font-semibold;
+    }
+}

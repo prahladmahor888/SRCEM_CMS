@@ -32,10 +32,10 @@
         <span class="bg-secondary text-white px-3 py-1 rounded-sm text-[10px] font-bold uppercase tracking-widest mb-4 inline-block shadow-lg">
             About Our Institution
         </span>
-        <h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold text-white mb-6 leading-tight uppercase tracking-wide">
+        <h1 class="font-heading text-4xl sm:text-5xl md:text-6xl font-extrabold text-white mb-6 leading-tight uppercase tracking-wide">
             Shaping Leaders of Tomorrow
         </h1>
-        <p class="text-blue-100 text-lg max-w-2xl mx-auto font-medium">
+        <p class="font-sans text-blue-100 text-lg max-w-2xl mx-auto font-medium">
             Discover the legacy, values, and vision that drive Shri Ram College of Engineering & Management.
         </p>
         
@@ -59,7 +59,7 @@
                     {{ about_config.subtitle|default:"Discover SRCEM" }}
                 </span>
                 
-                <h2 class="text-3xl md:text-5xl font-extrabold text-gray-900 dark:text-white leading-tight">
+                <h2 class="font-heading text-3xl md:text-5xl font-extrabold text-gray-900 dark:text-white leading-tight">
                     {% if about_config.title %}
                         {{ about_config.title|safe }}
                     {% else %}
@@ -114,30 +114,30 @@
         <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             {% for stat in stats %}
             <div class="p-6 bg-white dark:bg-gray-800/40 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800">
-                <div class="text-4xl md:text-5xl font-black text-primary dark:text-blue-400 mb-2">
+                <div class="font-heading text-4xl md:text-5xl font-black text-primary dark:text-blue-400 mb-2">
                     {{ stat.value }}
                 </div>
-                <div class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                <div class="font-poppins text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     {{ stat.label }}
                 </div>
             </div>
             {% empty %}
             <!-- Fallback Stats -->
             <div class="p-6 bg-white dark:bg-gray-800/40 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800">
-                <div class="text-4xl md:text-5xl font-black text-primary dark:text-blue-400 mb-2">25+</div>
-                <div class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Years Legacy</div>
+                <div class="font-heading text-4xl md:text-5xl font-black text-primary dark:text-blue-400 mb-2">25+</div>
+                <div class="font-poppins text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Years Legacy</div>
             </div>
             <div class="p-6 bg-white dark:bg-gray-800/40 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800">
-                <div class="text-4xl md:text-5xl font-black text-primary dark:text-blue-400 mb-2">50+</div>
-                <div class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Programs</div>
+                <div class="font-heading text-4xl md:text-5xl font-black text-primary dark:text-blue-400 mb-2">50+</div>
+                <div class="font-poppins text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Programs</div>
             </div>
             <div class="p-6 bg-white dark:bg-gray-800/40 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800">
-                <div class="text-4xl md:text-5xl font-black text-primary dark:text-blue-400 mb-2">20k+</div>
-                <div class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Alumni</div>
+                <div class="font-heading text-4xl md:text-5xl font-black text-primary dark:text-blue-400 mb-2">20k+</div>
+                <div class="font-poppins text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Alumni</div>
             </div>
             <div class="p-6 bg-white dark:bg-gray-800/40 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800">
-                <div class="text-4xl md:text-5xl font-black text-primary dark:text-blue-400 mb-2">100%</div>
-                <div class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Assistance</div>
+                <div class="font-heading text-4xl md:text-5xl font-black text-primary dark:text-blue-400 mb-2">100%</div>
+                <div class="font-poppins text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Assistance</div>
             </div>
             {% endfor %}
         </div>
@@ -159,10 +159,10 @@
                         <img id="director-photo" src="{% if about_config.get_director_photo_url %}{{ about_config.get_director_photo_url }}{% else %}https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80{% endif %}" alt="Director, Dr. R. K. Sharma" class="w-48 h-48 sm:w-56 sm:h-56 rounded-2xl object-cover relative z-10 mx-auto shadow-lg border-4 border-white dark:border-gray-850">
                     </div>
                     <div>
-                        <h3 class="text-2xl font-extrabold text-gray-900 dark:text-white">
+                        <h3 class="font-heading text-2xl font-extrabold text-gray-900 dark:text-white">
                             {{ about_config.director_name|default:"Dr. R. K. Sharma" }}
                         </h3>
-                        <p class="text-sm font-bold text-primary dark:text-blue-400 uppercase tracking-widest mt-1">
+                        <p class="font-poppins text-sm font-bold text-primary dark:text-blue-400 uppercase tracking-widest mt-1">
                             {{ about_config.director_designation|default:"Director, SRCEM" }}
                         </p>
                     </div>
@@ -174,7 +174,7 @@
                         <i class="fa-solid fa-quote-left text-5xl sm:text-6xl"></i>
                     </div>
                     
-                    <h3 class="text-xl sm:text-2xl font-bold text-gray-950 dark:text-white italic leading-snug">
+                    <h3 class="font-sans text-xl sm:text-2xl font-bold text-gray-950 dark:text-white italic leading-snug">
                         "Holistic development oriented learning that produces world-class engineers and management professionals."
                     </h3>
                     
@@ -207,7 +207,7 @@
                 <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 text-primary dark:text-blue-400 rounded-xl flex items-center justify-center mb-6">
                     <i class="fa-solid fa-eye text-xl"></i>
                 </div>
-                <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Our Vision</h3>
+                <h3 class="font-poppins text-xl font-bold text-gray-900 dark:text-white mb-4">Our Vision</h3>
                 <p class="text-gray-600 dark:text-gray-400 text-sm leading-relaxed text-justify">
                     To be a leading center of educational excellence, producing technically competent, ethically strong, and socially responsible global leaders who will drive technological progress.
                 </p>
@@ -218,7 +218,7 @@
                 <div class="w-12 h-12 bg-red-100 dark:bg-red-900/30 text-secondary dark:text-red-400 rounded-xl flex items-center justify-center mb-6">
                     <i class="fa-solid fa-bullseye text-xl"></i>
                 </div>
-                <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Our Mission</h3>
+                <h3 class="font-poppins text-xl font-bold text-gray-900 dark:text-white mb-4">Our Mission</h3>
                 <p class="text-gray-600 dark:text-gray-400 text-sm leading-relaxed text-justify">
                     To deliver high-quality, industry-aligned technical and management education through state-of-the-art infrastructure, collaborative research, and continuous training opportunities.
                 </p>
@@ -229,7 +229,7 @@
                 <div class="w-12 h-12 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400 rounded-xl flex items-center justify-center mb-6">
                     <i class="fa-solid fa-handshake text-xl"></i>
                 </div>
-                <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Core Values</h3>
+                <h3 class="font-poppins text-xl font-bold text-gray-900 dark:text-white mb-4">Core Values</h3>
                 <ul class="text-gray-600 dark:text-gray-400 text-sm space-y-2">
                     <li class="flex items-center gap-2">
                         <span class="w-1.5 h-1.5 bg-primary rounded-full"></span>
