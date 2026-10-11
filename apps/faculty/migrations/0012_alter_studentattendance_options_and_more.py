@@ -15,9 +15,14 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AlterUniqueTogether(
-            name='studentattendance',
-            unique_together=set(),
+        migrations.SeparateDatabaseAndState(
+            state_operations=[
+                migrations.AlterUniqueTogether(
+                    name='studentattendance',
+                    unique_together=set(),
+                ),
+            ],
+            database_operations=[],
         ),
         migrations.AlterModelOptions(
             name='studentattendance',

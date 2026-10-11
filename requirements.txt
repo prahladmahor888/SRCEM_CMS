@@ -7,3 +7,4 @@ openpyxl
 whitenoise
 gunicorn
 waitress
+django-cf

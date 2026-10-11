@@ -21,13 +21,35 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = config('SECRET_KEY', default='django-insecure-yhbiqt28&(+iy%p_t#havbb#+gddtx8)1nmh9!w)5e(t7gtk@')
-
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config('DEBUG', default=True, cast=bool)
+DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='*', cast=lambda v: [s.strip() for s in v.split(',')])
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = config('SECRET_KEY', default='')
+if not SECRET_KEY:
+    if DEBUG:
+        # Development fallback only
+        SECRET_KEY = 'django-insecure-dev-only-key-do-not-use-in-production-7@9$!abc'
+    else:
+        raise ValueError(
+            "CRITICAL SECURITY ERROR: SECRET_KEY environment variable is missing or empty! "
+            "Please configure SECRET_KEY in your .env file or production environment."
+        )
+
+# In production, specify exact domains/IPs in .env (e.g. ALLOWED_HOSTS=srcem.ac.in,www.srcem.ac.in)
+ALLOWED_HOSTS = config(
+    'ALLOWED_HOSTS',
+    default='127.0.0.1,localhost' if DEBUG else '',
+    cast=lambda v: [s.strip() for s in v.split(',') if s.strip()]
+)
+
+# CSRF Trusted Origins for HTTPS form submission protection (Django 4+)
+CSRF_TRUSTED_ORIGINS = config(
+    'CSRF_TRUSTED_ORIGINS',
+    default='',
+    cast=lambda v: [s.strip() for s in v.split(',') if s.strip()]
+)
+
 
 
 # Application definition
@@ -45,6 +67,7 @@ INSTALLED_APPS = [
     'apps.faculty',
     'apps.fees',
     'apps.students',
+    'django_extensions',
 ]
 
 MIDDLEWARE = [
@@ -87,20 +110,56 @@ WSGI_APPLICATION = 'SRCEM_CMS.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
+DB_ENGINE = config('DB_ENGINE', default='sqlite3').strip().lower()
+
+if DB_ENGINE in ('d1', 'd1_binding', 'cloudflare_d1'):
+    # Cloudflare D1 backend inside Cloudflare Workers runtime
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django_cf.d1_binding',
+            'CLOUDFLARE_BINDING': config('CLOUDFLARE_BINDING', default='DB'),
+        }
+    }
+elif DB_ENGINE in ('d1_api', 'cloudflare_d1_api'):
+    # Cloudflare D1 remote HTTP API (for running migrations or local management CLI)
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django_cf.d1_api',
+            'CLOUDFLARE_DATABASE_ID': config('CLOUDFLARE_DATABASE_ID', default=''),
+            'CLOUDFLARE_ACCOUNT_ID': config('CLOUDFLARE_ACCOUNT_ID', default=''),
+            'CLOUDFLARE_TOKEN': config('CLOUDFLARE_TOKEN', default=''),
+        }
+    }
+elif DB_ENGINE in ('postgresql', 'postgres', 'psql'):
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': config('DB_NAME', default='srcem_cms'),
+            'USER': config('DB_USER', default='postgres'),
+            'PASSWORD': config('DB_PASSWORD', default=''),
+            'HOST': config('DB_HOST', default='localhost'),
+            'PORT': config('DB_PORT', default='5432'),
+            # Keep database connections open for up to 600s to reduce connection overhead under load
+            'CONN_MAX_AGE': config('CONN_MAX_AGE', default=600, cast=int),
+        }
+    }
+else:
+    db_name = config('DB_NAME', default='db.sqlite3')
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / db_name if not os.path.isabs(db_name) else Path(db_name),
+            'CONN_MAX_AGE': config('CONN_MAX_AGE', default=600, cast=int),
+        }
+    }
+
+# Keep existing db.sqlite3 accessible as 'sqlite_source' for easy data export/migration into D1
+if (BASE_DIR / 'db.sqlite3').exists() and 'sqlite_source' not in DATABASES and DB_ENGINE != 'sqlite3':
+    DATABASES['sqlite_source'] = {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
-        # Keep database connections open for up to 600s to reduce connection overhead under load
-        'CONN_MAX_AGE': config('CONN_MAX_AGE', default=600, cast=int),
-        # 'ENGINE': 'django.db.backends.postgresql',
-        # 'NAME': config('DB_NAME'),
-        # 'USER': config('DB_USER'),
-        # 'PASSWORD': config('DB_PASSWORD'),
-        # 'HOST': config('DB_HOST'),
-        # 'PORT': config('DB_PORT'),
     }
-}
+
 
 
 # Password validation
@@ -160,8 +219,17 @@ AUTHENTICATION_BACKENDS = [
     'apps.accounts.backends.MultiIDAuthBackend',
 ]
 
-# Email Configuration for Testing
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# Email Configuration
+EMAIL_BACKEND = config(
+    'EMAIL_BACKEND',
+    default='django.core.mail.backends.console.EmailBackend' if DEBUG else 'django.core.mail.backends.smtp.EmailBackend'
+)
+EMAIL_HOST = config('EMAIL_HOST', default='smtp.gmail.com')
+EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
+EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
+EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='SRCEM CMS <no-reply@domain.com>')
 
 # Session Expiration Settings
 # Session expires after 30 minutes of inactivity (1800 seconds)
@@ -188,6 +256,9 @@ if not DEBUG:
     SECURE_HSTS_SECONDS = config('SECURE_HSTS_SECONDS', default=31536000, cast=int) # 1 year
     SECURE_HSTS_INCLUDE_SUBDOMAINS = config('SECURE_HSTS_INCLUDE_SUBDOMAINS', default=True, cast=bool)
     SECURE_HSTS_PRELOAD = config('SECURE_HSTS_PRELOAD', default=True, cast=bool)
+
+    # Honor the 'X-Forwarded-Proto' header for request.is_secure() behind reverse proxies (Nginx/Gunicorn/Waitress/Cloudflare)
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 else:
     # Disable secure settings in local development to avoid breaking localhost
     SECURE_SSL_REDIRECT = False

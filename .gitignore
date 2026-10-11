@@ -1,10 +1,10 @@
 # Database files
 db.sqlite3
 *.sqlite3
+*.sql
 
 # Local scratch directory
 scratch/
-
 # Log files
 logs/
 *.log
@@ -18,9 +18,18 @@ media/
 # Virtual environments
 .venv/
 venv/
-.env
 env/
 ENV/
+
+# Environment files and credentials (never commit secrets!)
+.env
+.env.*
+*.env
+!.env.example
+wrangler.toml
+!wrangler.toml.example
+
+
 node_modules/
 # Python compiled files
 __pycache__/
