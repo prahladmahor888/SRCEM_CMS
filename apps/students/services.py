@@ -1,4 +1,4 @@
-import pandas as pd
+from apps.core import excel_utils as pd
 from django.db import transaction, models
 from django.contrib.auth.hashers import make_password
 from django.utils import timezone

@@ -5,7 +5,7 @@ from apps.accounts.models import User
 from apps.faculty.models import FacultyProfile
 from apps.core.models import College, Department, Program, Branch, Subject, StudyMaterial
 from django.core.exceptions import ValidationError
-import pandas as pd
+from apps.core import excel_utils as pd
 import logging
 
 logger = logging.getLogger(__name__)

@@ -2,7 +2,7 @@ from django.views import View
 from django.http import JsonResponse
 from apps.core.views import RolePermissionMixin
 from .services import BulkAdmissionService
-import pandas as pd
+from apps.core import excel_utils as pd
 import logging
 
 logger = logging.getLogger(__name__)

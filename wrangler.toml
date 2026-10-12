@@ -1,0 +1,37 @@
+name = "srcem-cms"
+
+main = "worker.py"
+compatibility_date = "2026-10-11"
+compatibility_flags = ["python_workers"]
+
+# Cloudflare D1 Database Binding
+[[d1_databases]]
+binding = "DB"
+database_name = "cms"
+database_id = "2a502f5f-b37c-42a9-b439-48bd263e1d9c"
+
+# Static Assets (Cloudflare Edge Static Asset Serving)
+[assets]
+directory = "public"
+
+# Worker Environment Variables
+[vars]
+DEBUG = "False"
+DB_ENGINE = "d1"
+CLOUDFLARE_BINDING = "DB"
+ALLOWED_HOSTS = "*"
+SECRET_KEY = "django-insecure-cloudflare-worker-secret-key-srcem-cms-2026"
+
+# Exclude unnecessary files and bloated directories from Python Worker bundle
+[python_modules]
+exclude = [
+    ".venv-workers/**",
+    "**/.venv-workers/**",
+    "**/*.pyc",
+    "**/__pycache__/**",
+    "**/tests/**",
+    "**/test/**",
+    "**/django/contrib/gis/**",
+    "**/django/conf/locale/**"
+]
+

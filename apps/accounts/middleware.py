@@ -22,16 +22,19 @@ class SecurityMonitoringMiddleware(MiddlewareMixin):
         tb = traceback.format_exc()
         details = f"Exception: {str(exception)}\n\nTraceback:\n{tb}"
         
-        # Log to Database
-        SecurityLog.objects.create(
-            event_type='ERROR',
-            login_id=login_id,
-            user=user,
-            ip_address=ip_address,
-            user_agent=request.META.get('HTTP_USER_AGENT', ''),
-            path=request.path,
-            details=details
-        )
+        # Log to Database safely
+        try:
+            SecurityLog.objects.create(
+                event_type='ERROR',
+                login_id=login_id,
+                user=user,
+                ip_address=ip_address,
+                user_agent=request.META.get('HTTP_USER_AGENT', ''),
+                path=request.path,
+                details=details
+            )
+        except Exception as log_err:
+            logger.warning(f"Failed to record SecurityLog: {log_err}")
         
         # Log to security log file
         logger.error(

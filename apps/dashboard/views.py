@@ -23,7 +23,7 @@ from django.views import View
 from django.forms import inlineformset_factory
 from django.forms.models import BaseInlineFormSet
 from django.core.exceptions import ValidationError
-import pandas as pd
+from apps.core import excel_utils as pd
 import io
 import json
 from django.template.loader import render_to_string

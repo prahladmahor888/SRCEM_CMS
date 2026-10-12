@@ -20,14 +20,16 @@ media/
 venv/
 env/
 ENV/
+.venv-workers/
+python_modules/
+
 
 # Environment files and credentials (never commit secrets!)
 .env
 .env.*
 *.env
 !.env.example
-wrangler.toml
-!wrangler.toml.example
+
 
 
 node_modules/

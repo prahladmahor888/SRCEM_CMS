@@ -323,7 +323,7 @@ class User(AbstractUser):
     email = models.EmailField(unique=True, null=True, blank=True)
     phone = models.CharField(max_length=15, blank=True)
 
-    profile_image = models.ImageField(upload_to='profiles/', blank=True, null=True)
+    profile_image = models.FileField(upload_to='profiles/', blank=True, null=True)
 
     # ⚙️ STATUS
     is_active = models.BooleanField(default=True)

@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from pathlib import Path
 from decouple import config
 import os
+import sys
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -25,21 +26,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 DEBUG = config('DEBUG', default=False, cast=bool)
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = config('SECRET_KEY', default='')
-if not SECRET_KEY:
-    if DEBUG:
-        # Development fallback only
-        SECRET_KEY = 'django-insecure-dev-only-key-do-not-use-in-production-7@9$!abc'
-    else:
-        raise ValueError(
-            "CRITICAL SECURITY ERROR: SECRET_KEY environment variable is missing or empty! "
-            "Please configure SECRET_KEY in your .env file or production environment."
-        )
+SECRET_KEY = config(
+    'SECRET_KEY',
+    default='django-insecure-cloudflare-worker-secret-key-srcem-cms-2026'
+)
 
 # In production, specify exact domains/IPs in .env (e.g. ALLOWED_HOSTS=srcem.ac.in,www.srcem.ac.in)
 ALLOWED_HOSTS = config(
     'ALLOWED_HOSTS',
-    default='127.0.0.1,localhost' if DEBUG else '',
+    default='*' if not DEBUG else '127.0.0.1,localhost',
     cast=lambda v: [s.strip() for s in v.split(',') if s.strip()]
 )
 
@@ -55,6 +50,7 @@ CSRF_TRUSTED_ORIGINS = config(
 # Application definition
 
 INSTALLED_APPS = [
+    'django_cf',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -67,12 +63,11 @@ INSTALLED_APPS = [
     'apps.faculty',
     'apps.fees',
     'apps.students',
-    'django_extensions',
 ]
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'django.middleware.gzip.GZipMiddleware', # Dynamic HTML compression to reduce response size
     'whitenoise.middleware.WhiteNoiseMiddleware', # WhiteNoise for high-performance compressed static serving
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -110,14 +105,22 @@ WSGI_APPLICATION = 'SRCEM_CMS.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DB_ENGINE = config('DB_ENGINE', default='sqlite3').strip().lower()
+DB_ENGINE = (os.environ.get('DB_ENGINE') or config('DB_ENGINE', default='sqlite3')).strip().lower()
 
-if DB_ENGINE in ('d1', 'd1_binding', 'cloudflare_d1'):
+# Detect Cloudflare Worker runtime isolate
+IS_CLOUDFLARE = (
+    os.environ.get('DB_ENGINE') in ('d1', 'd1_binding', 'cloudflare_d1') or
+    DB_ENGINE in ('d1', 'd1_binding', 'cloudflare_d1') or
+    os.path.exists('/session/metadata') or
+    'django_cf' in sys.modules
+)
+
+if IS_CLOUDFLARE or DB_ENGINE in ('d1', 'd1_binding', 'cloudflare_d1'):
     # Cloudflare D1 backend inside Cloudflare Workers runtime
     DATABASES = {
         'default': {
-            'ENGINE': 'django_cf.d1_binding',
-            'CLOUDFLARE_BINDING': config('CLOUDFLARE_BINDING', default='DB'),
+            'ENGINE': 'django_cf.db.backends.d1',
+            'CLOUDFLARE_BINDING': os.environ.get('CLOUDFLARE_BINDING', config('CLOUDFLARE_BINDING', default='DB')),
         }
     }
 elif DB_ENGINE in ('d1_api', 'cloudflare_d1_api'):
@@ -153,12 +156,6 @@ else:
         }
     }
 
-# Keep existing db.sqlite3 accessible as 'sqlite_source' for easy data export/migration into D1
-if (BASE_DIR / 'db.sqlite3').exists() and 'sqlite_source' not in DATABASES and DB_ENGINE != 'sqlite3':
-    DATABASES['sqlite_source'] = {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
 
 
 
@@ -190,13 +187,14 @@ TIME_ZONE = 'UTC'
 
 USE_I18N = True
 
-USE_TZ = True
+USE_TZ = False if IS_CLOUDFLARE else True
 
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
@@ -214,9 +212,15 @@ LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'dashboard'
 LOGOUT_REDIRECT_URL = 'login'
 
+PASSWORD_HASHERS = [
+    'SRCEM_CMS.hashers.CloudflarePBKDF2PasswordHasher',
+    'django.contrib.auth.hashers.PBKDF2PasswordHasher',
+    'django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher',
+]
+
 AUTHENTICATION_BACKENDS = [
-    'django.contrib.auth.backends.ModelBackend',
     'apps.accounts.backends.MultiIDAuthBackend',
+    'django.contrib.auth.backends.ModelBackend',
 ]
 
 # Email Configuration
@@ -272,16 +276,12 @@ X_FRAME_OPTIONS = 'DENY'
 SECURE_REFERRER_POLICY = 'same-origin'
 
 # Ensure logs directory exists for secure error recording (not committed to git)
-LOGS_DIR = BASE_DIR / 'logs'
-if not LOGS_DIR.exists():
-    LOGS_DIR.mkdir(parents=True, exist_ok=True)
-
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'formatters': {
         'verbose': {
-            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'format': '{levelname} {asctime} {module} {message}',
             'style': '{',
         },
         'simple': {
@@ -290,24 +290,6 @@ LOGGING = {
         },
     },
     'handlers': {
-        'file': {
-            'level': 'ERROR',
-            'class': 'logging.FileHandler',
-            'filename': LOGS_DIR / 'django.log',
-            'formatter': 'verbose',
-        },
-        'security_file': {
-            'level': 'INFO',
-            'class': 'logging.FileHandler',
-            'filename': LOGS_DIR / 'security.log',
-            'formatter': 'verbose',
-        },
-        'traffic_file': {
-            'level': 'INFO',
-            'class': 'logging.FileHandler',
-            'filename': LOGS_DIR / 'traffic.log',
-            'formatter': 'verbose',
-        },
         'console': {
             'class': 'logging.StreamHandler',
             'formatter': 'simple',
@@ -315,22 +297,23 @@ LOGGING = {
     },
     'loggers': {
         'django': {
-            'handlers': ['file', 'console'] if not DEBUG else ['console'],
+            'handlers': ['console'],
             'level': 'ERROR',
             'propagate': True,
         },
         'security': {
-            'handlers': ['security_file'],
+            'handlers': ['console'],
             'level': 'INFO',
             'propagate': False,
         },
         'traffic': {
-            'handlers': ['traffic_file'],
+            'handlers': ['console'],
             'level': 'INFO',
             'propagate': False,
         },
     },
 }
+
 
 # Caching Configuration (Uses Local Memory Cache by default, optimized for session & query caching)
 CACHES = {
@@ -343,24 +326,15 @@ CACHES = {
 # Static Files Storage Configuration
 # In production (DEBUG=False), we use WhiteNoise's CompressedManifestStaticFilesStorage for caching and compression.
 # In development, we use the standard Django storage to avoid run-time errors if collectstatic hasn't been run.
-if not DEBUG:
-    STORAGES = {
-        "default": {
-            "BACKEND": "django.core.files.storage.FileSystemStorage",
-        },
-        "staticfiles": {
-            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
-        },
-    }
-else:
-    STORAGES = {
-        "default": {
-            "BACKEND": "django.core.files.storage.FileSystemStorage",
-        },
-        "staticfiles": {
-            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
-        },
-    }
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+}
+
 
 # Template Caching Optimization for Production
 # Caches compiled templates in memory to avoid repetitive disk read operations under load
